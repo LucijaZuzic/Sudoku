@@ -1,13 +1,6 @@
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
-import java.awt.Font;
-import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.io.PrintStream;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.ThreadLocalRandom;
@@ -18,13 +11,14 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import javax.swing.SwingConstants;
 
 
 public abstract class Sudoku {
 	JFrame frame;
 	JTextArea errorArea;
 	JTextArea instructionArea;
+	JFrame errorFrame;
+	JFrame instructionFrame;
 	JLabel difficulty = new JLabel("");
 	JLabel penaltyLabel = new JLabel("");
 	String solvingInstructions;
@@ -40,6 +34,8 @@ public abstract class Sudoku {
 	int[] temporary;
 	int difficultyScore = 0;
 	int numIter = 0;
+	int[] border;
+	int[] boxNumber;
 	Queue<Integer> lastRemovedPos1 = new LinkedList<Integer>();
 	Queue<Integer> lastRemoved1 = new LinkedList<Integer>();
 	Queue<Integer> lastRemovedPos2 = new LinkedList<Integer>();
@@ -47,6 +43,137 @@ public abstract class Sudoku {
 	
 	abstract boolean checkIfCorrect();
 
+	public int floodFill(int x, int y, int val) {
+		int retVal = 1;
+	    int numOld = x * cols + y;
+	    int lb = 1;
+	    int rb = 1;
+	    int tb = 1;
+	    int bb = 1;
+		boxNumber[numOld] = val;
+    	if (border[numOld] == 1) {
+    		field[numOld].setBackground(Color.BLACK);
+    	}
+        if (border[numOld] == 0) {
+    		field[numOld].setBackground(Color.GRAY);
+    	}
+        if (border[numOld] == -1) {
+    		field[numOld].setBackground(Color.RED);
+    	}
+	    field[numOld].setText(String.valueOf(val));
+	    for (int i = -1; i < 2; i++){ 
+	    	for (int j = -1; j < 2; j++) {
+	    		if (Math.abs(i) == Math.abs(j)) {
+	    			continue;
+	    		}
+	    		if (x + i < 0) {
+	    			tb = 4;
+	    			continue;
+	    		}
+	    		if (x + i >= rows) {
+	    			bb = 4;
+	    			continue;
+	    		}
+	    		if (y + j < 0) {
+	    			lb = 4;
+	    			continue;
+	    		}
+	    		if (y + j >= cols) {
+	    			rb = 4;
+	    			continue;
+	    		}
+	    		int num = (x + i) * cols + y + j;
+	    		if (border[num] != border[numOld]) {
+		    		if (j == -1) {
+		    			lb = 3;
+		    			continue;
+		    		}
+		    		if (j == 1) {
+		    			rb = 3;
+		    			continue;
+		    		}
+		    		if (i == -1) {
+		    			tb = 3;
+		    			continue;
+		    		}
+		    		if (i == 1) {
+		    			bb = 3;
+		    			continue;
+		    		}
+	    		}
+	    		if (boxNumber[num] != -1) {
+		    		if (j == -1) {
+		    			lb = 1;
+		    			continue;
+		    		}
+		    		if (j == 1) {
+		    			rb = 1;
+		    			continue;
+		    		}
+		    		if (i == -1) {
+		    			tb = 1;
+		    			continue;
+		    		}
+		    		if (i == 1) {
+		    			bb = 1;
+		    			continue;
+		    		}
+	    		}
+	    		retVal += floodFill(x + i, y + j, val);
+	    	}
+	    }
+        field[numOld].setBorder(BorderFactory.createMatteBorder(tb, lb, bb, rb, Color.WHITE));
+	    return retVal;
+	}
+	
+	public boolean checkBoxes() {
+		boxNumber = new int[rows * cols];
+	    boolean borderNotSet = false;
+	    boolean retVal = true;
+	    for (int i = 0; i < rows; i++){ 
+	    	for (int j = 0; j < cols; j++) {
+		    	int num = i * cols + j;
+		    	boxNumber[num] = -1;
+		    	if (border[num] == -1) {
+		    		borderNotSet = true;
+		    	}
+	    	}
+	    }
+	    if (borderNotSet) {
+	    	System.out.println("Neke æelije nisu u kutiji");
+	    	retVal = false;
+	    }
+	    int boxNum = 0;
+	    for (int i = 0; i < rows; i++){ 
+	    	for (int j = 0; j < cols; j++) {
+		    	int num = i * cols + j;
+	    		if (boxNumber[num] != -1) {
+	    			continue;
+	    		}
+	    		int x = floodFill(i, j, boxNum);
+	    		System.out.println(boxNum + " " + x);
+	    	    if (x > rows) {
+	    	    	System.out.println("Prevelika kutija");
+	    	    	retVal = false;
+	    	    }
+	    	    if (x < rows) {
+	    	    	System.out.println("Premalena kutija");
+	    	    	retVal = false;
+	    	    }
+	    		boxNum++;
+	    	}
+	    }
+	    if (boxNum > rows) {
+	    	System.out.println("Previše kutija");
+	    	retVal = false;
+	    }
+	    if (boxNum < rows) {
+	    	System.out.println("Premalo kutija");
+	    	retVal = false;
+	    }
+	    return retVal;
+	}
+	
 	public int isOnlyOneSolution() {
 		solvingInstructions = "";
 		numIter = 0;
@@ -92,9 +219,10 @@ public abstract class Sudoku {
 					    		possibilities[i * cols + j][temporary[k * cols + j] - 1] = 0;
 				    		}
 					    }
-					    for (int x = (i / ylim) * (cols / xlim); x < (i / ylim + 1) * (cols / xlim); x++){
-					    	for (int y = (j / xlim) * (cols / xlim); y < (j / xlim + 1) * (cols / xlim); y++) {
-					    		if (temporary[x * cols + y] != 0) {
+				    	int b = boxNumber[i * cols + j];
+					    for (int x = 0; x < rows; x++){
+						    for (int y = 0; y < cols; y++){
+					    		if (temporary[x * cols + y] != 0 && boxNumber[x * cols + y] == b) {
 						    		possibilities[i * cols + j][temporary[x * cols + y] - 1] = 0;
 					    		}
 					    	}
@@ -125,7 +253,7 @@ public abstract class Sudoku {
 			    	for (int j = 0; j < cols; j++) {
 			    		usedRows[i] = 0;
 			    		usedCols[j] = 0;
-			    		usedBoxes[(i / ylim) * (cols / xlim) + (j / xlim)] = 0;
+			    		usedBoxes[i] = 0;
 				    }
 			    }
 			    for (int i = 0; i < rows; i++){
@@ -133,7 +261,7 @@ public abstract class Sudoku {
 			    		if (temporary[i * cols + j] == val) {
 				    		usedRows[i]++;
 				    		usedCols[j]++;
-				    		usedBoxes[(i / ylim) * (cols / xlim) + (j / xlim)]++;
+				    		usedBoxes[boxNumber[i * cols + j]]++;
 			    		}
 			    		/*if (usedRows[i] > 1) {
 			    			System.out.println("Zagonetka nije ispravno zadana");
@@ -159,7 +287,7 @@ public abstract class Sudoku {
 			    	int possible = 0;
 			    	int x = 0;
 			    	for (int j = 0; j < cols; j++) {
-			    		int b = (i / ylim) * (cols / xlim) + (j / xlim);
+			    		int b = boxNumber[i * cols + j];
 			    		if (usedBoxes[b] == 0 && usedCols[j] == 0 && temporary[i * cols + j] == 0) {
 			    			possible++;
 			    			possibilities[i * cols + j][val - 1] = 1;
@@ -274,7 +402,7 @@ public abstract class Sudoku {
 		    	for (int j = 0; j < cols; j++) {
 		    		usedRows[i] = 0;
 		    		usedCols[j] = 0;
-		    		usedBoxes[(i / ylim) * (cols / xlim) + (j / xlim)] = 0;
+		    		usedBoxes[i] = 0;
 			    }
 		    }
 		    for (int i = 0; i < rows; i++){
@@ -282,7 +410,7 @@ public abstract class Sudoku {
 		    		if (temporary[i * cols + j] == val) {
 			    		usedRows[i]++;
 			    		usedCols[j]++;
-			    		usedBoxes[(i / ylim) * (cols / xlim) + (j / xlim)]++;
+			    		usedBoxes[boxNumber[i * cols + j]]++;
 		    		}
 		    		/*if (usedRows[i] > 1) {
 		    			System.out.println("Zagonetka nije ispravno zadana");
@@ -307,7 +435,7 @@ public abstract class Sudoku {
 		    	}
 		    	int possible = 0;
 		    	for (int j = 0; j < cols; j++) {
-		    		int b = (i / ylim) * (cols / xlim) + (j / xlim);
+		    		int b = boxNumber[i * cols + j];
 		    		if (usedBoxes[b] == 0 && usedCols[j] == 0 && temporary[i * cols + j] == 0) {
 		    			possible++;
 		    		}
@@ -316,10 +444,10 @@ public abstract class Sudoku {
 		    		return 1;
 		    	}
 		    	int randomCol = ThreadLocalRandom.current().nextInt(0, cols);
-		    	int box = (i / ylim) * (cols / xlim) + (randomCol / xlim);
+		    	int box = boxNumber[i * cols + randomCol];
 		    	while (usedBoxes[box] == 1 || usedCols[randomCol] == 1 || temporary[i * cols + randomCol] != 0) {
 			    	randomCol = ThreadLocalRandom.current().nextInt(0, cols);
-			    	box = (i / ylim) * (cols / xlim) + (randomCol / xlim);
+			    	box = boxNumber[i * cols + randomCol];
 		    	}
 		    	usedCols[randomCol] = 1;
 		    	usedBoxes[box] = 1;
@@ -338,26 +466,8 @@ public abstract class Sudoku {
 		solution = new int[x * y];
 		temporary = new int[x * y];
 		userInput = new int[x * y];
-	    int retval = 1;
-	    while(retval == 1) {
-		    for (int i = 0; i < rows; i++){ 
-		    	for (int j = 0; j < cols; j++) {
-		    		temporary[i * cols + j] = 0;
-			    }
-		    }
-		    retval = randomPuzzle();
-	    }
-	    draw();
-	    for (int i = 0; i < rows; i++){ 
-	    	for (int j = 0; j < cols; j++) {
-		    	int num = i * cols + j;
-	    		userInput[num] = temporary[num];
-	    		solution[num] = temporary[num];
-	    		field[num].setText(String.valueOf(userInput[num]));
-	    	}
-	    }
-		errorOutput();
-		instructionOutput();
+		border = new int[x * y];
+		boxNumber = new int[x * y];
 	}
 	
 	public void fill() {
@@ -409,9 +519,9 @@ public abstract class Sudoku {
 
         errorArea.setEditable (false);
 
-        JFrame errorframe = new JFrame ("Greške");
-        errorframe.setDefaultCloseOperation (JFrame.DISPOSE_ON_CLOSE);
-        Container contentPane = errorframe.getContentPane ();
+        errorFrame = new JFrame ("Greške");
+        errorFrame.setDefaultCloseOperation (JFrame.DISPOSE_ON_CLOSE);
+        Container contentPane = errorFrame.getContentPane ();
         contentPane.setLayout (new BorderLayout ());
         contentPane.add (
             new JScrollPane (
@@ -419,8 +529,8 @@ public abstract class Sudoku {
                 JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, 
                 JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED),
             BorderLayout.CENTER);
-        errorframe.pack ();
-        errorframe.setVisible(true);
+        errorFrame.pack ();
+        errorFrame.setVisible(false);
     }
 
 	public void instructionOutput () 
@@ -429,7 +539,7 @@ public abstract class Sudoku {
 
         instructionArea.setEditable (false);
 
-        JFrame instructionFrame = new JFrame ("Upute");
+        instructionFrame = new JFrame ("Upute");
         instructionFrame.setDefaultCloseOperation (JFrame.DISPOSE_ON_CLOSE);
         Container contentPane = instructionFrame.getContentPane ();
         contentPane.setLayout (new BorderLayout ());
@@ -440,7 +550,7 @@ public abstract class Sudoku {
                 JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED),
             BorderLayout.CENTER);
         instructionFrame.pack ();
-        instructionFrame.setVisible(true);
+        instructionFrame.setVisible(false);
     }
 	
 	abstract void draw();

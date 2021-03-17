@@ -1,21 +1,11 @@
-import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Container;
 import java.awt.Font;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.util.concurrent.ThreadLocalRandom;
-
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.SwingConstants;
 
 public class SolveSudoku extends Sudoku {
 
@@ -26,14 +16,37 @@ public class SolveSudoku extends Sudoku {
 	int numerrors = 0;
 	int penalty = 0;
 	
-	public SolveSudoku(int x, int y, int xl, int yl) {
+	public SolveSudoku(int x, int y, int xl, int yl, int[] br, int[] bn) {
 		super(x, y, xl, yl);
+		border = br;
+		boxNumber = bn;
+	    int retval = 1;
+	    while(retval == 1) {
+		    for (int i = 0; i < rows; i++){ 
+		    	for (int j = 0; j < cols; j++) {
+		    		temporary[i * cols + j] = 0;
+			    }
+		    }
+		    retval = randomPuzzle();
+	    }
+	    draw();
+	    for (int i = 0; i < rows; i++){ 
+	    	for (int j = 0; j < cols; j++) {
+		    	int num = i * cols + j;
+	    		userInput[num] = temporary[num];
+	    		solution[num] = temporary[num];
+	    		field[num].setText(String.valueOf(userInput[num]));
+	    	}
+	    }
+		errorOutput();
+		instructionOutput();
 		options = new int[x * y][x];
 		result = new int[x * y];
+		checkBoxes();
 		selectedDigit = 1;
 	    int solvable = 0;
-	    int mintargetDifficulty = 10000;
-	    int maxtargetDifficulty = 17000;
+	    int mintargetDifficulty = 3000;
+	    int maxtargetDifficulty = 5000;
 	    while (difficultyScore > maxtargetDifficulty || difficultyScore < mintargetDifficulty) {
 	    	removeSymetricPair();
 	    	solvable = isOnlyOneSolution();
@@ -66,8 +79,11 @@ public class SolveSudoku extends Sudoku {
 	    	}	
 	    }
 	    frame.setVisible(true);
+	    instructionFrame.setVisible(true);
+	    errorFrame.setVisible(true);
 	}
-	
+
+	@Override
 	public boolean checkIfCorrect() {
 		String errortext = "";
 		boolean incorrect[] = new boolean[rows * cols];
@@ -83,12 +99,12 @@ public class SolveSudoku extends Sudoku {
 		for (int val = 1; val <= rows; val++) {
 			int[] usedRows = new int[rows];
 			int[] usedCols = new int[cols];
-			int[] usedBoxes = new int[rows * cols];
+			int[] usedBoxes = new int[rows];
 		    for (int i = 0; i < rows; i++){
 		    	for (int j = 0; j < cols; j++) {
 		    		usedRows[i] = 0;
 		    		usedCols[j] = 0;
-		    		usedBoxes[(i / ylim) * (cols / xlim) + (j / xlim)] = 0;
+		    		usedBoxes[i] = 0;
 			    }
 		    }
 		    for (int i = 0; i < rows; i++){
@@ -97,7 +113,7 @@ public class SolveSudoku extends Sudoku {
 		    		if (temporary[i * cols + j] == val) {
 			    		usedRows[i]++;
 			    		usedCols[j]++;
-			    		usedBoxes[(i / ylim) * (cols / xlim) + (j / xlim)]++;
+			    		usedBoxes[boxNumber[i * cols + j]]++;
 			    		if (usedRows[i] > 1) {
 			    			errortext += val + ": " + "(" + (i + 1) + ", " + (j + 1) + ") Broj " + val + " veæ postoji u retku " + (i + 1) + "\n";
 			    			correct = false;
@@ -110,8 +126,8 @@ public class SolveSudoku extends Sudoku {
 			    			status = true;
 			    			incorrect[i * cols + j] = true;
 			    		}
-			    		if (usedBoxes[(i / ylim) * (cols / xlim) + (j / xlim)] > 1) {
-			    			errortext += val + ": " + "(" + (i + 1) + ", " + (j + 1) + ") Broj " + val + " veæ postoji u kutiji " + ((i / ylim) * (cols / xlim) + (j / xlim) + 1) + "\n";
+			    		if (usedBoxes[boxNumber[i * cols + j]] > 1) {
+			    			errortext += val + ": " + "(" + (i + 1) + ", " + (j + 1) + ") Broj " + val + " veæ postoji u kutiji " + (boxNumber[i * cols + j] + 1) + "\n";
 			    			correct = false;
 			    			status = true;
 			    			incorrect[i * cols + j] = true;
@@ -182,11 +198,12 @@ public class SolveSudoku extends Sudoku {
 	    }
 		return haserrors;
 	}
-	
+
+	@Override
 	public void draw () 
     {
 		frame = new JFrame("Riješi sudoku");  
-	    frame.setDefaultCloseOperation (JFrame.DISPOSE_ON_CLOSE);
+	    frame.setDefaultCloseOperation (JFrame.EXIT_ON_CLOSE);
 
 	    int x = 15;
 		int y = 15;
@@ -387,7 +404,7 @@ public class SolveSudoku extends Sudoku {
     }
 	
 	public static void main(String args[]) {
-		SolveSudoku s = new SolveSudoku(9, 9, 3, 3);
+		//SolveSudoku s = new SolveSudoku(9, 9, 3, 3, br, bn);
 	}
 
 }
