@@ -37,6 +37,7 @@ public class CreateSudoku extends Sudoku {
 	    frame.setVisible(true);
 	    instructionFrame.setVisible(true);
 	    errorFrame.setVisible(true);
+	    checkIfCorrect();
 	}
 
 	@Override
@@ -136,7 +137,7 @@ public class CreateSudoku extends Sudoku {
 	public void draw () 
     {
 		frame = new JFrame("Stvori sudoku");  
-	    frame.setDefaultCloseOperation (JFrame.EXIT_ON_CLOSE);
+	    frame.setDefaultCloseOperation (JFrame.DISPOSE_ON_CLOSE);
 	    int x = 15;
 		int y = 15;
 		int w = 60;
@@ -195,12 +196,13 @@ public class CreateSudoku extends Sudoku {
 			        public void actionPerformed(ActionEvent e) {  
 			        	try {
 			        		userInput[num] = selectedDigit;
-			    	        if (selectedDigit == 0) {
+			    	        /*if (selectedDigit == 0) {
 			    	        	field[num].setForeground(Color.RED);
 			    	        } else {
 			    	        	field[num].setForeground(Color.BLACK);
-			    	        }
+			    	        }*/
 			        		field[num].setText(String.valueOf(selectedDigit));
+			        		checkIfCorrect();
 						} catch (Exception e1) {
 		
 						}
@@ -220,6 +222,7 @@ public class CreateSudoku extends Sudoku {
         public void actionPerformed(ActionEvent e) {  
 	        	try {
 	        		fill();
+	        		checkIfCorrect();
 				} catch (Exception e1) {
 	
 	
@@ -235,6 +238,7 @@ public class CreateSudoku extends Sudoku {
         public void actionPerformed(ActionEvent e) {  
 	        	try {
 	        		isOnlyOneSolution();
+	        		checkIfCorrect();
 				} catch (Exception e1) {
 	
 	
@@ -266,6 +270,7 @@ public class CreateSudoku extends Sudoku {
         public void actionPerformed(ActionEvent e) {  
 	        	try {
 	        		removeSymetricPair();
+	        		checkIfCorrect();
 				} catch (Exception e1) {
 	
 	
@@ -282,6 +287,7 @@ public class CreateSudoku extends Sudoku {
         public void actionPerformed(ActionEvent e) {  
 	        	try {
 	        		restoreLastRemoved();
+	        		checkIfCorrect();
 				} catch (Exception e1) {
 	
 	
@@ -303,6 +309,7 @@ public class CreateSudoku extends Sudoku {
 	        public void actionPerformed(ActionEvent e) {  
 		        	try {
 		        		selectedDigit = digit;
+		        		checkIfCorrect();
 					} catch (Exception e1) {
 		
 		
@@ -313,7 +320,7 @@ public class CreateSudoku extends Sudoku {
 	        x += w;
 		}
 
-        difficulty.setBounds(cols * w + 15 * 2, 15 * 6 + 15 + h * 6, 200, h);
+        difficulty.setBounds(cols * w + 15 * 2, 15 * 6 + 15 + h * 6, 200, h / 2);
         frame.add(difficulty);
         
         frame.add(fillb);
@@ -325,8 +332,4 @@ public class CreateSudoku extends Sudoku {
 	    frame.setLayout(null);  
     }
 	
-	public static void main(String args[]) {
-		//CreateSudoku s = new CreateSudoku(9, 9, 3, 3);
-	}
-
 }
