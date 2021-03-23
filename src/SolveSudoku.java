@@ -6,6 +6,7 @@ import java.awt.event.ActionListener;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 
 public class SolveSudoku extends Sudoku {
 
@@ -15,8 +16,10 @@ public class SolveSudoku extends Sudoku {
 	int[] result;
 	int numerrors = 0;
 	int penalty = 0;
-	
-	public SolveSudoku(int x, int y, int xl, int yl, int[] br, int[] bn) {
+	long startTime;
+	long elapsedTime;
+	JLabel timeLabel;
+	public SolveSudoku(int x, int y, int xl, int yl, int[] br, int[] bn, int mint, int maxt) {
 		super(x, y, xl, yl);
 		border = br;
 		boxNumber = bn;
@@ -45,18 +48,29 @@ public class SolveSudoku extends Sudoku {
 		checkBoxes();
 		selectedDigit = 1;
 	    int solvable = 0;
-	    int mintargetDifficulty = 3000;
-	    int maxtargetDifficulty = 5000;
-	    while (difficultyScore > maxtargetDifficulty || difficultyScore < mintargetDifficulty) {
-	    	removeSymetricPair();
-	    	solvable = isOnlyOneSolution();
-	    	while (solvable == 0) {
+	    int numReturns = 0;
+	    mintargetDifficulty = mint;
+	    maxtargetDifficulty = maxt;
+	    while (solvable == 0 || difficultyScore > maxtargetDifficulty || difficultyScore < mintargetDifficulty) {
+		    removeSymetricPair();
+		    solvable = isOnlyOneSolution();
+		    System.out.println(String.valueOf(difficultyScore));
+	    	if (solvable == 0) {
+	    		numReturns++;
 	    		restoreLastRemoved();
-		    	solvable = isOnlyOneSolution();
+			    solvable = isOnlyOneSolution();
+			    System.out.println("backtrack " + String.valueOf(difficultyScore));
+	    	} else {
+	    		numReturns = 0;
 	    	}
-	    	
+	    	if (numReturns >= rows * cols / 2) {
+	    		while (restoreLastRemoved()) {
+	    			
+	    		}
+	    		difficultyScore = 0;
+	    		numReturns = 0;
+	    	}
 	    }
-	    isOnlyOneSolution();
 		backup = new int[x * y];
 	    for (int i = 0; i < rows; i++){ 
 	    	for (int j = 0; j < cols; j++) {
@@ -176,7 +190,7 @@ public class SolveSudoku extends Sudoku {
 	    }
 	    errorArea.setText(errortext);
 	    numerrors = localnumerrors;
-	    penaltyLabel.setText(String.valueOf(penalty));
+	    penaltyLabel.setText("Kazneni bodovi: " + String.valueOf(penalty));
 		return correct;
 	}
 	
@@ -203,7 +217,7 @@ public class SolveSudoku extends Sudoku {
 	public void draw () 
     {
 		frame = new JFrame("Riješi sudoku");  
-	    frame.setDefaultCloseOperation (JFrame.EXIT_ON_CLOSE);
+	    frame.setDefaultCloseOperation (JFrame.DISPOSE_ON_CLOSE);
 
 	    int x = 15;
 		int y = 15;
@@ -270,11 +284,10 @@ public class SolveSudoku extends Sudoku {
 				        		userInput[num] = selectedDigit;
 				        		field[num].setText(String.valueOf(selectedDigit));
 			        		} else {
-				        		if (mode == 1) {
-					        		options[num][selectedDigit - 1] = 1;
-				        		}
-				        		if (mode == 2) {
+				        		if (options[num][selectedDigit - 1] == 1) {
 					        		options[num][selectedDigit - 1] = 0;
+				        		} else {
+					        		options[num][selectedDigit - 1] = 1;
 				        		}
 				        		userInput[num] = 0;
 					    		String t = "<html><font color='yellow'>";
@@ -331,7 +344,7 @@ public class SolveSudoku extends Sudoku {
 		
         JButton solvedb = new JButton("Ispravnost rješenja");  
         solvedb.setMargin(new Insets(1,1,1,1));
-        solvedb.setBounds(cols * w + 15 * 2, 15, cols * w / 4, h);
+        solvedb.setBounds(cols * w + 15 * 2, 15, 9 * w / 4, h);
         solvedb.setFont(new Font("Arial", Font.PLAIN, fontsize));
         solvedb.addActionListener(new ActionListener(){  
         public void actionPerformed(ActionEvent e) {  
@@ -344,67 +357,46 @@ public class SolveSudoku extends Sudoku {
 	        }  
 	    });
 
-        JButton setb = new JButton("Postavi");  
-        setb.setMargin(new Insets(1,1,1,1));
-        setb.setBounds(cols * w + 15 * 2, 15 + 15 + h, cols * w / 4, h);
-        setb.setFont(new Font("Arial", Font.PLAIN, fontsize));
-        setb.addActionListener(new ActionListener(){  
+        JButton modeb = new JButton("Bilješke ISKLJUÈENE");  
+        modeb.setMargin(new Insets(1,1,1,1));
+        modeb.setBounds(cols * w + 15 * 2, 15 + 15 + h, 9 * w / 4, h);
+        modeb.setFont(new Font("Arial", Font.PLAIN, fontsize));
+        modeb.addActionListener(new ActionListener(){  
         public void actionPerformed(ActionEvent e) {  
 	        	try {
-	        		mode = 0;
+	        		if (mode == 1) {
+	        			modeb.setText("Bilješke ISKLJUÈENE");
+	        			mode = 0;
+	        		} else {
+	        			modeb.setText("Bilješke UKLJUÈENE");
+	        			mode = 1;
+	        		}
 				} catch (Exception e1) {
-	
 	
 				}
 	        }  
 	    });
 
-        JButton addb = new JButton("Dodaj opciju");  
-        addb.setMargin(new Insets(1,1,1,1));
-        addb.setBounds(cols * w + 15 * 2, 15 * 2 + 15 + h * 2, cols * w / 4, h);
-        addb.setFont(new Font("Arial", Font.PLAIN, fontsize));
-        addb.addActionListener(new ActionListener(){  
-        public void actionPerformed(ActionEvent e) {  
-	        	try {
-	        		mode = 1;
-				} catch (Exception e1) {
-	
-	
-				}
-	        }  
-	    });
-
-        JButton deleteb = new JButton("Izbriši opciju");  
-        deleteb.setMargin(new Insets(1,1,1,1));
-        deleteb.setBounds(cols * w + 15 * 2, 15 * 3 + 15 + h * 3, cols * w / 4, h);
-        deleteb.setFont(new Font("Arial", Font.PLAIN, fontsize));
-        deleteb.addActionListener(new ActionListener(){  
-        public void actionPerformed(ActionEvent e) {  
-	        	try {
-	        		mode = 2;
-				} catch (Exception e1) {
-	
-	
-				}
-	        }  
-	    });
-        
-        difficulty.setBounds(cols * w + 15 * 2, 15 * 4 + 15 + h * 4, 200, h);
+        difficulty.setBounds(cols * w + 15 * 2, 15 * 2 + 15 + h * 2, 200, h / 2);
         frame.add(difficulty);
 
-        penaltyLabel.setBounds(cols * w + 15 * 2, 15 * 4 + 15 + h * 4, cols * w / 4, h);
+        penaltyLabel.setBounds(cols * w + 15 * 2, 15 * 3 + 15 + h * 3, 9 * w / 4, h / 2);
         frame.add(penaltyLabel);
         
+        startTime = System.currentTimeMillis();
+        elapsedTime = 0L;
+
+
+	    timeLabel = new JLabel("Proteklo vrijeme: : ");
+	    timeLabel.setBounds(cols * w + 15 * 2, 15 * 4 + 15 + h * 4, 9 * w / 4, h / 2);
+	    frame.add(timeLabel);
+        
         frame.add(solvedb);
-        frame.add(setb);
-        frame.add(addb);
-        frame.add(deleteb);
+        frame.add(modeb);
+
 	    frame.setSize(cols * w + 15 * 4 + cols * w / 4 + 100, (rows + 1) * h + 15 * 4 + 20);  
 	    frame.setLayout(null);  
     }
 	
-	public static void main(String args[]) {
-		//SolveSudoku s = new SolveSudoku(9, 9, 3, 3, br, bn);
-	}
 
 }
