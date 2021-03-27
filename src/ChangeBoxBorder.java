@@ -121,11 +121,22 @@ public class ChangeBoxBorder extends Sudoku {
 					    		field[num].setBackground(Color.GRAY);
 				        		border[num] = 0;
 				        		checkBoxes();
-			        		} else {
+			        		}
+			        		if (mode == 1)  {
 					    		field[num].setBackground(Color.BLACK);
 				        		border[num] = 1;
 				        		checkBoxes();
-			        		}
+			        		} 
+			        		if (mode == 2)  {
+					    		field[num].setBackground(Color.YELLOW);
+				        		border[num] = 2;
+				        		checkBoxes();
+			        		} 
+			        		if (mode == 3)  {
+					    		field[num].setBackground(Color.ORANGE);
+				        		border[num] = 3;
+				        		checkBoxes();
+			        		} 
 						} catch (Exception e1) {
 		
 						}
@@ -148,9 +159,22 @@ public class ChangeBoxBorder extends Sudoku {
 	        		if (mode == 0) {
 	        			mode = 1;
 	        			modeb.setText(String.valueOf("Crno"));
-	        		} else {
+	        			return;
+	        		} 
+	        		if (mode == 1) {
+	        			mode = 2;
+	        			modeb.setText(String.valueOf("Žuto"));
+	        			return;
+	        		}
+	        		if (mode == 2) {
+	        			mode = 3;
+	        			modeb.setText(String.valueOf("Naranèasto"));
+	        			return;
+	        		}
+	        		if (mode == 3) {
 	        			mode = 0;
 	        			modeb.setText(String.valueOf("Sivo"));
+	        			return;
 	        		}
 				} catch (Exception e1) {
 	
