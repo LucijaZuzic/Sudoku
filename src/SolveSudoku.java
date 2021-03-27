@@ -3,6 +3,10 @@ import java.awt.Font;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.util.Timer;
+
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -213,6 +217,11 @@ public class SolveSudoku extends Sudoku {
 		return haserrors;
 	}
 
+	public void changeTime () {
+		elapsedTime = (System.currentTimeMillis() - startTime) / 1000;
+		timeLabel.setText("Proteklo vrijeme: " + String.valueOf(elapsedTime));
+	}
+	
 	@Override
 	public void draw () 
     {
@@ -316,6 +325,18 @@ public class SolveSudoku extends Sudoku {
 						}
 			        }  
 			    });
+			    field[num].addKeyListener(
+				    	new KeyListener(){
+				    		public void keyPressed(KeyEvent e) {
+				    			int key = e.getKeyCode();
+				    			if (key - 48 >= 0 && key - 48 <= 9) {
+				    				selectedDigit = key - 48;
+				    			}
+				    		}
+							public void keyReleased(KeyEvent e) {}
+							public void keyTyped(KeyEvent e) {}
+						}
+			    	);
 			    frame.add(field[num]);
 		    	x += w;
 		    }
@@ -385,9 +406,11 @@ public class SolveSudoku extends Sudoku {
         
         startTime = System.currentTimeMillis();
         elapsedTime = 0L;
+        ScoreTask t = new ScoreTask();
+        t.setSudoku(this);
+        new Timer().scheduleAtFixedRate(t, 0, 1000);
 
-
-	    timeLabel = new JLabel("Proteklo vrijeme: : ");
+	    timeLabel = new JLabel("Proteklo vrijeme: 0");
 	    timeLabel.setBounds(cols * w + 15 * 2, 15 * 4 + 15 + h * 4, 9 * w / 4, h / 2);
 	    frame.add(timeLabel);
         

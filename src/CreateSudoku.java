@@ -3,9 +3,13 @@ import java.awt.Font;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.KeyStroke;
 
 public class CreateSudoku extends Sudoku {
 
@@ -133,17 +137,28 @@ public class CreateSudoku extends Sudoku {
 		return correct;
 	}
 
+
+
+public void keyPressed(KeyEvent e) {
+
+    int key = e.getKeyCode();
+
+    System.out.println(key);
+}
+
+
 	@Override
 	public void draw () 
     {
 		frame = new JFrame("Stvori sudoku");  
 	    frame.setDefaultCloseOperation (JFrame.DISPOSE_ON_CLOSE);
+	    
 	    int x = 15;
 		int y = 15;
 		int w = 60;
 		int h = 60;
 		int fontsize = 12;
-
+		
 	    for (int i = 0; i < rows; i++){ 
 	    	x = 15;
 	    	for (int j = 0; j < cols; j++) {
@@ -208,6 +223,18 @@ public class CreateSudoku extends Sudoku {
 						}
 			        }  
 			    });
+			    field[num].addKeyListener(
+				    	new KeyListener(){
+				    		public void keyPressed(KeyEvent e) {
+				    			int key = e.getKeyCode();
+				    			if (key - 48 >= 0 && key - 48 <= 9) {
+				    				selectedDigit = key - 48;
+				    			}
+				    		}
+							public void keyReleased(KeyEvent e) {}
+							public void keyTyped(KeyEvent e) {}
+						}
+			    	);
 			    frame.add(field[num]);
 		    	x += w;
 		    }
@@ -246,14 +273,23 @@ public class CreateSudoku extends Sudoku {
 	        }  
 	    });
 
-        JButton correctb = new JButton("Ispravnost rješenja");  
-        correctb.setMargin(new Insets(1,1,1,1));
-        correctb.setBounds(cols * w + 15 * 2, 15 + 15 * 2 + h * 2, cols * w / 4, h);
-        correctb.setFont(new Font("Arial", Font.PLAIN, fontsize));
-        correctb.addActionListener(new ActionListener(){  
+		JButton cleargrid = new JButton("Isprazni mrežu");  
+        cleargrid.setMargin(new Insets(1,1,1,1));
+        cleargrid.setBounds(cols * w + 15 * 2, 15 + 15 * 2 + h * 2, cols * w / 4, h);
+        cleargrid.setFont(new Font("Arial", Font.PLAIN, fontsize));
+        cleargrid.addActionListener(new ActionListener(){  
         public void actionPerformed(ActionEvent e) {  
 	        	try {
-	        		checkIfCorrect();
+	        	    for (int i = 0; i < rows; i++){
+	        	    	for (int j = 0; j < cols; j++) {
+	        	        	int num = i * cols + j;
+	        	    		temporary[num] = 0;
+	        	    		solution[num] = 0;
+	        	    		userInput[num] = 0;
+	        	    		field[num].setText("0");
+	        	    		field[num].setForeground(Color.RED);
+	        		    }
+	        	    }
 				} catch (Exception e1) {
 	
 	
@@ -325,7 +361,7 @@ public class CreateSudoku extends Sudoku {
         
         frame.add(fillb);
         frame.add(uniqueb);
-        frame.add(correctb);
+        frame.add(cleargrid);
         frame.add(removeb);
         frame.add(restoreb);
 	    frame.setSize(cols * w + 15 * 4 + cols * w / 4 + 100, (rows + 1) * h + 15 * 4 + 20);  
