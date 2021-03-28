@@ -43,6 +43,29 @@ public class CreateSudoku extends Sudoku {
 	    errorFrame.setVisible(true);
 	    checkIfCorrect();
 	}
+	
+
+	public CreateSudoku(int x, int y, int xl, int yl, int[] br, int[] bn, int ui[]) {
+		super(x, y, xl, yl);
+		border = br;
+		boxNumber = bn;
+	    draw();
+	    for (int i = 0; i < rows; i++){ 
+	    	for (int j = 0; j < cols; j++) {
+		    	int num = i * cols + j;
+	    		userInput[num] = ui[num];
+	    		solution[num] = 0;
+	    		field[num].setText(String.valueOf(userInput[num]));
+	    	}
+	    }
+		errorOutput();
+		instructionOutput();
+		checkBoxes();
+	    checkIfCorrect();
+	    frame.setVisible(true);
+		errorFrame.setVisible(true);
+		instructionFrame.setVisible(true);
+	}
 
 	@Override
 	public boolean checkIfCorrect() {
@@ -167,7 +190,7 @@ public void keyPressed(KeyEvent e) {
 			    field[num].setMargin(new Insets(1,1,1,1));
 			    field[num].setFont(new Font("Arial", Font.PLAIN, fontsize));
 			    field[num].setBounds(x, y, w, h);
-			    int lb = 1;
+			    /*int lb = 1;
 			    int rb = 1;
 			    int tb = 1;
 			    int bb = 1;
@@ -206,7 +229,7 @@ public void keyPressed(KeyEvent e) {
 		    		field[num].setBackground(Color.WHITE);
 		    	} else {
 		    		field[num].setBackground(Color.GRAY);
-		    	}
+		    	}*/
 			    field[num].addActionListener(new ActionListener(){  
 			        public void actionPerformed(ActionEvent e) {  
 			        	try {
@@ -243,7 +266,7 @@ public void keyPressed(KeyEvent e) {
 
         JButton fillb = new JButton("Nasumièmo nadopuni");  
 		fillb.setMargin(new Insets(1,1,1,1));
-		fillb.setBounds(cols * w + 15 * 2, 15, cols * w / 4, h);
+		fillb.setBounds((cols + 1) * w + 15 * 2, 15, 9 * w / 4, h);
 		fillb.setFont(new Font("Arial", Font.PLAIN, fontsize));
 		fillb.addActionListener(new ActionListener(){  
         public void actionPerformed(ActionEvent e) {  
@@ -259,7 +282,7 @@ public void keyPressed(KeyEvent e) {
 
         JButton uniqueb = new JButton("Jedinstvenost rješenja");  
 		uniqueb.setMargin(new Insets(1,1,1,1));
-		uniqueb.setBounds(cols * w + 15 * 2, 15 + 15 + h, cols * w / 4, h);
+		uniqueb.setBounds((cols + 1) * w + 15 * 2, 15 + 15 + h, 9 * w / 4, h);
 		uniqueb.setFont(new Font("Arial", Font.PLAIN, fontsize));
 		uniqueb.addActionListener(new ActionListener(){  
         public void actionPerformed(ActionEvent e) {  
@@ -275,7 +298,7 @@ public void keyPressed(KeyEvent e) {
 
 		JButton cleargrid = new JButton("Isprazni mrežu");  
         cleargrid.setMargin(new Insets(1,1,1,1));
-        cleargrid.setBounds(cols * w + 15 * 2, 15 + 15 * 2 + h * 2, cols * w / 4, h);
+        cleargrid.setBounds((cols + 1) * w + 15 * 2, 15 + 15 * 2 + h * 2, 9 * w / 4, h);
         cleargrid.setFont(new Font("Arial", Font.PLAIN, fontsize));
         cleargrid.addActionListener(new ActionListener(){  
         public void actionPerformed(ActionEvent e) {  
@@ -300,7 +323,7 @@ public void keyPressed(KeyEvent e) {
 
         JButton removeb = new JButton("Simetrièno ukloni");  
         removeb.setMargin(new Insets(1,1,1,1));
-        removeb.setBounds(cols * w + 15 * 2, 15 + 15 * 3 + h * 3, cols * w / 4, h);
+        removeb.setBounds((cols + 1) * w + 15 * 2, 15 + 15 * 3 + h * 3, 9 * w / 4, h);
         removeb.setFont(new Font("Arial", Font.PLAIN, fontsize));
         removeb.addActionListener(new ActionListener(){  
         public void actionPerformed(ActionEvent e) {  
@@ -317,7 +340,7 @@ public void keyPressed(KeyEvent e) {
 
         JButton restoreb = new JButton("Vrati uklonjeno");  
         restoreb.setMargin(new Insets(1,1,1,1));
-        restoreb.setBounds(cols * w + 15 * 2, 15 + 15 * 4 + h * 4, cols * w / 4, h);
+        restoreb.setBounds((cols + 1) * w + 15 * 2, 15 + 15 * 4 + h * 4, 9 * w / 4, h);
         restoreb.setFont(new Font("Arial", Font.PLAIN, fontsize));
         restoreb.addActionListener(new ActionListener(){  
         public void actionPerformed(ActionEvent e) {  
@@ -331,7 +354,50 @@ public void keyPressed(KeyEvent e) {
 	        }  
 	    });
 		x = 15;
+		FileManipulator f = new FileManipulator();
+		f.setSudoku(this);
+        JButton filesaveb = new JButton("Spremi zagonetku");  
+        filesaveb.setMargin(new Insets(1,1,1,1));
+        filesaveb.setBounds((cols + 1) * w + 15 * 2, 15 + 15 * 5 + h * 5, 9 * w / 4, h);
+        filesaveb.setFont(new Font("Arial", Font.PLAIN, fontsize));
+        filesaveb.addActionListener(new ActionListener(){  
+        public void actionPerformed(ActionEvent e) {  
+	        	try {
+	        		f.WriteToFile();
+				} catch (Exception e1) {
+					
+				}
+	        }  
+	    });
+		x = 15;
+        
 
+        JButton filereadb = new JButton("Uèitaj zagonetku");  
+        filereadb.setMargin(new Insets(1,1,1,1));
+        filereadb.setBounds((cols + 1) * w + 15 * 2, 15 + 15 * 6 + h * 6, 9 * w / 4, h);
+        filereadb.setFont(new Font("Arial", Font.PLAIN, fontsize));
+        filereadb.addActionListener(new ActionListener(){  
+        public void actionPerformed(ActionEvent e) {  
+	        	try {
+	        		if (f.ReadFile() == 0) {
+		        	    for (int i = 0; i < rows; i++){ 
+		        	    	for (int j = 0; j < cols; j++) {
+		        		    	int num = i * cols + j;
+		        	    		solution[num] = 0;
+		        	    		field[num].setText(String.valueOf(userInput[num]));
+		        	    	}
+		        	    }
+		        		checkBoxes();
+		        	    checkIfCorrect();
+	        		}
+				} catch (Exception e1) {
+	
+	
+				}
+	        }  
+	    });
+		x = 15;
+		
 		for (int i = 0; i < cols + 1; i++) {
 	        JButton digib = new JButton(String.valueOf(i));  
 	        digib.setMargin(new Insets(1,1,1,1));
@@ -356,7 +422,7 @@ public void keyPressed(KeyEvent e) {
 	        x += w;
 		}
 
-        difficulty.setBounds(cols * w + 15 * 2, 15 * 6 + 15 + h * 6, 200, h / 2);
+        difficulty.setBounds((cols + 1) * w + 15 * 2, 15 * 7 + 15 + h * 7, 200, h / 2);
         frame.add(difficulty);
         
         frame.add(fillb);
@@ -364,7 +430,9 @@ public void keyPressed(KeyEvent e) {
         frame.add(cleargrid);
         frame.add(removeb);
         frame.add(restoreb);
-	    frame.setSize(cols * w + 15 * 4 + cols * w / 4 + 100, (rows + 1) * h + 15 * 4 + 20);  
+        frame.add(filesaveb);
+        frame.add(filereadb);
+	    frame.setSize(cols * w + 15 * 4 + 9 * w / 4 + 100, Math.max((rows + 1) * h + 15 * 4 + 20, 15 * 8 + 15 + h * 8));  
 	    frame.setLayout(null);  
     }
 	
