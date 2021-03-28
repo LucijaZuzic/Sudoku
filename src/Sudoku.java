@@ -1993,6 +1993,7 @@ public abstract class Sudoku {
 		return true;
 	}
 	
+	
 	public int randomPuzzle() {
 		for (int val = 1; val <= rows; val++) {
 			int[] usedRows = new int[rows];

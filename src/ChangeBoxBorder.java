@@ -55,7 +55,7 @@ public class ChangeBoxBorder extends Sudoku {
 	@Override
 	void draw() {
 		frame = new JFrame("Promjeni kutiju za sudoku");  
-	    frame.setDefaultCloseOperation (JFrame.EXIT_ON_CLOSE);
+	    frame.setDefaultCloseOperation (JFrame.DISPOSE_ON_CLOSE);
 
 	    int x = 15;
 		int y = 15;
@@ -149,9 +149,9 @@ public class ChangeBoxBorder extends Sudoku {
 	    }
 	    x = 15;
 	    
-        JButton modeb = new JButton("Sivo");  
+	    JButton modeb = new JButton("Sivo");  
         modeb.setMargin(new Insets(1,1,1,1));
-        modeb.setBounds(cols * w + 15 * 2, 15 + 15 + h, 9 * w / 4, h);
+        modeb.setBounds(cols * w + 15 * 2, 15, 9 * w / 4, h);
         modeb.setFont(new Font("Arial", Font.PLAIN, fontsize));
         modeb.addActionListener(new ActionListener(){  
         public void actionPerformed(ActionEvent e) {  
@@ -191,8 +191,7 @@ public class ChangeBoxBorder extends Sudoku {
         public void actionPerformed(ActionEvent e) {  
 	        	try {
 	        		if (checkBoxes()) {
-	        			CreateSudoku s = new CreateSudoku(9, 9, 3, 3, border, boxNumber);
-	        			System.out.println("yes");
+	        			CreateSudoku s = new CreateSudoku(rows, cols, xlim, ylim, border, boxNumber);
 	        		}
 				} catch (Exception e1) {
 	
@@ -201,31 +200,19 @@ public class ChangeBoxBorder extends Sudoku {
 	        }  
 	    });
 
-	    JLabel miniLabel = new JLabel("Minimalna težina: ");
-	    miniLabel.setBounds(cols * w + 15 * 2, 15 * 5 + 15 + h * 8 / 2, 200, h / 2);
-	    frame.add(miniLabel);
-	    
-	    JTextField mini = new JTextField(String.valueOf(mintargetDifficulty));
-        mini.setBounds(cols * w + 15 * 2 + 130, 15 * 5 + 15 + h * 8 / 2, 100, h / 2);
-	    frame.add(mini);
 
-	    JLabel maksiLabel = new JLabel("Maksimalna težina: ");
-	    maksiLabel.setBounds(cols * w + 15 * 2, 15 * 6 + 15 + h * 9 / 2, 200, h / 2);
-	    frame.add(maksiLabel);
-	    
-	    JTextField maksi = new JTextField(String.valueOf(maxtargetDifficulty));
-	    maksi.setBounds(cols * w + 15 * 2 + 130, 15 * 6 + 15 + h * 9 / 2, 100, h / 2);
-	    frame.add(maksi);
-	    
-        JButton solveb = new JButton("Riješi zagonetku");  
-        solveb.setMargin(new Insets(1,1,1,1));
-        solveb.setBounds(cols * w + 15 * 2, 15 * 3 + 15 + h * 3, 9 * w / 4, h);
-        solveb.setFont(new Font("Arial", Font.PLAIN, fontsize));
-        solveb.addActionListener(new ActionListener(){  
+		FileManipulator f = new FileManipulator();
+		f.setSudoku(this);
+        
+        JButton designcontb = new JButton("Nastavi dizajn");  
+        designcontb.setMargin(new Insets(1,1,1,1));
+        designcontb.setBounds(cols * w + 15 * 2, 15 + 15 + h, 9 * w / 4, h);
+        designcontb.setFont(new Font("Arial", Font.PLAIN, fontsize));
+        designcontb.addActionListener(new ActionListener(){  
         public void actionPerformed(ActionEvent e) {  
 	        	try {
-	        		if (checkBoxes()) {
-	        			SolveSudoku s = new SolveSudoku(9, 9, 3, 3, border, boxNumber, Integer.parseInt(mini.getText()), Integer.parseInt(maksi.getText()));
+	        		if (f.ReadFile() == 0) {
+	        			CreateSudoku s = new CreateSudoku(rows, cols, xlim, ylim, border, boxNumber, userInput);
 	        		}
 				} catch (Exception e1) {
 	
@@ -234,14 +221,65 @@ public class ChangeBoxBorder extends Sudoku {
 	        }  
 	    });
         
+	    JLabel miniLabel = new JLabel("Minimalna težina: ");
+	    miniLabel.setBounds(cols * w + 15 * 2, 15 * 5 + 15 + h * 10 / 2, 200, h / 2);
+	    frame.add(miniLabel);
+	    
+	    JTextField mini = new JTextField(String.valueOf(mintargetDifficulty));
+        mini.setBounds(cols * w + 15 * 2 + 130, 15 * 5 + 15 + h * 10 / 2, 100, h / 2);
+	    frame.add(mini);
+
+	    JLabel maksiLabel = new JLabel("Maksimalna težina: ");
+	    maksiLabel.setBounds(cols * w + 15 * 2, 15 * 6 + 15 + h * 11 / 2, 200, h / 2);
+	    frame.add(maksiLabel);
+	    
+	    JTextField maksi = new JTextField(String.valueOf(maxtargetDifficulty));
+	    maksi.setBounds(cols * w + 15 * 2 + 130, 15 * 6 + 15 + h * 11 / 2, 100, h / 2);
+	    frame.add(maksi);
+
+        JButton solverandomb = new JButton("Riješi nasumièno");  
+        solverandomb.setMargin(new Insets(1,1,1,1));
+        solverandomb.setBounds(cols * w + 15 * 2, 15 * 3 + 15 + h * 3, 9 * w / 4, h);
+        solverandomb.setFont(new Font("Arial", Font.PLAIN, fontsize));
+        solverandomb.addActionListener(new ActionListener(){  
+        public void actionPerformed(ActionEvent e) {  
+	        	try {
+	        		if (checkBoxes()) {
+	        			SolveSudoku s = new SolveSudoku(rows, cols, xlim, ylim, border, boxNumber, Integer.parseInt(mini.getText()), Integer.parseInt(maksi.getText()));
+	        		}
+				} catch (Exception e1) {
+	
+	
+				}
+	        }  
+	    });
+
+        JButton solveb = new JButton("Riješi spremljeno");  
+        solveb.setMargin(new Insets(1,1,1,1));
+        solveb.setBounds(cols * w + 15 * 2, 15 * 4 + 15 + h * 4, 9 * w / 4, h);
+        solveb.setFont(new Font("Arial", Font.PLAIN, fontsize));
+        solveb.addActionListener(new ActionListener(){  
+        public void actionPerformed(ActionEvent e) {  
+	        	try {
+	        		if (f.ReadFile() == 0) {
+	        			SolveSudoku s = new SolveSudoku(rows, cols, xlim, ylim, border, boxNumber, userInput);
+	        		}
+				} catch (Exception e1) {
+	
+	
+				}
+	        }  
+	    });
         frame.add(modeb);
         frame.add(designb);
+        frame.add(designcontb);
+        frame.add(solverandomb);
         frame.add(solveb);
-	    frame.setSize(cols * w + 15 * 4 + cols * w / 4 + 100, (rows + 1) * h + 15 * 4 + 20);  
+	    frame.setSize(cols * w + 15 * 4 + cols * w / 4 + 145, Math.max((rows + 1) * h + 15 * 4 + 20, 15 * 7 + 15 + h * 7));  
 	    frame.setLayout(null); 
 	}
 
-	public static void main(String args[]) {
+	/*public static void main(String args[]) {
 		ChangeBoxBorder s = new ChangeBoxBorder(9, 9, 3, 3);
-	}
+	}*/
 }
