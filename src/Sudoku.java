@@ -2072,13 +2072,6 @@ public abstract class Sudoku {
 	}
 	
 	public void fill() {
-	    for (int i = 0; i < rows; i++){ 
-	    	for (int j = 0; j < cols; j++) {
-		    	int num = i * cols + j;
-		    	temporary[num] = userInput[num];
-	    	}
-	    }
-	    int retval = 1;
 	    boolean correct = checkIfCorrect();
     	if (!correct) {
     		return;
@@ -2096,20 +2089,23 @@ public abstract class Sudoku {
 		    }
     		return;
     	}
-	    retval = randomPuzzle();
-	    if (retval == 0) {
+	    int retval = 1;
+	    while (retval == 1) {
 		    for (int i = 0; i < rows; i++){ 
 		    	for (int j = 0; j < cols; j++) {
 			    	int num = i * cols + j;
-		    		userInput[num] = temporary[num];
-		    		solution[num] = temporary[num];
-		    		field[num].setText(String.valueOf(userInput[num]));
-    	        	field[num].setForeground(Color.BLACK);
+			    	temporary[num] = userInput[num];
 		    	}
 		    }
-	    } else {
-	    	if (retval == 1) {
-	    		fill();
+		    retval = randomPuzzle();
+	    } 
+	    for (int i = 0; i < rows; i++){ 
+	    	for (int j = 0; j < cols; j++) {
+		    	int num = i * cols + j;
+	    		userInput[num] = temporary[num];
+	    		solution[num] = temporary[num];
+	    		field[num].setText(String.valueOf(userInput[num]));
+	        	field[num].setForeground(Color.BLACK);
 	    	}
 	    }
 	}
