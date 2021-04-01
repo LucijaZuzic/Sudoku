@@ -8,6 +8,9 @@ import java.util.ArrayList;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.LookAndFeel;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 
 
 public class FileManipulator {
@@ -110,7 +113,29 @@ public class FileManipulator {
 		int w = 100;
 		int h = 30;
 		JButton createb = new JButton("Uèitaj");
+	    LookAndFeel previousLF = UIManager.getLookAndFeel();
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InstantiationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (UnsupportedLookAndFeelException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		JFileChooser j = new JFileChooser();
+		try {
+			UIManager.setLookAndFeel(previousLF);
+		} catch (UnsupportedLookAndFeelException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		int returnVal = j.showOpenDialog(createb);
 	    System.out.println(returnVal);
 	    File f = j.getSelectedFile();
