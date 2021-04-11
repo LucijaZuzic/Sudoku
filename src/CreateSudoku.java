@@ -1,3 +1,4 @@
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Insets;
@@ -9,6 +10,9 @@ import java.awt.event.KeyListener;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.KeyStroke;
 
 public class CreateSudoku extends Sudoku {
@@ -35,12 +39,8 @@ public class CreateSudoku extends Sudoku {
 	    		field[num].setText(String.valueOf(userInput[num]));
 	    	}
 	    }
-		errorOutput();
-		instructionOutput();
 		checkBoxes();
 	    frame.setVisible(true);
-	    instructionFrame.setVisible(true);
-	    errorFrame.setVisible(true);
 	    checkIfCorrect();
 	}
 	
@@ -58,13 +58,9 @@ public class CreateSudoku extends Sudoku {
 	    		field[num].setText(String.valueOf(userInput[num]));
 	    	}
 	    }
-		errorOutput();
-		instructionOutput();
 		checkBoxes();
 	    checkIfCorrect();
 	    frame.setVisible(true);
-		errorFrame.setVisible(true);
-		instructionFrame.setVisible(true);
 	}
 
 	@Override
@@ -74,7 +70,7 @@ public class CreateSudoku extends Sudoku {
 	    for (int i = 0; i < rows; i++){ 
 	    	for (int j = 0; j < cols; j++) {
 		    	int num = i * cols + j;
-		    	field[i * cols + j].setForeground(Color.WHITE);
+		    	field[i * cols + j].setForeground(Color.BLACK);
 		    	temporary[num] = userInput[num];
 		    	incorrect[num] = false;
 	    	}
@@ -166,7 +162,7 @@ public void keyPressed(KeyEvent e) {
 
     int key = e.getKeyCode();
 
-    System.out.println(key);
+    //System.out.println(key);
 }
 
 
@@ -190,46 +186,6 @@ public void keyPressed(KeyEvent e) {
 			    field[num].setMargin(new Insets(1,1,1,1));
 			    field[num].setFont(new Font("Arial", Font.PLAIN, fontsize));
 			    field[num].setBounds(x, y, w, h);
-			    /*int lb = 1;
-			    int rb = 1;
-			    int tb = 1;
-			    int bb = 1;
-			    if (j % xlim== 0) {
-			    	if (j != cols - 1 && j != 0) {
-				    	lb = 3;
-			    	} else {
-			    		lb = 4;
-			    	}
-			    }
-			    if (j % xlim == (xlim - 1)) {
-			    	if (j != cols - 1 && j != 0) {
-				    	rb = 3;
-			    	} else {
-			    		rb = 4;
-			    	}
-			    }
-			    if (i % ylim == 0) {
-			    	if (i != rows - 1 && i != 0) {
-				    	tb = 3;
-			    	} else {
-			    		tb = 4;
-			    	}
-			    }
-			    if (i % ylim == (ylim - 1)) {
-			    	if (i != rows - 1 && i != 0) {
-				    	bb = 3;
-			    	} else {
-			    		bb = 4;
-			    	}
-			    }
-			    field[num].setBorder(BorderFactory.createMatteBorder(tb, lb, bb, rb, Color.BLACK));
-		    	int box = (i / ylim) * (cols / xlim) + (j / xlim);
-		    	if (((box % (cols / xlim) % 2 == 0) && (box / (cols / xlim) % 2  == 0)) || 
-		    		((box % (cols / xlim) % 2 != 0) && (box / (cols / xlim) % 2  == 1))) {
-		    		field[num].setBackground(Color.WHITE);
-		    	} else {
-		    		field[num].setBackground(Color.GRAY);
-		    	}*/
 			    field[num].addActionListener(new ActionListener(){  
 			        public void actionPerformed(ActionEvent e) {  
 			        	try {
@@ -237,7 +193,7 @@ public void keyPressed(KeyEvent e) {
 			    	        /*if (selectedDigit == 0) {
 			    	        	field[num].setForeground(Color.RED);
 			    	        } else {
-			    	        	field[num].setForeground(Color.BLACK);
+			    	        	field[num].setForeground(Color.WHITE);
 			    	        }*/
 			        		field[num].setText(String.valueOf(selectedDigit));
 			        		checkIfCorrect();
@@ -273,6 +229,7 @@ public void keyPressed(KeyEvent e) {
 	        	try {
 	        		fill();
 	        		checkIfCorrect();
+	        		difficulty.setText("");
 				} catch (Exception e1) {
 	
 	
@@ -288,6 +245,7 @@ public void keyPressed(KeyEvent e) {
         public void actionPerformed(ActionEvent e) {  
 	        	try {
 	        		isOnlyOneSolution();
+	        	    instructionArea.setText(solvingInstructions);
 	        		checkIfCorrect();
 				} catch (Exception e1) {
 	
@@ -425,6 +383,31 @@ public void keyPressed(KeyEvent e) {
         difficulty.setBounds((cols + 1) * w + 15 * 2, 15 * 7 + 15 + h * 7, 200, h / 2);
         frame.add(difficulty);
         
+        errorArea = new JTextArea(0, 0);
+        errorArea.setEditable (false);
+	    JPanel errorpanel = new JPanel();
+        errorpanel.add(errorArea, BorderLayout.CENTER);
+	    JScrollPane errorscroll = new JScrollPane(errorpanel, 
+                JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
+                JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+	    errorscroll.setBounds((cols + 1)  * w + 15 * 2 + 200 + 15, 15, 250, Math.max((rows + 1) * h + 15, 15 * 7 + h * 7 + h / 2));
+	    frame.add(errorscroll);
+	    errorpanel.setVisible(true);  
+	    errorpanel.setBackground(Color.WHITE);
+	    errorscroll.setVisible(true);  
+        instructionArea = new JTextArea(0, 0);
+        instructionArea.setEditable (false);
+	    JPanel instructionpanel = new JPanel();
+        instructionpanel.add(instructionArea, BorderLayout.CENTER);
+	    JScrollPane instructionscroll = new JScrollPane(instructionpanel, 
+                JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
+                JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+	    instructionscroll.setBounds((cols + 1)  * w + 15 * 2 + 200 + 15 + 15 + 250, 15, 350, Math.max((rows + 1) * h + 15, 15 * 7 + h * 7 + h / 2));
+	    frame.add(instructionscroll);
+	    instructionpanel.setVisible(true);  
+	    instructionpanel.setBackground(Color.WHITE);
+	    instructionscroll.setVisible(true);  
+
         frame.add(fillb);
         frame.add(uniqueb);
         frame.add(cleargrid);
@@ -432,7 +415,7 @@ public void keyPressed(KeyEvent e) {
         frame.add(restoreb);
         frame.add(filesaveb);
         frame.add(filereadb);
-	    frame.setSize(cols * w + 15 * 4 + 9 * w / 4 + 100, Math.max((rows + 1) * h + 15 * 4 + 20, 15 * 8 + 15 + h * 8));  
+	    frame.setSize((cols + 1)  * w + 15 * 2 + 200 + 15 + 15 + 250 + 350 + 30, Math.max((rows + 1) * h + 15 * 3 + 40, 15 * 9 + h * 7 + h / 2 + 40));  
 	    frame.setLayout(null);  
     }
 	

@@ -1,8 +1,11 @@
+import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Container;
 import java.awt.Font;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -25,24 +28,6 @@ public class ChangeBoxBorder extends Sudoku {
 		    }
 	    }
 	    draw();
-		errorOutput();
-		instructionOutput();
-	    for (int i = 0; i < rows; i++){ 
-	    	for (int j = 0; j < cols; j++) {
-		    	boxNumber[i * cols + j] = -1;
-		    	border[i * cols + j] = -1;
-	    		temporary[i * cols + j] = 0;
-		    }
-	    }
-	    draw();
-	    for (int i = 0; i < rows; i++){ 
-	    	for (int j = 0; j < cols; j++) {
-		    	int num = i * cols + j;
-	    		userInput[num] = temporary[num];
-	    		solution[num] = temporary[num];
-	    		field[num].setText("");
-	    	}
-	    }
 	    frame.setVisible(true);
 	}
 
@@ -53,7 +38,7 @@ public class ChangeBoxBorder extends Sudoku {
 	}
 
 	@Override
-	void draw() {
+	public void draw() {
 		frame = new JFrame("Promjeni kutiju za sudoku");  
 	    frame.setDefaultCloseOperation (JFrame.DISPOSE_ON_CLOSE);
 
@@ -128,12 +113,12 @@ public class ChangeBoxBorder extends Sudoku {
 				        		checkBoxes();
 			        		} 
 			        		if (mode == 2)  {
-					    		field[num].setBackground(Color.YELLOW);
+					    		field[num].setBackground(Color.DARK_GRAY);
 				        		border[num] = 2;
 				        		checkBoxes();
 			        		} 
 			        		if (mode == 3)  {
-					    		field[num].setBackground(Color.ORANGE);
+					    		field[num].setBackground(Color.LIGHT_GRAY);
 				        		border[num] = 3;
 				        		checkBoxes();
 			        		} 
@@ -163,12 +148,12 @@ public class ChangeBoxBorder extends Sudoku {
 	        		} 
 	        		if (mode == 1) {
 	        			mode = 2;
-	        			modeb.setText(String.valueOf("Žuto"));
+	        			modeb.setText(String.valueOf("Tamno sivo"));
 	        			return;
 	        		}
 	        		if (mode == 2) {
 	        			mode = 3;
-	        			modeb.setText(String.valueOf("Naranèasto"));
+	        			modeb.setText(String.valueOf("Svjetlo sivo"));
 	        			return;
 	        		}
 	        		if (mode == 3) {
@@ -270,16 +255,97 @@ public class ChangeBoxBorder extends Sudoku {
 				}
 	        }  
 	    });
+	    frame.setSize(cols * w + 15 * 2 + 9 * w / 4 + 15 + 130 * 5 / 4 + 30, Math.max(rows * h + 15 * 2 + 40, 15 * 7 + 15 + h * 6 + 40));  
+
+	    x = cols * w + 15 * 2 + 9 * w / 4 + 15;
+		y = 15;
+		w = 130;
+		h = 30;
+		
+        JLabel rowLabel = new JLabel("Broj redaka mreže: ");
+	    rowLabel.setBounds(x, y, w, h);
+	    frame.add(rowLabel);
+	    
+	    JTextField row = new JTextField(String.valueOf(rows));
+        row.setBounds(x + w, y, w / 4, h);
+	    frame.add(row);
+
+	    JLabel xlimLabel = new JLabel("Broj redaka kutije: ");
+	    xlimLabel.setBounds(x, y + h, w, h);
+	    frame.add(xlimLabel);
+	    
+	    JTextField xlimval = new JTextField(String.valueOf(ylim));
+	    xlimval.setBounds(x + w, y + h, w / 4, h);
+	    frame.add(xlimval);
+
+	    JLabel colLabel = new JLabel("Broj stupaca mreže: ");
+	    colLabel.setBounds(x, y + h * 2, w, h);
+	    frame.add(colLabel);
+	    
+	    JTextField col = new JTextField(String.valueOf(cols));
+	    col.setBounds(x + w, y + h * 2, w / 4, h);
+	    frame.add(col);
+
+	    JLabel ylimLabel = new JLabel("Broj stupaca kutije: ");
+	    ylimLabel.setBounds(x, y + h * 3, w, h);
+	    frame.add(ylimLabel);
+	    
+	    JTextField ylimval = new JTextField(String.valueOf(xlim));
+	    ylimval.setBounds(x + w, y + h * 3, w / 4, h);
+	    frame.add(ylimval);
+	    
+	    JButton createb = new JButton("Izmjeni dimenzije");
+	    createb.setBounds(x, y + h * 9 / 2, w * 5 / 4, h);
+	    createb.addActionListener(new ActionListener(){  
+	        public void actionPerformed(ActionEvent e) {  
+	        	try {
+	        		int pr = Integer.parseInt(row.getText());
+	        		int pc = Integer.parseInt(col.getText());
+	        		int yl = Integer.parseInt(ylimval.getText());
+	        		int xl = Integer.parseInt(xlimval.getText());
+        			if (pr != pc) {
+        				//System.out.println("Zagonetka nije kvadratna.");
+        				return;
+        			}
+        			if (yl * xl > pr) {
+        				//System.out.println("Kutije imaju previše znamenki.");
+        				return;
+        			}
+        			if (yl * xl < pr) {
+        				//System.out.println("Kutije imaju premalo znamenki.");
+        				return;
+        			}
+
+        			rows = pr;
+        			cols = pc;
+        			xlim = yl;
+        			ylim = xl;
+        		    frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
+        		    frame.removeAll();
+        		    frame.dispose();
+        		    frame.setVisible(false);
+	        		ChangeBoxBorder b = new ChangeBoxBorder(pr, pc, yl, xl);
+
+				} catch (Exception e1) {
+
+				}
+	        }  
+	    });
+	    frame.add(createb);
+
+        
         frame.add(modeb);
         frame.add(designb);
         frame.add(designcontb);
         frame.add(solverandomb);
         frame.add(solveb);
-	    frame.setSize(cols * w + 15 * 4 + cols * w / 4 + 145, Math.max((rows + 1) * h + 15 * 4 + 20, 15 * 7 + 15 + h * 7));  
-	    frame.setLayout(null); 
+        Container contentPane = frame.getContentPane ();
+        contentPane.setLayout (new BorderLayout ());
+	    frame.setVisible(true);
 	}
 
-	/*public static void main(String args[]) {
-		ChangeBoxBorder s = new ChangeBoxBorder(9, 9, 3, 3);
-	}*/
+	public static void main(String args[]) {
+		ChangeBoxBorder b = new ChangeBoxBorder(9, 9, 3, 3);
+	}
+
 }

@@ -8,6 +8,9 @@ import java.util.ArrayList;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.LookAndFeel;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 
 
 public class FileManipulator {
@@ -23,12 +26,12 @@ public class FileManipulator {
 	    try {
 	      File myObj = new File(filename);
 	      if (myObj.createNewFile()) {
-	        System.out.println("File created: " + myObj.getName());
+	        //System.out.println("File created: " + myObj.getName());
 	      } else {
-	        System.out.println("File already exists.");
+	        //System.out.println("File already exists.");
 	      }
 	    } catch (IOException e) {
-	      System.out.println("An error occurred.");
+	      //System.out.println("An error occurred.");
 	      e.printStackTrace();
 	    }
 	  }
@@ -52,9 +55,9 @@ public class FileManipulator {
 	        }
 	        myWriter.write(line1 + line2);
 	        myWriter.close();
-	        System.out.println("Successfully wrote to the file.");
+	        //System.out.println("Successfully wrote to the file.");
 	      } catch (IOException e) {
-	        System.out.println("An error occurred.");
+	        //System.out.println("An error occurred.");
 	        e.printStackTrace();
 	      }
 	  }
@@ -73,31 +76,31 @@ public class FileManipulator {
 		      }
 		      myReader.close(); 
 		      if (lineNum != cols * 2 || lineNum == 0) {
-		    	  System.out.println("Sadržaj datoteke je neispravan.");
+		    	  //System.out.println("Sadržaj datoteke je neispravan.");
 		    	  return 1;
 		      }
 		      s.rows = cols;
 		      s.cols = cols;
 		      for (int i = 0; i < lineNum; i++) {
-			      	System.out.print("LineNum " +  String.valueOf(i)+ " ");
+			      	//System.out.print("LineNum " +  String.valueOf(i)+ " ");
 		        	if (i < s.rows) {
-				        System.out.print("userInput: ");
+				        //System.out.print("userInput: ");
 			        	for (int j = 0; j < s.cols; j++) {
-			        		System.out.print(data.get(i).substring(j, j + 1) + " ");
+			        		//System.out.print(data.get(i).substring(j, j + 1) + " ");
 			        		s.userInput[i * s.cols + j] = Integer.parseInt(data.get(i).substring(j, j + 1));
 			        	}
 		        	} else {
-					    System.out.print("border: ");
+					    //System.out.print("border: ");
 		        		for (int j = 0; j < s.cols; j++) {
-			        		System.out.print(data.get(i).substring(j, j + 1) + " ");
+			        		//System.out.print(data.get(i).substring(j, j + 1) + " ");
 			        		s.border[(i - s.rows) * s.cols + j] = Integer.parseInt(data.get(i).substring(j, j + 1));
 		        		}
 		        	}
-				    System.out.println("");
+				    //System.out.println("");
 		      }
 		      return 0;
 		    } catch (FileNotFoundException e) {
-		      System.out.println("An error occurred.");
+		      //System.out.println("An error occurred.");
 		      e.printStackTrace();
 		      return 1;
 		    }
@@ -110,9 +113,31 @@ public class FileManipulator {
 		int w = 100;
 		int h = 30;
 		JButton createb = new JButton("Uèitaj");
+		LookAndFeel previousLF = UIManager.getLookAndFeel();
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InstantiationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (UnsupportedLookAndFeelException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		JFileChooser j = new JFileChooser();
+		try {
+			UIManager.setLookAndFeel(previousLF);
+		} catch (UnsupportedLookAndFeelException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		int returnVal = j.showOpenDialog(createb);
-	    System.out.println(returnVal);
+	    //System.out.println(returnVal);
 	    File f = j.getSelectedFile();
 		String newFile = f.getAbsolutePath();
 	    if (returnVal == 1) {
@@ -121,7 +146,7 @@ public class FileManipulator {
 	    if(!f.exists() || f.isDirectory()) { 
 	        CreateFile(newFile);
 	    }
-	    System.out.println(newFile);
+	    //System.out.println(newFile);
 		createb.setBounds(x, y, w, h);
 		frame.add(createb);
 		frame.setSize(300, 300);  

@@ -1,4 +1,7 @@
+import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
@@ -9,9 +12,15 @@ import java.util.Timer;
 import java.util.concurrent.ThreadLocalRandom;
 
 import javax.swing.BorderFactory;
+import javax.swing.GroupLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.UIManager;
+import javax.swing.plaf.metal.MetalButtonUI;
 
 public class SolveSudoku extends Sudoku {
 
@@ -26,6 +35,7 @@ public class SolveSudoku extends Sudoku {
 	long elapsedTime;
 	JLabel timeLabel;
 	JLabel helpLabel;
+	int selectedCel = 0;
 	public SolveSudoku(int x, int y, int xl, int yl, int[] br, int[] bn, int mint, int maxt) {
 		super(x, y, xl, yl);
 		border = br;
@@ -48,8 +58,6 @@ public class SolveSudoku extends Sudoku {
 	    		field[num].setText(String.valueOf(userInput[num]));
 	    	}
 	    }
-		errorOutput();
-		instructionOutput();
 		options = new int[x * y][x];
 		result = new int[x * y];
 		checkBoxes();
@@ -61,12 +69,12 @@ public class SolveSudoku extends Sudoku {
 	    while (solvable == 0 || difficultyScore > maxtargetDifficulty || difficultyScore < mintargetDifficulty) {
 		    removeSymetricPair();
 		    solvable = isOnlyOneSolution();
-		    System.out.println(String.valueOf(difficultyScore));
+		    //System.out.println(String.valueOf(difficultyScore));
 	    	if (solvable == 0) {
 	    		numReturns++;
 	    		restoreLastRemoved();
 			    solvable = isOnlyOneSolution();
-			    System.out.println("backtrack " + String.valueOf(difficultyScore));
+			    //System.out.println("backtrack " + String.valueOf(difficultyScore));
 	    	} else {
 	    		numReturns = 0;
 	    	}
@@ -88,11 +96,10 @@ public class SolveSudoku extends Sudoku {
 		    		userInput[num] = 0;
 		    		solution[num] = 0;
 		    		temporary[num] = 0;
-    	        	field[num].setForeground(Color.WHITE);
+		    		field[num].setForeground(Color.WHITE);
     	        	field[num].setText("");
 	    		} else {
 	    			field[num].setEnabled(false);
-    	        	field[num].setText("<html><font color='red'>" + String.valueOf(userInput[num]) + "</html></font>");
 	    		}
 	    		for (int k = 0; k < rows; k++) {
 	    			options[num][k] = 0;
@@ -100,8 +107,6 @@ public class SolveSudoku extends Sudoku {
 	    	}	
 	    }
 	    frame.setVisible(true);
-	    instructionFrame.setVisible(true);
-	    errorFrame.setVisible(true);
 	}
 	
 	public SolveSudoku(int x, int y, int xl, int yl, int[] br, int[] bn, int[] ui) {
@@ -117,8 +122,6 @@ public class SolveSudoku extends Sudoku {
 	    		field[num].setText(String.valueOf(userInput[num]));
 	    	}
 	    }
-		errorOutput();
-		instructionOutput();
 		options = new int[x * y][x];
 		result = new int[x * y];
 		checkBoxes();
@@ -145,7 +148,6 @@ public class SolveSudoku extends Sudoku {
     	        	field[num].setText("");
 	    		} else {
 	    			field[num].setEnabled(false);
-    	        	field[num].setText("<html><font color='red'>" + String.valueOf(userInput[num]) + "</html></font>");
 	    		}
 	    		for (int k = 0; k < rows; k++) {
 	    			options[num][k] = 0;
@@ -153,8 +155,6 @@ public class SolveSudoku extends Sudoku {
 	    	}	
 	    }
 	    frame.setVisible(true);
-		errorFrame.setVisible(true);
-		instructionFrame.setVisible(true);
 	}
 
 	boolean incorrect[] = new boolean[rows * cols];
@@ -164,7 +164,7 @@ public class SolveSudoku extends Sudoku {
 	    for (int i = 0; i < rows; i++){ 
 	    	for (int j = 0; j < cols; j++) {
 		    	int num = i * cols + j;
-		    	field[i * cols + j].setForeground(Color.WHITE);
+		    	field[i * cols + j].setForeground(Color.BLACK);
 		    	temporary[num] = userInput[num];
 		    	incorrect[num] = false;
 	    	}
@@ -281,9 +281,9 @@ public class SolveSudoku extends Sudoku {
     	userInput[num] = result[num];
 		field[num].setEnabled(false);
 		field[num].setBackground(Color.BLUE);
-    	field[num].setText("<html><font color='red'>" + String.valueOf(userInput[num]) + "</html></font>");
+    	field[num].setText(String.valueOf(userInput[num]));
     	numHints++;
-    	System.out.println(numHints);
+    	//System.out.println(numHints);
     	helpLabel.setText("Iskorištena pomoæ: " + String.valueOf(numHints));
 		checkIfCorrect();
 	}
@@ -297,9 +297,9 @@ public class SolveSudoku extends Sudoku {
     	userInput[num] = result[num];
 		field[num].setEnabled(false);
 		field[num].setBackground(Color.BLUE);
-    	field[num].setText("<html><font color='red'>" + String.valueOf(userInput[num]) + "</html></font>");
+    	field[num].setText(String.valueOf(userInput[num]));
     	numHints++;
-    	System.out.println(numHints);
+    	//System.out.println(numHints);
     	helpLabel.setText("Iskorištena pomoæ: " + String.valueOf(numHints));
 		modeb.setText("Bilješke UKLJUÈENE");
     	/*mode = 1;
@@ -347,50 +347,15 @@ public class SolveSudoku extends Sudoku {
 	    	x = 15;
 	    	for (int j = 0; j < cols; j++) {
 	    		int num = i * cols + j;
-	    	    field[num] = new JButton(String.valueOf("0"));  
+	    	    field[num] = new JButton("");  
+			    field[num].setUI(new MetalButtonUI() {
+    			    protected Color getDisabledTextColor() {
+    			        return Color.CYAN;
+    			    }
+    			});
 			    field[num].setMargin(new Insets(1,1,1,1));
 			    field[num].setFont(new Font("Arial", Font.PLAIN, fontsize));
 			    field[num].setBounds(x, y, w, h);
-			    /*int lb = 1;
-			    int rb = 1;
-			    int tb = 1;
-			    int bb = 1;
-			    if (j % xlim== 0) {
-			    	if (j != cols - 1 && j != 0) {
-				    	lb = 3;
-			    	} else {
-			    		lb = 4;
-			    	}
-			    }
-			    if (j % xlim == (xlim - 1)) {
-			    	if (j != cols - 1 && j != 0) {
-				    	rb = 3;
-			    	} else {
-			    		rb = 4;
-			    	}
-			    }
-			    if (i % ylim == 0) {
-			    	if (i != rows - 1 && i != 0) {
-				    	tb = 3;
-			    	} else {
-			    		tb = 4;
-			    	}
-			    }
-			    if (i % ylim == (ylim - 1)) {
-			    	if (i != rows - 1 && i != 0) {
-				    	bb = 3;
-			    	} else {
-			    		bb = 4;
-			    	}
-			    }
-			    field[num].setBorder(BorderFactory.createMatteBorder(tb, lb, bb, rb, Color.WHITE));
-		    	int box = (i / ylim) * (cols / xlim) + (j / xlim);
-		    	if (((box % (cols / xlim) % 2 == 0) && (box / (cols / xlim) % 2  == 0)) || 
-		    		((box % (cols / xlim) % 2 != 0) && (box / (cols / xlim) % 2  == 1))) {
-		    		field[num].setBackground(Color.BLACK);
-		    	} else {
-		    		field[num].setBackground(Color.GRAY);
-		    	}*/
 			    field[num].addActionListener(new ActionListener(){  
 			        public void actionPerformed(ActionEvent e) {  
 			        	try {
@@ -401,6 +366,86 @@ public class SolveSudoku extends Sudoku {
 				        		options[num][selectedDigit - 1] = 1;
 				        		userInput[num] = selectedDigit;
 				        		field[num].setText(String.valueOf(selectedDigit));
+				        		for (int samcol = 0; samcol < cols; samcol++) {
+				        			int num2 = samcol * cols + num % cols;
+				        			if (userInput[num2] != 0) {
+				        				continue;
+				        			}
+				        			options[num2][selectedDigit - 1] = 0;
+						    		String t = "<html><font color = yellow>";
+						    		int z = 0;
+							    	for (int k = 0; k < cols; k++) {
+							    		if (options[num2][k] == 1) {
+							    			z++;
+							    			t += String.valueOf(k + 1);
+							    			if (z % 3 == 0) {
+							    				t += "<br />";
+							    			} else {
+							    				t += " ";
+							    			}
+							    		}
+								    }
+							    	if (z != 0) {
+							    		t = t.substring(0, t.length() - 1) + "</font></html>";
+							    	} else {
+							    		t = "";
+							    	}
+					        		field[num2].setText(t);
+				        		}
+				        		for (int samrow = 0; samrow < cols; samrow++) {
+				        			int num2 = num / cols * cols + samrow;
+				        			if (userInput[num2] != 0) {
+				        				continue;
+				        			}
+				        			options[num2][selectedDigit - 1] = 0;
+						    		String t = "<html><font color = yellow>";
+						    		int z = 0;
+							    	for (int k = 0; k < cols; k++) {
+							    		if (options[num2][k] == 1) {
+							    			z++;
+							    			t += String.valueOf(k + 1);
+							    			if (z % 3 == 0) {
+							    				t += "<br />";
+							    			} else {
+							    				t += " ";
+							    			}
+							    		}
+								    }
+							    	if (z != 0) {
+							    		t = t.substring(0, t.length() - 1) + "</font></html>";
+							    	} else {
+							    		t = "";
+							    	}
+					        		field[num2].setText(t);
+				        		}
+				        		for (int sambox = 0; sambox < cols * rows; sambox++) {
+				        			if (boxNumber[sambox] != boxNumber[num]) {
+				        				continue;
+				        			}
+				        			if (userInput[sambox] != 0) {
+				        				continue;
+				        			}
+				        			options[sambox][selectedDigit - 1] = 0;
+						    		String t = "<html><font color = yellow>";
+						    		int z = 0;
+							    	for (int k = 0; k < cols; k++) {
+							    		if (options[sambox][k] == 1) {
+							    			z++;
+							    			t += String.valueOf(k + 1);
+							    			if (z % 3 == 0) {
+							    				t += "<br />";
+							    			} else {
+							    				t += " ";
+							    			}
+							    		}
+								    }
+							    	if (z != 0) {
+							    		t = t.substring(0, t.length() - 1) + "</font></html>";
+							    	} else {
+							    		t = "";
+							    	}
+					        		field[sambox].setText(t);
+				        		}
 			        		} 
 			        		if (mode == 1) {
 				        		if (options[num][selectedDigit - 1] == 1) {
@@ -409,7 +454,7 @@ public class SolveSudoku extends Sudoku {
 					        		options[num][selectedDigit - 1] = 1;
 				        		}
 				        		userInput[num] = 0;
-					    		String t = "<html><font color='yellow'>";
+					    		String t = "<html><font color = yellow>";
 					    		int z = 0;
 						    	for (int k = 0; k < cols; k++) {
 						    		if (options[num][k] == 1) {
@@ -444,6 +489,13 @@ public class SolveSudoku extends Sudoku {
 				    			int key = e.getKeyCode();
 				    			if (key - 48 >= 0 && key - 48 <= 9) {
 				    				selectedDigit = key - 48;
+				    			}
+				    			if (key == 8) {
+				    				for (int i = 0; i < cols; i++) {
+						        		options[num][i] = 0;
+				    				}
+					        		userInput[num] = 0;
+				    				field[num].setText("");
 				    			}
 				    		}
 							public void keyReleased(KeyEvent e) {}
@@ -484,6 +536,7 @@ public class SolveSudoku extends Sudoku {
         public void actionPerformed(ActionEvent e) {  
 	        	try {
 	        		showerror();
+	        	    instructionArea.setText(solvingInstructions);
 				} catch (Exception e1) {
 	
 	
@@ -569,12 +622,37 @@ public class SolveSudoku extends Sudoku {
 	    helpLabel = new JLabel("Iskorištena pomoæ: 0");
 	    helpLabel.setBounds(cols * w + 15 * 2, 15 * 11 / 2 + 15 + h * 11 / 2, 200, h / 2);
 	    frame.add(helpLabel);
-	    
+
+        errorArea = new JTextArea(0, 0);
+        errorArea.setEditable (false);
+	    JPanel errorpanel = new JPanel();
+        errorpanel.add(errorArea, BorderLayout.CENTER);
+	    JScrollPane errorscroll = new JScrollPane(errorpanel, 
+                JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
+                JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+	    errorscroll.setBounds(cols * w + 15 * 2 + 200 + 15, 15, 250, Math.max((rows + 1) * h + 15, 6 * h + 7 * 15));
+	    frame.add(errorscroll);
+	    errorpanel.setVisible(true);  
+	    errorpanel.setBackground(Color.WHITE);
+	    errorscroll.setVisible(true);  
+        instructionArea = new JTextArea(0, 0);
+        instructionArea.setEditable (false);
+	    JPanel instructionpanel = new JPanel();
+        instructionpanel.add(instructionArea, BorderLayout.CENTER);
+	    JScrollPane instructionscroll = new JScrollPane(instructionpanel, 
+                JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
+                JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+	    instructionscroll.setBounds(cols * w + 15 * 2 + 200 + 15 + 15 + 250, 15, 350, Math.max((rows + 1) * h + 15, 6 * h + 7 * 15));
+	    frame.add(instructionscroll);
+	    instructionpanel.setVisible(true);  
+	    instructionpanel.setBackground(Color.WHITE);
+	    instructionscroll.setVisible(true);  
+
         frame.add(solvedb);
         frame.add(modeb);
         frame.add(randomhintb);
         frame.add(hintb);
-	    frame.setSize(cols * w + 15 * 4 + cols * w / 4 + 100, (rows + 1) * h + 15 * 4 + 20);  
+	    frame.setSize(cols * w + 15 * 2 + 200 + 15 + 15 + 600 + 30, Math.max((rows + 1) * h + 15 * 3 + 40, 6 * h + 9 * 15 + 40));  
 	    frame.setLayout(null);  
     }
 	

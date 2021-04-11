@@ -61,15 +61,15 @@ public class ChooseSize {
 		        		ChangeBoxBorder b = new ChangeBoxBorder(Integer.parseInt(row.getText()), Integer.parseInt(col.getText()), Integer.parseInt(ylimval.getText()), Integer.parseInt(xlimval.getText()));
 	        		} else {
 	        			if (Integer.parseInt(row.getText()) != Integer.parseInt(col.getText())) {
-	        				System.out.println("Zagonetka nije kvadratna.");
+	        				//System.out.println("Zagonetka nije kvadratna.");
 	        				return;
 	        			}
 	        			if (Integer.parseInt(ylimval.getText()) * Integer.parseInt(xlimval.getText()) > Integer.parseInt(row.getText())) {
-	        				System.out.println("Kutije imaju previše znamenki.");
+	        				//System.out.println("Kutije imaju previše znamenki.");
 	        				return;
 	        			}
 	        			if (Integer.parseInt(ylimval.getText()) * Integer.parseInt(xlimval.getText()) < Integer.parseInt(row.getText())) {
-	        				System.out.println("Kutije imaju premalo znamenki.");
+	        				//System.out.println("Kutije imaju premalo znamenki.");
 	        				return;
 	        			}
 	        		}
