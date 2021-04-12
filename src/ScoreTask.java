@@ -12,6 +12,10 @@ public class ScoreTask extends TimerTask {
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
+
+		if (s.timerStopped) {
+			return;
+		}
         s.changeTime();
 	}
 

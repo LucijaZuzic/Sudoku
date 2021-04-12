@@ -1,7 +1,6 @@
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Container;
-import java.awt.Dimension;
+
 import java.awt.Font;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
@@ -11,15 +10,14 @@ import java.awt.event.KeyListener;
 import java.util.Timer;
 import java.util.concurrent.ThreadLocalRandom;
 
-import javax.swing.BorderFactory;
-import javax.swing.GroupLayout;
+
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import javax.swing.UIManager;
+
 import javax.swing.plaf.metal.MetalButtonUI;
 
 public class SolveSudoku extends Sudoku {
@@ -66,6 +64,7 @@ public class SolveSudoku extends Sudoku {
 	    int numReturns = 0;
 	    mintargetDifficulty = mint;
 	    maxtargetDifficulty = maxt;
+	    long startGen = System.currentTimeMillis();
 	    while (solvable == 0 || difficultyScore > maxtargetDifficulty || difficultyScore < mintargetDifficulty) {
 		    removeSymetricPair();
 		    solvable = isOnlyOneSolution();
@@ -84,6 +83,9 @@ public class SolveSudoku extends Sudoku {
 	    		}
 	    		difficultyScore = 0;
 	    		numReturns = 0;
+	    	}
+	    	if (solvable == 1 && System.currentTimeMillis() - startGen >= 10000) {
+	    		break;
 	    	}
 	    }
 		backup = new int[x * y];
@@ -305,9 +307,15 @@ public class SolveSudoku extends Sudoku {
     	/*mode = 1;
 		checkIfCorrect();*/
 	}
-	
+	int errornum = 0;
+	int emptynum = 0;
+	int correctnum = 0;
+
 	public boolean showerror() {
 		boolean haserrors = false;
+		errornum = 0;
+		emptynum = 0;
+		correctnum = 0;
 	    for (int i = 0; i < rows; i++){ 
 	    	for (int j = 0; j < cols; j++) {
 		    	int num = i * cols + j;
@@ -315,13 +323,24 @@ public class SolveSudoku extends Sudoku {
 	    			continue;
 	    		}
 	    		if (userInput[num] != result[num]) {
-    	        	field[num].setForeground(Color.RED);
-    	        	haserrors = true;
+	    			if (userInput[num] == 0) {
+	    	        	field[num].setText(String.valueOf(result[num]));
+	    	        	field[num].setForeground(Color.MAGENTA);
+	    	        	emptynum++;
+	    			} else {
+	    	        	field[num].setForeground(Color.RED);
+	    	        	errornum++;
+	    			}
+	    	        haserrors = true;
 	    		} else {
     	        	field[num].setForeground(Color.GREEN);
+    	        	correctnum++;
 	    		}
 	    	}	
 	    }
+	    instructionArea.setText(solvingInstructions);
+	    timerStopped = true;
+	    InformationBox.infoBox("Errors: " + String.valueOf(errornum) + "\nEmpty: " + String.valueOf(emptynum) + "\nCorrect: " + String.valueOf(correctnum), "Submission");
 		return haserrors;
 	}
 
@@ -330,13 +349,29 @@ public class SolveSudoku extends Sudoku {
         String padded = String.format("%02d:%02d:%02d", elapsedTime / 3600, (elapsedTime % 3600) / 60, (elapsedTime % 3600) % 60);
 		timeLabel.setText("Proteklo vrijeme: " + padded);
 	}
+	boolean timerStopped = false;
+
+	KeyListener k  =
+	new KeyListener(){
+		public void keyPressed(KeyEvent e) {
+    		if (timerStopped) {
+    			return;
+    		}
+			int key = e.getKeyCode();
+			if (key - 48 >= 0 && key - 48 <= 9) {
+				selectedDigit = key - 48;
+			}
+		}
+		public void keyReleased(KeyEvent e) {}
+		public void keyTyped(KeyEvent e) {}
+	};
 	
 	@Override
 	public void draw () 
     {
 		frame = new JFrame("Riješi sudoku");  
 	    frame.setDefaultCloseOperation (JFrame.DISPOSE_ON_CLOSE);
-
+	    frame.addKeyListener(k);
 	    int x = 15;
 		int y = 15;
 		int w = 60;
@@ -359,6 +394,9 @@ public class SolveSudoku extends Sudoku {
 			    field[num].addActionListener(new ActionListener(){  
 			        public void actionPerformed(ActionEvent e) {  
 			        	try {
+			        		if (timerStopped) {
+			        			return;
+			        		}
 			        		if (mode == 0)  {
 				        		for (int k = 0; k < cols; k++) {
 					        		options[num][k] = 0;
@@ -486,6 +524,9 @@ public class SolveSudoku extends Sudoku {
 			    field[num].addKeyListener(
 				    	new KeyListener(){
 				    		public void keyPressed(KeyEvent e) {
+				        		if (timerStopped) {
+				        			return;
+				        		}
 				    			int key = e.getKeyCode();
 				    			if (key - 48 >= 0 && key - 48 <= 9) {
 				    				selectedDigit = key - 48;
@@ -517,6 +558,9 @@ public class SolveSudoku extends Sudoku {
 	        digib.addActionListener(new ActionListener(){  
 	        public void actionPerformed(ActionEvent e) {  
 		        	try {
+		        		if (timerStopped) {
+		        			return;
+		        		}
 		        		selectedDigit = digit;
 					} catch (Exception e1) {
 		
@@ -524,6 +568,7 @@ public class SolveSudoku extends Sudoku {
 					}
 		        }  
 		    });
+	        digib.addKeyListener(k);
 	        frame.add(digib);
 	        x += w;
 		}
@@ -535,15 +580,17 @@ public class SolveSudoku extends Sudoku {
         solvedb.addActionListener(new ActionListener(){  
         public void actionPerformed(ActionEvent e) {  
 	        	try {
+	        		if (timerStopped) {
+	        			return;
+	        		}
 	        		showerror();
-	        	    instructionArea.setText(solvingInstructions);
 				} catch (Exception e1) {
 	
 	
 				}
 	        }  
 	    });
-
+        solvedb.addKeyListener(k);
         modeb = new JButton("Bilješke UKLJUÈENE");  
         modeb.setMargin(new Insets(1,1,1,1));
         modeb.setBounds(cols * w + 15 * 2, 15 + 15 + h, 9 * w / 4, h);
@@ -551,6 +598,9 @@ public class SolveSudoku extends Sudoku {
         modeb.addActionListener(new ActionListener(){  
         public void actionPerformed(ActionEvent e) {  
 	        	try {
+	        		if (timerStopped) {
+	        			return;
+	        		}
 	        		if (mode == 1) {
 	        			modeb.setText("Bilješke ISKLJUÈENE");
 	        			mode = 0;
@@ -570,7 +620,7 @@ public class SolveSudoku extends Sudoku {
 				}
 	        }  
 	    });
-
+        modeb.addKeyListener(k);
         JButton randomhintb = new JButton("Nasumièna pomoæ");  
         randomhintb.setMargin(new Insets(1,1,1,1));
         randomhintb.setBounds(cols * w + 15 * 2, 15 + 15 * 2 + h * 2, 9 * w / 4, h);
@@ -578,6 +628,9 @@ public class SolveSudoku extends Sudoku {
         randomhintb.addActionListener(new ActionListener(){  
         public void actionPerformed(ActionEvent e) {  
 	        	try {
+	        		if (timerStopped) {
+	        			return;
+	        		}
 	        		hint();
 	        		/*mode = 1;
         			modeb.setText("Bilješke UKLJUÈENE");*/
@@ -586,8 +639,7 @@ public class SolveSudoku extends Sudoku {
 				}
 	        }  
 	    });
-        
-
+        randomhintb.addKeyListener(k);
         JButton hintb = new JButton("Odabrana pomoæ");  
         hintb.setMargin(new Insets(1,1,1,1));
         hintb.setBounds(cols * w + 15 * 2, 15 + 15 * 3 + h * 3, 9 * w / 4, h);
@@ -595,6 +647,9 @@ public class SolveSudoku extends Sudoku {
         hintb.addActionListener(new ActionListener(){  
         public void actionPerformed(ActionEvent e) {  
 	        	try {
+	        		if (timerStopped) {
+	        			return;
+	        		}
 	        		mode = 2;
         			modeb.setText("Odaberi pomoæ");
 				} catch (Exception e1) {
@@ -602,7 +657,7 @@ public class SolveSudoku extends Sudoku {
 				}
 	        }  
 	    });
-        
+        hintb.addKeyListener(k);
         difficulty.setBounds(cols * w + 15 * 2, 15 * 4 + 15 + h * 4, 200, h / 2);
         frame.add(difficulty);
 
@@ -642,7 +697,7 @@ public class SolveSudoku extends Sudoku {
 	    JScrollPane instructionscroll = new JScrollPane(instructionpanel, 
                 JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
                 JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-	    instructionscroll.setBounds(cols * w + 15 * 2 + 200 + 15 + 15 + 250, 15, 350, Math.max((rows + 1) * h + 15, 6 * h + 7 * 15));
+	    instructionscroll.setBounds(cols * w + 15 * 2 + 200 + 15 + 15 + 250, 15, 500, Math.max((rows + 1) * h + 15, 6 * h + 7 * 15));
 	    frame.add(instructionscroll);
 	    instructionpanel.setVisible(true);  
 	    instructionpanel.setBackground(Color.WHITE);
@@ -652,7 +707,7 @@ public class SolveSudoku extends Sudoku {
         frame.add(modeb);
         frame.add(randomhintb);
         frame.add(hintb);
-	    frame.setSize(cols * w + 15 * 2 + 200 + 15 + 15 + 600 + 30, Math.max((rows + 1) * h + 15 * 3 + 40, 6 * h + 9 * 15 + 40));  
+	    frame.setSize(cols * w + 15 * 2 + 200 + 15 + 15 + 750 + 30, Math.max((rows + 1) * h + 15 * 3 + 40, 6 * h + 9 * 15 + 40));  
 	    frame.setLayout(null);  
     }
 	

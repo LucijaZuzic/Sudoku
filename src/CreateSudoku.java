@@ -7,13 +7,11 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
-import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import javax.swing.KeyStroke;
 
 public class CreateSudoku extends Sudoku {
 
@@ -158,20 +156,31 @@ public class CreateSudoku extends Sudoku {
 
 
 
-public void keyPressed(KeyEvent e) {
+/*public void keyPressed(KeyEvent e) {
 
     int key = e.getKeyCode();
 
     //System.out.println(key);
-}
+}*/
 
 
+	KeyListener k  =
+	new KeyListener(){
+		public void keyPressed(KeyEvent e) {
+			int key = e.getKeyCode();
+			if (key - 48 >= 0 && key - 48 <= 9) {
+				selectedDigit = key - 48;
+			}
+		}
+		public void keyReleased(KeyEvent e) {}
+		public void keyTyped(KeyEvent e) {}
+	};
 	@Override
 	public void draw () 
     {
 		frame = new JFrame("Stvori sudoku");  
 	    frame.setDefaultCloseOperation (JFrame.DISPOSE_ON_CLOSE);
-	    
+	    frame.addKeyListener(k);
 	    int x = 15;
 		int y = 15;
 		int w = 60;
@@ -202,18 +211,7 @@ public void keyPressed(KeyEvent e) {
 						}
 			        }  
 			    });
-			    field[num].addKeyListener(
-				    	new KeyListener(){
-				    		public void keyPressed(KeyEvent e) {
-				    			int key = e.getKeyCode();
-				    			if (key - 48 >= 0 && key - 48 <= 9) {
-				    				selectedDigit = key - 48;
-				    			}
-				    		}
-							public void keyReleased(KeyEvent e) {}
-							public void keyTyped(KeyEvent e) {}
-						}
-			    	);
+			    field[num].addKeyListener(k);
 			    frame.add(field[num]);
 		    	x += w;
 		    }
@@ -236,7 +234,7 @@ public void keyPressed(KeyEvent e) {
 				}
 	        }  
 	    });
-
+		fillb.addKeyListener(k);
         JButton uniqueb = new JButton("Jedinstvenost rješenja");  
 		uniqueb.setMargin(new Insets(1,1,1,1));
 		uniqueb.setBounds((cols + 1) * w + 15 * 2, 15 + 15 + h, 9 * w / 4, h);
@@ -253,7 +251,7 @@ public void keyPressed(KeyEvent e) {
 				}
 	        }  
 	    });
-
+		uniqueb.addKeyListener(k);
 		JButton cleargrid = new JButton("Isprazni mreu");  
         cleargrid.setMargin(new Insets(1,1,1,1));
         cleargrid.setBounds((cols + 1) * w + 15 * 2, 15 + 15 * 2 + h * 2, 9 * w / 4, h);
@@ -278,7 +276,7 @@ public void keyPressed(KeyEvent e) {
 	        }  
 	    });
 		x = 15;
-
+		cleargrid.addKeyListener(k);
         JButton removeb = new JButton("Simetrièno ukloni");  
         removeb.setMargin(new Insets(1,1,1,1));
         removeb.setBounds((cols + 1) * w + 15 * 2, 15 + 15 * 3 + h * 3, 9 * w / 4, h);
@@ -295,7 +293,7 @@ public void keyPressed(KeyEvent e) {
 	        }  
 	    });
 		x = 15;
-
+		removeb.addKeyListener(k);
         JButton restoreb = new JButton("Vrati uklonjeno");  
         restoreb.setMargin(new Insets(1,1,1,1));
         restoreb.setBounds((cols + 1) * w + 15 * 2, 15 + 15 * 4 + h * 4, 9 * w / 4, h);
@@ -312,6 +310,7 @@ public void keyPressed(KeyEvent e) {
 	        }  
 	    });
 		x = 15;
+		restoreb.addKeyListener(k);
 		FileManipulator f = new FileManipulator();
 		f.setSudoku(this);
         JButton filesaveb = new JButton("Spremi zagonetku");  
@@ -328,8 +327,7 @@ public void keyPressed(KeyEvent e) {
 	        }  
 	    });
 		x = 15;
-        
-
+		filesaveb.addKeyListener(k);
         JButton filereadb = new JButton("Uèitaj zagonetku");  
         filereadb.setMargin(new Insets(1,1,1,1));
         filereadb.setBounds((cols + 1) * w + 15 * 2, 15 + 15 * 6 + h * 6, 9 * w / 4, h);
@@ -355,7 +353,7 @@ public void keyPressed(KeyEvent e) {
 	        }  
 	    });
 		x = 15;
-		
+		filereadb.addKeyListener(k);
 		for (int i = 0; i < cols + 1; i++) {
 	        JButton digib = new JButton(String.valueOf(i));  
 	        digib.setMargin(new Insets(1,1,1,1));
@@ -376,10 +374,10 @@ public void keyPressed(KeyEvent e) {
 					}
 		        }  
 		    });
+	        digib.addKeyListener(k);
 	        frame.add(digib);
 	        x += w;
 		}
-
         difficulty.setBounds((cols + 1) * w + 15 * 2, 15 * 7 + 15 + h * 7, 200, h / 2);
         frame.add(difficulty);
         
@@ -402,7 +400,7 @@ public void keyPressed(KeyEvent e) {
 	    JScrollPane instructionscroll = new JScrollPane(instructionpanel, 
                 JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
                 JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-	    instructionscroll.setBounds((cols + 1)  * w + 15 * 2 + 200 + 15 + 15 + 250, 15, 350, Math.max((rows + 1) * h + 15, 15 * 7 + h * 7 + h / 2));
+	    instructionscroll.setBounds((cols + 1)  * w + 15 * 2 + 200 + 15 + 15 + 250, 15, 500, Math.max((rows + 1) * h + 15, 15 * 7 + h * 7 + h / 2));
 	    frame.add(instructionscroll);
 	    instructionpanel.setVisible(true);  
 	    instructionpanel.setBackground(Color.WHITE);
@@ -415,8 +413,7 @@ public void keyPressed(KeyEvent e) {
         frame.add(restoreb);
         frame.add(filesaveb);
         frame.add(filereadb);
-	    frame.setSize((cols + 1)  * w + 15 * 2 + 200 + 15 + 15 + 250 + 350 + 30, Math.max((rows + 1) * h + 15 * 3 + 40, 15 * 9 + h * 7 + h / 2 + 40));  
+	    frame.setSize((cols + 1)  * w + 15 * 2 + 200 + 15 + 15 + 750 + 30, Math.max((rows + 1) * h + 15 * 3 + 40, 15 * 9 + h * 7 + h / 2 + 40));  
 	    frame.setLayout(null);  
     }
-	
 }
