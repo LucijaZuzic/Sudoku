@@ -378,7 +378,27 @@ public class CreateSudoku extends Sudoku {
 	        frame.add(digib);
 	        x += w;
 		}
-        difficulty.setBounds((cols + 1) * w + 15 * 2, 15 * 7 + 15 + h * 7, 200, h / 2);
+		filesaveb.addKeyListener(k);
+
+        JButton showstepb = new JButton("Prikaži korake");  
+        showstepb.setMargin(new Insets(1,1,1,1));
+        showstepb.setBounds((cols + 1) * w + 15 * 2, 15 + 15 * 7 + h * 7, 9 * w / 4, h);
+        showstepb.setFont(new Font("Arial", Font.PLAIN, fontsize));
+        showstepb.addActionListener(new ActionListener(){  
+        public void actionPerformed(ActionEvent e) {  
+	        	try {
+	        		showSteps = true;
+	        		isOnlyOneSolution();
+	        		checkIfCorrect();
+	        	    instructionArea.setText(solvingInstructions);
+	        		showSteps = false;
+				} catch (Exception e1) {
+	
+				}
+	        }  
+	    });
+        showstepb.addKeyListener(k);
+        difficulty.setBounds((cols + 1) * w + 15 * 2, 15 * 8 + 15 + h * 8, 200, h / 2);
         frame.add(difficulty);
         
         errorArea = new JTextArea(0, 0);
@@ -388,7 +408,7 @@ public class CreateSudoku extends Sudoku {
 	    JScrollPane errorscroll = new JScrollPane(errorpanel, 
                 JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
                 JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-	    errorscroll.setBounds((cols + 1)  * w + 15 * 2 + 200 + 15, 15, 250, Math.max((rows + 1) * h + 15, 15 * 7 + h * 7 + h / 2));
+	    errorscroll.setBounds((cols + 1)  * w + 15 * 2 + 200 + 15, 15, 250, Math.max((rows + 1) * h + 15, 15 * 8 + h * 8 + h / 2));
 	    frame.add(errorscroll);
 	    errorpanel.setVisible(true);  
 	    errorpanel.setBackground(Color.WHITE);
@@ -400,7 +420,7 @@ public class CreateSudoku extends Sudoku {
 	    JScrollPane instructionscroll = new JScrollPane(instructionpanel, 
                 JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
                 JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-	    instructionscroll.setBounds((cols + 1)  * w + 15 * 2 + 200 + 15 + 15 + 250, 15, 500, Math.max((rows + 1) * h + 15, 15 * 7 + h * 7 + h / 2));
+	    instructionscroll.setBounds((cols + 1)  * w + 15 * 2 + 200 + 15 + 15 + 250, 15, 500, Math.max((rows + 1) * h + 15, 15 * 8 + h * 8 + h / 2));
 	    frame.add(instructionscroll);
 	    instructionpanel.setVisible(true);  
 	    instructionpanel.setBackground(Color.WHITE);
@@ -413,7 +433,8 @@ public class CreateSudoku extends Sudoku {
         frame.add(restoreb);
         frame.add(filesaveb);
         frame.add(filereadb);
-	    frame.setSize((cols + 1)  * w + 15 * 2 + 200 + 15 + 15 + 750 + 30, Math.max((rows + 1) * h + 15 * 3 + 40, 15 * 9 + h * 7 + h / 2 + 40));  
+        frame.add(showstepb);
+	    frame.setSize((cols + 1)  * w + 15 * 2 + 200 + 15 + 15 + 750 + 30, Math.max((rows + 1) * h + 15 * 3 + 40, 15 * 10 + h * 8 + h / 2 + 40));  
 	    frame.setLayout(null);  
     }
 }
