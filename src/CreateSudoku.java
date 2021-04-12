@@ -4,6 +4,8 @@ import java.awt.Font;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
@@ -195,6 +197,53 @@ public class CreateSudoku extends Sudoku {
 			    field[num].setMargin(new Insets(1,1,1,1));
 			    field[num].setFont(new Font("Arial", Font.PLAIN, fontsize));
 			    field[num].setBounds(x, y, w, h);
+			    
+			    field[num].addFocusListener(new FocusListener(){  
+			        public void focusGained(FocusEvent e) {
+    				    for (int i2 = 0; i2 < rows; i2++){
+    				    	for (int j2 = 0; j2 < cols; j2++) {
+    				    		if (j2 == num % cols || i2 == num / cols) {
+    				    			field[i2 * cols + j2].setBackground(Color.PINK);
+    				    		} else {
+	    				    	        if (border[i2 * cols + j2] == 3) {
+	    				    	    		field[i2 * cols + j2].setBackground(Color.LIGHT_GRAY);
+	    				    	    	}
+	    				    	        if (border[i2 * cols + j2] == 2) {
+	    				    	    		field[i2 * cols + j2].setBackground(Color.DARK_GRAY);
+	    				    	    	}
+	    				    	    	if (border[i2 * cols + j2] == 1) {
+	    				    	    		field[i2 * cols + j2].setBackground(Color.BLACK);
+	    				    	    	}
+	    				    	        if (border[i2 * cols + j2] == 0) {
+	    				    	    		field[i2 * cols + j2].setBackground(Color.GRAY);
+	    				    	    	}
+	    				    	        if (border[i2 * cols + j2] == -1) {
+	    				    	    		field[i2 * cols + j2].setBackground(Color.RED);
+	    				    	    	}
+    				    		}
+    				    		if (userInput[num] == 0) {
+	    				    		if (userInput[i2 * cols + j2] == selectedDigit && selectedDigit != 0) {
+	    				    			field[i2 * cols + j2].setFont(field[i2 * cols + j2].getFont().deriveFont(Font.BOLD | Font.ITALIC));
+	    				    		} else {    				    			
+	    				    			field[i2 * cols + j2].setFont(field[i2 * cols + j2].getFont().deriveFont(~Font.BOLD | ~Font.ITALIC));
+	    				    		}
+    				    		} else {
+	    				    		if (userInput[i2 * cols + j2] == userInput[num]) {
+	    				    			field[i2 * cols + j2].setFont(field[i2 * cols + j2].getFont().deriveFont(Font.BOLD | Font.ITALIC));
+	    				    		} else {    				    			
+	    				    			field[i2 * cols + j2].setFont(field[i2 * cols + j2].getFont().deriveFont(~Font.BOLD | ~Font.ITALIC));
+	    				    		}
+    				    		}
+    				    	}
+    				    }
+			        	field[num].setFont(field[num].getFont().deriveFont(Font.BOLD | Font.ITALIC));
+			        }
+					public void focusLost(FocusEvent e) {
+	
+						
+					}
+				});
+			    
 			    field[num].addActionListener(new ActionListener(){  
 			        public void actionPerformed(ActionEvent e) {  
 			        	try {

@@ -102,6 +102,7 @@ public class ChangeBoxBorder extends Sudoku {
 			    field[num].addActionListener(new ActionListener(){  
 			        public void actionPerformed(ActionEvent e) {  
 			        	try {
+			        		showBoxMsg = false;
 			        		if (mode == 0)  {
 					    		field[num].setBackground(Color.GRAY);
 				        		border[num] = 0;
@@ -122,6 +123,7 @@ public class ChangeBoxBorder extends Sudoku {
 				        		border[num] = 3;
 				        		checkBoxes();
 			        		} 
+			        		showBoxMsg = true;
 						} catch (Exception e1) {
 		
 						}
@@ -134,36 +136,66 @@ public class ChangeBoxBorder extends Sudoku {
 	    }
 	    x = 15;
 	    
-	    JButton modeb = new JButton("Sivo");  
-        modeb.setMargin(new Insets(1,1,1,1));
-        modeb.setBounds(cols * w + 15 * 2 + 9 * 60 / 4 + 80, 15, 9 * w / 4, h);
-        modeb.setFont(new Font("Arial", Font.PLAIN, fontsize));
-        modeb.addActionListener(new ActionListener(){  
+	    JLabel bcol = new JLabel("Boja kutije: ");
+	    bcol.setBounds(cols * w + 15 * 2 + 9 * 60 / 4 + 80, 15, 9 * w / 4, h / 2);
+	    frame.add(bcol);
+	    		
+	    JButton modeb1 = new JButton("");  
+        modeb1.setMargin(new Insets(1,1,1,1));
+        modeb1.setBackground(Color.GRAY);
+        modeb1.setBounds(cols * w + 15 * 2 + 9 * 60 / 4 + 80, 15 + h / 2, 9 * w / 16, h / 2);
+        modeb1.setFont(new Font("Arial", Font.PLAIN, fontsize));
+        modeb1.addActionListener(new ActionListener(){  
         public void actionPerformed(ActionEvent e) {  
 	        	try {
-	        		if (mode == 0) {
-	        			mode = 1;
-	        			modeb.setText(String.valueOf("Crno"));
-	        			return;
-	        		} 
-	        		if (mode == 1) {
-	        			mode = 2;
-	        			modeb.setText(String.valueOf("Tamno sivo"));
-	        			return;
-	        		}
-	        		if (mode == 2) {
-	        			mode = 3;
-	        			modeb.setText(String.valueOf("Svjetlo sivo"));
-	        			return;
-	        		}
-	        		if (mode == 3) {
-	        			mode = 0;
-	        			modeb.setText(String.valueOf("Sivo"));
-	        			return;
-	        		}
+	        		mode = 0;
 				} catch (Exception e1) {
-	
-	
+					
+				}
+	        }  
+	    });
+
+	    JButton modeb2 = new JButton("");  
+        modeb2.setMargin(new Insets(1,1,1,1));
+        modeb2.setBackground(Color.BLACK);
+        modeb2.setBounds(cols * w + 15 * 2 + 9 * 60 / 4 + 80 + 9 * w / 16, 15 + h / 2, 9 * w / 16, h / 2);
+        modeb2.setFont(new Font("Arial", Font.PLAIN, fontsize));
+        modeb2.addActionListener(new ActionListener(){  
+        public void actionPerformed(ActionEvent e) {  
+	        	try {
+	        		mode = 1;
+				} catch (Exception e1) {
+					
+				}
+	        }  
+	    });
+
+	    JButton modeb3 = new JButton("");  
+        modeb3.setMargin(new Insets(1,1,1,1));
+        modeb3.setBackground(Color.DARK_GRAY);
+        modeb3.setBounds(cols * w + 15 * 2 + 9 * 60 / 4 + 80 + 9 * w / 16 * 2, 15 + h / 2, 9 * w / 16, h / 2);
+        modeb3.setFont(new Font("Arial", Font.PLAIN, fontsize));
+        modeb3.addActionListener(new ActionListener(){  
+        public void actionPerformed(ActionEvent e) {  
+	        	try {
+	        		mode = 2;
+				} catch (Exception e1) {
+					
+				}
+	        }  
+	    });
+        
+	    JButton modeb4 = new JButton("");  
+        modeb4.setMargin(new Insets(1,1,1,1));
+        modeb4.setBackground(Color.LIGHT_GRAY);
+        modeb4.setBounds(cols * w + 15 * 2 + 9 * 60 / 4 + 80 + 9 * w / 16 * 3, 15 + h / 2, 9 * w / 16, h / 2);
+        modeb4.setFont(new Font("Arial", Font.PLAIN, fontsize));
+        modeb4.addActionListener(new ActionListener(){  
+        public void actionPerformed(ActionEvent e) {  
+	        	try {
+	        		mode = 3;
+				} catch (Exception e1) {
+					
 				}
 	        }  
 	    });
@@ -272,15 +304,15 @@ public class ChangeBoxBorder extends Sudoku {
 	        		int yl = Integer.parseInt(ylimval.getText());
 	        		int xl = Integer.parseInt(xlimval.getText());
         			if (pr != pc) {
-        				//System.out.println("Zagonetka nije kvadratna.");
+        				InformationBox.infoBox("Zagonetka nije kvadratna.", "Stvaranje zagonetke");
         				return;
         			}
         			if (yl * xl > pr) {
-        				//System.out.println("Kutije imaju previše znamenki.");
+        				InformationBox.infoBox("Kutije imaju previše znamenki.", "Stvaranje zagonetke");
         				return;
         			}
         			if (yl * xl < pr) {
-        				//System.out.println("Kutije imaju premalo znamenki.");
+        				InformationBox.infoBox("Kutije imaju premalo znamenki.", "Stvaranje zagonetke");
         				return;
         			}
 
@@ -332,7 +364,10 @@ public class ChangeBoxBorder extends Sudoku {
 				}
 	        }  
 	    });
-        frame.add(modeb);
+        frame.add(modeb1);
+        frame.add(modeb2);
+        frame.add(modeb3);
+        frame.add(modeb4);
         frame.add(designb);
         frame.add(designcontb);
         frame.add(solverandomb);

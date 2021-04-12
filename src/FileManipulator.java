@@ -54,7 +54,7 @@ public class FileManipulator {
 	        }
 	        myWriter.write(line1 + line2);
 	        myWriter.close();
-	        //System.out.println("Successfully wrote to the file.");
+			InformationBox.infoBox("Zagonetka je uspješno spremljena.", "Spremanje datoteke");
 	      } catch (IOException e) {
 	        //System.out.println("An error occurred.");
 	        e.printStackTrace();
@@ -75,7 +75,7 @@ public class FileManipulator {
 		      }
 		      myReader.close(); 
 		      if (lineNum != cols * 2 || lineNum == 0) {
-		    	  //System.out.println("Sadržaj datoteke je neispravan.");
+				  InformationBox.infoBox("Sadržaj datoteke je neispravan.", "Uèitavanje datoteke");
 		    	  return 1;
 		      }
 		      s.rows = cols;
