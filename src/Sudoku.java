@@ -3,6 +3,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.Stack;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -44,6 +45,8 @@ public abstract class Sudoku {
 	int[][] possibilities = new int[rows * cols][rows];
 	int changed = 1;
 	int unset = 0;
+	boolean showSteps = false;
+	
 	abstract boolean checkIfCorrect();
 	
 	public int floodFill(int x, int y, int val) {
@@ -238,18 +241,18 @@ public abstract class Sudoku {
 			    		    	field[i * cols + j].setForeground(Color.BLACK);
 		    		    		field[i * cols + j].setText(String.valueOf(k + 1));
 		    		    		fixPencilmarks();
-		    		    		
-		    		    		/*print();
-		    		    		checkIfCorrect();
-		    		    		
-		    	    			try {
-		    	    				TimeUnit.SECONDS.sleep(1);
-		    	    			} catch (InterruptedException e) {
-		    	    				// TODO Auto-generated catch block
-		    	    				e.printStackTrace();
-		    	    			}
-		    	    			InformationBox.infoBox("Single Candidate " + String.valueOf(k + 1) + " (" + String.valueOf(i + 1) + ", " + String.valueOf(j + 1) + ")", "Solver");
-		    	    			*/
+		    		    		if (showSteps == true) {
+		    		    		    instructionArea.setText(solvingInstructions);
+
+			    		    		print();
+			    	    			try {
+			    	    				TimeUnit.SECONDS.sleep(1);
+			    	    			} catch (InterruptedException e) {
+			    	    				// TODO Auto-generated catch block
+			    	    				e.printStackTrace();
+			    	    			}
+			    	    			InformationBox.infoBox("Number " + String.valueOf(k + 1) + " the only value possible in cell (" + String.valueOf(i + 1) + ", " + String.valueOf(j + 1) + ")", "Solver");
+		    		    		}
 		    		    		break;
 				    		}
 					    }
@@ -261,6 +264,7 @@ public abstract class Sudoku {
 			    			difficulty.setText(String.valueOf(difficultyScore) + " Postoji jedinstveno rješenje");
 			    			return 1;
 						}
+
 			    	}
 	    		}
 	    	}
@@ -2029,17 +2033,18 @@ public abstract class Sudoku {
 		    		field[i * cols + x].setText(String.valueOf(val));
 			    	fixPencilmarks();
 
-		    		/*print();
-		    		checkIfCorrect();
-		    		
-	    			try {
-	    				TimeUnit.SECONDS.sleep(1);
-	    			} catch (InterruptedException e) {
-	    				// TODO Auto-generated catch block
-	    				e.printStackTrace();
-	    			}
-	    			InformationBox.infoBox("Single Position in row " + String.valueOf(val) + " (" + String.valueOf(i + 1) + ", " + String.valueOf(x + 1) + ")", "Solver");
-	    			*/
+		    		if (showSteps == true) {
+		    		    instructionArea.setText(solvingInstructions);
+
+    		    		print();
+    	    			try {
+    	    				TimeUnit.SECONDS.sleep(1);
+    	    			} catch (InterruptedException e) {
+    	    				// TODO Auto-generated catch block
+    	    				e.printStackTrace();
+    	    			}
+    	    			InformationBox.infoBox("For row " + String.valueOf(i + 1) + ", number " + String.valueOf(val) + " is only possible in cell (" + String.valueOf(i + 1) + ", " + String.valueOf(x + 1) + ").", "Solver");
+		    		}
 		    		if (unset == 0) {
 		    			difficulty.setText(String.valueOf(difficultyScore) + " Postoji jedinstveno rješenje");
 		    			return 1;
@@ -2257,7 +2262,7 @@ public abstract class Sudoku {
 			//numIter++;
 			changed = 0;
 			//solvingInstructions += "Iteration number " + String.valueOf(numIter) + "\n";
-			if (sequence() == 1) {
+			if (sequence() == 1 || unset == 0) {
 				solvingInstructions += "All fields set.\n";
 				difficulty.setText(String.valueOf(difficultyScore) + " Postoji jedinstveno rješenje");
 				return 1;
@@ -2298,6 +2303,70 @@ public abstract class Sudoku {
 	}
 	
 	public int guessing() {
+		int[] t2 = new int[rows * cols];
+		int[][] v2 = new int[rows * cols][cols];
+		int u1 = unset;
+		int d1 = difficultyScore;
+		String s = solvingInstructions;
+	    for (int ix = 0; ix < rows; ix++){
+	    	for (int jx = 0; jx < cols; jx++) {
+	    		t2[ix * cols + jx] =  temporary[ix * cols + jx];
+	    		for (int v = 0; v < cols; v++) {
+	    			v2[ix * cols + jx][v] = possibilities[ix * cols + jx][v];
+	    		}
+			}
+		}
+		for (int val = 0; val < rows; val++) {
+		    for (int i = 0; i < rows; i++){
+		    	int possible = 0;
+		    	for (int j = 0; j < cols; j++) {
+		    		if (possibilities[i * cols + j][val] == 1 && temporary[i * cols + j] == 0) {
+		    			possible++;
+		    		}
+		    		if (temporary[i * cols + j] == val + 1) {
+		    			possible = -1;
+		    			break;
+		    		}
+			    }
+		    	if (possible == -1) {
+		    		continue;
+		    	}
+		    	if (possible == 0) {
+					solvingInstructions += "Backtracking, no more moves.\n";
+				    for (int ix = 0; ix < rows; ix++){
+				    	for (int jx = 0; jx < cols; jx++) {
+				    		temporary[ix * cols + jx] = t2[ix * cols + jx];
+				    		for (int v = 0; v < cols; v++) {
+				    			possibilities[ix * cols + jx][v] = v2[ix * cols + jx][v];
+				    		}
+	    				}
+	    			}
+				    difficultyScore = d1;
+				    solvingInstructions = s;
+				    unset = u1;
+		    		return 1;
+		    	}
+		    	int randomCol = ThreadLocalRandom.current().nextInt(0, cols);
+		    	while (possibilities[i * cols + randomCol][val] == 0 || temporary[i * cols + randomCol] != 0) {
+		    		randomCol = ThreadLocalRandom.current().nextInt(0, cols);
+		    	}
+				solvingInstructions += "Trying " + String.valueOf(val + 1) + " in cell (" + String.valueOf(i + 1) + ", " + String.valueOf(randomCol + 1) + ").\n";
+		    	temporary[i * cols + randomCol] = val + 1;
+	    		for (int v = 0; v < cols; v++) {
+	    			possibilities[i * cols + randomCol][v] = 0;
+	    		}
+    			possibilities[i * cols + randomCol][val] = 1;
+		    	unset--;
+				if (sequence() == 1) {
+					return 0;
+				}
+		    }
+		}
+		return 0;
+	}
+	
+
+	public int forcingChains() {
 		int[] t2 = new int[rows * cols];
 		int[][] v2 = new int[rows * cols][cols];
 		int u1 = unset;
