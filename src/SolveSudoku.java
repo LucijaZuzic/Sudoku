@@ -5,8 +5,12 @@ import java.awt.Font;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.Timer;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -256,7 +260,7 @@ public class SolveSudoku extends Sudoku {
 		return correct;
 	}
 	
-
+	Set<Integer> hints = new HashSet<Integer>();
 
 	public void hint() {
 		boolean noneEmpty = true;
@@ -284,13 +288,14 @@ public class SolveSudoku extends Sudoku {
 		field[num].setEnabled(false);
 		field[num].setBackground(Color.BLUE);
     	field[num].setText(String.valueOf(userInput[num]));
+    	hints.add(num);
     	numHints++;
     	//System.out.println(numHints);
     	helpLabel.setText("Iskorištena pomoæ: " + String.valueOf(numHints));
 		checkIfCorrect();
 	}
 	JButton modeb;
-	
+
 	public void hint(int num) {
     	if (userInput[num] != 0 && incorrect[num] == false) {
     		return;
@@ -300,6 +305,7 @@ public class SolveSudoku extends Sudoku {
 		field[num].setEnabled(false);
 		field[num].setBackground(Color.BLUE);
     	field[num].setText(String.valueOf(userInput[num]));
+    	hints.add(num);
     	numHints++;
     	//System.out.println(numHints);
     	helpLabel.setText("Iskorištena pomoæ: " + String.valueOf(numHints));
@@ -391,6 +397,58 @@ public class SolveSudoku extends Sudoku {
 			    field[num].setMargin(new Insets(1,1,1,1));
 			    field[num].setFont(new Font("Arial", Font.PLAIN, fontsize));
 			    field[num].setBounds(x, y, w, h);
+			    field[num].addFocusListener(new FocusListener(){  
+			        public void focusGained(FocusEvent e) {
+			        	if (backup[num] != 0 || hints.contains(num) || mode == 2) {
+			        		return;
+			        	}
+    				    for (int i2 = 0; i2 < rows; i2++){
+    				    	for (int j2 = 0; j2 < cols; j2++) {
+    				    		if (j2 == num % cols || i2 == num / cols) {
+    				    			field[i2 * cols + j2].setBackground(Color.PINK);
+    				    		} else {
+    				    			if (hints.contains(i2 * cols + j2)) {
+	    				    			field[i2 * cols + j2].setBackground(Color.BLUE);
+	    				    		} else {
+	    				    	        if (border[i2 * cols + j2] == 3) {
+	    				    	    		field[i2 * cols + j2].setBackground(Color.LIGHT_GRAY);
+	    				    	    	}
+	    				    	        if (border[i2 * cols + j2] == 2) {
+	    				    	    		field[i2 * cols + j2].setBackground(Color.DARK_GRAY);
+	    				    	    	}
+	    				    	    	if (border[i2 * cols + j2] == 1) {
+	    				    	    		field[i2 * cols + j2].setBackground(Color.BLACK);
+	    				    	    	}
+	    				    	        if (border[i2 * cols + j2] == 0) {
+	    				    	    		field[i2 * cols + j2].setBackground(Color.GRAY);
+	    				    	    	}
+	    				    	        if (border[i2 * cols + j2] == -1) {
+	    				    	    		field[i2 * cols + j2].setBackground(Color.RED);
+	    				    	    	}
+	    				    		}
+    				    		}
+    				    		if (userInput[num] == 0) {
+	    				    		if ((userInput[i2 * cols + j2] == selectedDigit || options[i2 * cols + j2][selectedDigit - 1] == 1) && selectedDigit != 0) {
+	    				    			field[i2 * cols + j2].setFont(field[i2 * cols + j2].getFont().deriveFont(Font.BOLD | Font.ITALIC));
+	    				    		} else {    				    			
+	    				    			field[i2 * cols + j2].setFont(field[i2 * cols + j2].getFont().deriveFont(~Font.BOLD | ~Font.ITALIC));
+	    				    		}
+    				    		} else {
+	    				    		if (userInput[i2 * cols + j2] == userInput[num] || options[i2 * cols + j2][userInput[num] - 1] == 1) {
+	    				    			field[i2 * cols + j2].setFont(field[i2 * cols + j2].getFont().deriveFont(Font.BOLD | Font.ITALIC));
+	    				    		} else {    				    			
+	    				    			field[i2 * cols + j2].setFont(field[i2 * cols + j2].getFont().deriveFont(~Font.BOLD | ~Font.ITALIC));
+	    				    		}
+    				    		}
+    				    	}
+    				    }
+			        	field[num].setFont(field[num].getFont().deriveFont(Font.BOLD | Font.ITALIC));
+			        }
+					public void focusLost(FocusEvent e) {
+
+						
+					}
+				});
 			    field[num].addActionListener(new ActionListener(){  
 			        public void actionPerformed(ActionEvent e) {  
 			        	try {
@@ -602,15 +660,15 @@ public class SolveSudoku extends Sudoku {
 	        			return;
 	        		}
 	        		if (mode == 1) {
-	        			modeb.setText("Bilješke ISKLJUÆENE");
+	        			modeb.setText("Bilješke ISKLJUÈENE");
 	        			mode = 0;
 	        		} else {
 			        	if (mode == 0) {
-		        			modeb.setText("Bilješke UKLJUÆENE");
+		        			modeb.setText("Bilješke UKLJUÈENE");
 		        			mode = 1;
 			        	} else {
 			        		if (mode == 2) {
-			        			modeb.setText("Bilješke UKLJUÆENE");
+			        			modeb.setText("Bilješke UKLJUÈENE");
 			        			mode = 1;
 			        		}
 			        	}
@@ -621,7 +679,7 @@ public class SolveSudoku extends Sudoku {
 	        }  
 	    });
         modeb.addKeyListener(k);
-        JButton randomhintb = new JButton("Nasumiï¿½na pomoï¿½");  
+        JButton randomhintb = new JButton("Nasumièna pomoæ");  
         randomhintb.setMargin(new Insets(1,1,1,1));
         randomhintb.setBounds(cols * w + 15 * 2, 15 + 15 * 2 + h * 2, 9 * w / 4, h);
         randomhintb.setFont(new Font("Arial", Font.PLAIN, fontsize));
@@ -667,6 +725,7 @@ public class SolveSudoku extends Sudoku {
         public void actionPerformed(ActionEvent e) {  
 	        	try {
 	        		showSteps = true;
+	        	    timerStopped = true;
 	        	    for (int i = 0; i < rows; i++){ 
 	        	    	for (int j = 0; j < cols; j++) {
 	        	    		userInput[i * cols + j] = backup[i * cols + j];
@@ -675,7 +734,6 @@ public class SolveSudoku extends Sudoku {
 	        		isOnlyOneSolution();
 	        		checkIfCorrect();
 	        	    instructionArea.setText(solvingInstructions);
-	        	    timerStopped = true;
 	        		showSteps = false;
 				} catch (Exception e1) {
 	
