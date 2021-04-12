@@ -152,7 +152,7 @@ public abstract class Sudoku {
 	    	}
 	    }
 	    if (borderNotSet) {
-	    	//System.out.println("Neke æelije nisu u kutiji");
+	    	//System.out.println("Neke ćelije nisu u kutiji");
 	    	retVal = false;
 	    }
 	    int boxNum = 0;

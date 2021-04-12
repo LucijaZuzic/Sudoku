@@ -191,19 +191,19 @@ public class SolveSudoku extends Sudoku {
 			    		usedCols[j]++;
 			    		usedBoxes[boxNumber[i * cols + j]]++;
 			    		if (usedRows[i] > 1) {
-			    			errortext += val + ": " + "(" + (i + 1) + ", " + (j + 1) + ") Broj " + val + " veï¿½ postoji u retku " + (i + 1) + "\n";
+			    			errortext += val + ": " + "(" + (i + 1) + ", " + (j + 1) + ") Broj " + val + " veæ postoji u retku " + (i + 1) + "\n";
 			    			correct = false;
 			    			status = true;
 			    			incorrect[i * cols + j] = true;
 			    		}
 			    		if (usedCols[j] > 1) {
-			    			errortext += val + ": " + "(" + (i + 1) + ", " + (j + 1) + ") Broj " + val + " veï¿½ postoji u stupcu " + (j + 1) + "\n";
+			    			errortext += val + ": " + "(" + (i + 1) + ", " + (j + 1) + ") Broj " + val + " veæ postoji u stupcu " + (j + 1) + "\n";
 			    			correct = false;
 			    			status = true;
 			    			incorrect[i * cols + j] = true;
 			    		}
 			    		if (usedBoxes[boxNumber[i * cols + j]] > 1) {
-			    			errortext += val + ": " + "(" + (i + 1) + ", " + (j + 1) + ") Broj " + val + " veï¿½ postoji u kutiji " + (boxNumber[i * cols + j] + 1) + "\n";
+			    			errortext += val + ": " + "(" + (i + 1) + ", " + (j + 1) + ") Broj " + val + " veæ postoji u kutiji " + (boxNumber[i * cols + j] + 1) + "\n";
 			    			correct = false;
 			    			status = true;
 			    			incorrect[i * cols + j] = true;
@@ -286,7 +286,7 @@ public class SolveSudoku extends Sudoku {
     	field[num].setText(String.valueOf(userInput[num]));
     	numHints++;
     	//System.out.println(numHints);
-    	helpLabel.setText("Iskoriï¿½tena pomoï¿½: " + String.valueOf(numHints));
+    	helpLabel.setText("Iskorištena pomoæ: " + String.valueOf(numHints));
 		checkIfCorrect();
 	}
 	JButton modeb;
@@ -302,8 +302,8 @@ public class SolveSudoku extends Sudoku {
     	field[num].setText(String.valueOf(userInput[num]));
     	numHints++;
     	//System.out.println(numHints);
-    	helpLabel.setText("Iskoriï¿½tena pomoï¿½: " + String.valueOf(numHints));
-		modeb.setText("Biljeï¿½ke UKLJUï¿½ENE");
+    	helpLabel.setText("Iskorištena pomoæ: " + String.valueOf(numHints));
+		modeb.setText("Bilješke UKLJUÈENE");
     	/*mode = 1;
 		checkIfCorrect();*/
 	}
@@ -369,7 +369,7 @@ public class SolveSudoku extends Sudoku {
 	@Override
 	public void draw () 
     {
-		frame = new JFrame("Rijeï¿½i sudoku");  
+		frame = new JFrame("Riješi sudoku");  
 	    frame.setDefaultCloseOperation (JFrame.DISPOSE_ON_CLOSE);
 	    frame.addKeyListener(k);
 	    int x = 15;
@@ -573,7 +573,7 @@ public class SolveSudoku extends Sudoku {
 	        x += w;
 		}
 		
-        JButton solvedb = new JButton("Ispravnost rjeï¿½enja");  
+        JButton solvedb = new JButton("Ispravnost rješenja");  
         solvedb.setMargin(new Insets(1,1,1,1));
         solvedb.setBounds(cols * w + 15 * 2, 15, 9 * w / 4, h);
         solvedb.setFont(new Font("Arial", Font.PLAIN, fontsize));
@@ -591,7 +591,7 @@ public class SolveSudoku extends Sudoku {
 	        }  
 	    });
         solvedb.addKeyListener(k);
-        modeb = new JButton("Biljeï¿½ke UKLJUï¿½ENE");  
+        modeb = new JButton("Bilješke UKLJUÈENE");  
         modeb.setMargin(new Insets(1,1,1,1));
         modeb.setBounds(cols * w + 15 * 2, 15 + 15 + h, 9 * w / 4, h);
         modeb.setFont(new Font("Arial", Font.PLAIN, fontsize));
@@ -602,15 +602,15 @@ public class SolveSudoku extends Sudoku {
 	        			return;
 	        		}
 	        		if (mode == 1) {
-	        			modeb.setText("Biljeï¿½ke ISKLJUï¿½ENE");
+	        			modeb.setText("Bilješke ISKLJUÆENE");
 	        			mode = 0;
 	        		} else {
 			        	if (mode == 0) {
-		        			modeb.setText("Biljeï¿½ke UKLJUï¿½ENE");
+		        			modeb.setText("Bilješke UKLJUÆENE");
 		        			mode = 1;
 			        	} else {
 			        		if (mode == 2) {
-			        			modeb.setText("Biljeï¿½ke UKLJUï¿½ENE");
+			        			modeb.setText("Bilješke UKLJUÆENE");
 			        			mode = 1;
 			        		}
 			        	}
@@ -633,14 +633,14 @@ public class SolveSudoku extends Sudoku {
 	        		}
 	        		hint();
 	        		/*mode = 1;
-        			modeb.setText("Biljeï¿½ke UKLJUï¿½ENE");*/
+        			modeb.setText("Bilješke UKLJUÈENE");*/
 				} catch (Exception e1) {
 	
 				}
 	        }  
 	    });
         randomhintb.addKeyListener(k);
-        JButton hintb = new JButton("Odabrana pomoï¿½");  
+        JButton hintb = new JButton("Odabrana pomoæ");  
         hintb.setMargin(new Insets(1,1,1,1));
         hintb.setBounds(cols * w + 15 * 2, 15 + 15 * 3 + h * 3, 9 * w / 4, h);
         hintb.setFont(new Font("Arial", Font.PLAIN, fontsize));
@@ -651,7 +651,7 @@ public class SolveSudoku extends Sudoku {
 	        			return;
 	        		}
 	        		mode = 2;
-        			modeb.setText("Odaberi pomoï¿½");
+        			modeb.setText("Odaberi pomoæ");
 				} catch (Exception e1) {
 	
 				}
@@ -659,7 +659,7 @@ public class SolveSudoku extends Sudoku {
 	    });
         hintb.addKeyListener(k);
 
-        JButton showstepb = new JButton("Prikaï¿½i korake");  
+        JButton showstepb = new JButton("Prikaži korake");  
         showstepb.setMargin(new Insets(1,1,1,1));
         showstepb.setBounds(cols * w + 15 * 2, 15 + 15 * 4 + h * 4, 9 * w / 4, h);
         showstepb.setFont(new Font("Arial", Font.PLAIN, fontsize));
@@ -704,7 +704,7 @@ public class SolveSudoku extends Sudoku {
 	    timeLabel.setBounds(cols * w + 15 * 2, 15 * 6 + 15 + h * 6, 200, h / 2);
 	    frame.add(timeLabel);
 	    
-	    helpLabel = new JLabel("Iskoriï¿½tena pomoï¿½: 0");
+	    helpLabel = new JLabel("Iskorištena pomoæ: 0");
 	    helpLabel.setBounds(cols * w + 15 * 2, 15 * 13 / 2 + 15 + h * 13 / 2, 200, h / 2);
 	    frame.add(helpLabel);
 
@@ -715,7 +715,7 @@ public class SolveSudoku extends Sudoku {
 	    JScrollPane errorscroll = new JScrollPane(errorpanel, 
                 JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
                 JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-	    errorscroll.setBounds(cols * w + 15 * 2 + 200 + 15, 15, 250, Math.max((rows + 1) * h + 15, 6 * h + 7 * 15));
+	    errorscroll.setBounds(cols * w + 15 * 2 + 200 + 15, 15, 250, Math.max((rows + 1) * h + 15, 7 * h + 8 * 15));
 	    frame.add(errorscroll);
 	    errorpanel.setVisible(true);  
 	    errorpanel.setBackground(Color.WHITE);
@@ -727,7 +727,7 @@ public class SolveSudoku extends Sudoku {
 	    JScrollPane instructionscroll = new JScrollPane(instructionpanel, 
                 JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
                 JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-	    instructionscroll.setBounds(cols * w + 15 * 2 + 200 + 15 + 15 + 250, 15, 500, Math.max((rows + 1) * h + 15, 6 * h + 7 * 15));
+	    instructionscroll.setBounds(cols * w + 15 * 2 + 200 + 15 + 15 + 250, 15, 500, Math.max((rows + 1) * h + 15, 7 * h + 8 * 15));
 	    frame.add(instructionscroll);
 	    instructionpanel.setVisible(true);  
 	    instructionpanel.setBackground(Color.WHITE);
@@ -738,7 +738,7 @@ public class SolveSudoku extends Sudoku {
         frame.add(randomhintb);
         frame.add(hintb);
         frame.add(showstepb);
-	    frame.setSize(cols * w + 15 * 2 + 200 + 15 + 15 + 750 + 30, Math.max((rows + 1) * h + 15 * 3 + 40, 6 * h + 9 * 15 + 40));  
+	    frame.setSize(cols * w + 15 * 2 + 200 + 15 + 15 + 750 + 30, Math.max((rows + 1) * h + 15 * 3 + 40, 7 * h + 10 * 15 + 40));  
 	    frame.setLayout(null);  
     }
 	
