@@ -16,7 +16,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 public class CreateSudoku extends Sudoku {
-
+	JButton digibs[];
 	public CreateSudoku(int x, int y, int xl, int yl, int[] br, int[] bn) {
 		super(x, y, xl, yl);
 		border = br;
@@ -174,6 +174,10 @@ public class CreateSudoku extends Sudoku {
 			int key = e.getKeyCode();
 			if (key - 48 >= 0 && key - 48 <= 9) {
 				selectedDigit = key - 48;
+				for (int j = 0; j < cols + 1; j++) {
+					digibs[j].setBackground(Color.WHITE);
+				}
+				digibs[selectedDigit].setBackground(Color.CYAN);
 			}
 		}
 		public void keyReleased(KeyEvent e) {}
@@ -404,19 +408,25 @@ public class CreateSudoku extends Sudoku {
 	    });
 		x = 15;
 		filereadb.addKeyListener(k);
+		digibs = new JButton[cols + 1];
 		for (int i = 0; i < cols + 1; i++) {
-	        JButton digib = new JButton(String.valueOf(i));  
-	        digib.setMargin(new Insets(1,1,1,1));
-	        digib.setBounds(x, rows * h + 15 * 2, w, h);
-	        digib.setFont(new Font("Arial", Font.PLAIN, fontsize));
+			digibs[i] = new JButton(String.valueOf(i));  
+			digibs[i].setMargin(new Insets(1,1,1,1));
+			digibs[i].setBackground(Color.WHITE);
+			digibs[i].setBounds(x, rows * h + 15 * 2, w, h);
+			digibs[i].setFont(new Font("Arial", Font.PLAIN, fontsize));
 	        if (i == 0) {
-	        	digib.setForeground(Color.RED);
+	        	digibs[i].setForeground(Color.RED);
 	        }
 	        int digit = i;
-	        digib.addActionListener(new ActionListener(){  
+	        digibs[i].addActionListener(new ActionListener(){  
 	        public void actionPerformed(ActionEvent e) {  
 		        	try {
 		        		selectedDigit = digit;
+						for (int j = 0; j < cols + 1; j++) {
+							digibs[j].setBackground(Color.WHITE);
+						}
+						digibs[selectedDigit].setBackground(Color.CYAN);
 		        		checkIfCorrect();
 					} catch (Exception e1) {
 		
@@ -424,8 +434,8 @@ public class CreateSudoku extends Sudoku {
 					}
 		        }  
 		    });
-	        digib.addKeyListener(k);
-	        frame.add(digib);
+	        digibs[i].addKeyListener(k);
+	        frame.add(digibs[i]);
 	        x += w;
 		}
 		filesaveb.addKeyListener(k);

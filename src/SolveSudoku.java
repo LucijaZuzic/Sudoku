@@ -27,6 +27,7 @@ import javax.swing.plaf.metal.MetalButtonUI;
 public class SolveSudoku extends Sudoku {
 
 	int numHints = 0;
+	JButton digibs[];
 	int[] backup;
 	int[][] options;
 	int mode = 1;
@@ -392,8 +393,12 @@ public class SolveSudoku extends Sudoku {
     			return;
     		}
 			int key = e.getKeyCode();
-			if (key - 48 >= 0 && key - 48 <= 9) {
+			if (key - 48 >= 1 && key - 48 <= 9) {
 				selectedDigit = key - 48;
+				for (int j = 1; j < cols + 1; j++) {
+					digibs[j].setBackground(Color.WHITE);
+				}
+				digibs[selectedDigit].setBackground(Color.CYAN);
 			}
 		}
 		public void keyReleased(KeyEvent e) {}
@@ -617,8 +622,12 @@ public class SolveSudoku extends Sudoku {
 				        			return;
 				        		}
 				    			int key = e.getKeyCode();
-				    			if (key - 48 >= 0 && key - 48 <= 9) {
+				    			if (key - 48 >= 1 && key - 48 <= 9) {
 				    				selectedDigit = key - 48;
+				    				for (int j = 1; j < cols + 1; j++) {
+				    					digibs[j].setBackground(Color.WHITE);
+				    				}
+				    				digibs[selectedDigit].setBackground(Color.CYAN);
 				    			}
 				    			if (key == 8) {
 				    				for (int i = 0; i < cols; i++) {
@@ -638,27 +647,33 @@ public class SolveSudoku extends Sudoku {
 		    y += h;
 	    }
 	    x = 15;
+		digibs = new JButton[cols + 1];
 		for (int i = 1; i < cols + 1; i++) {
-	        JButton digib = new JButton(String.valueOf(i));  
-	        digib.setMargin(new Insets(1,1,1,1));
-	        digib.setBounds(x, rows * h + 15 * 2, w, h);
-	        digib.setFont(new Font("Arial", Font.PLAIN, fontsize));
+	        digibs[i] = new JButton(String.valueOf(i));  
+	        digibs[i].setMargin(new Insets(1,1,1,1));
+			digibs[i].setBackground(Color.WHITE);
+	        digibs[i].setBounds(x, rows * h + 15 * 2, w, h);
+	        digibs[i].setFont(new Font("Arial", Font.PLAIN, fontsize));
 	        int digit = i;
-	        digib.addActionListener(new ActionListener(){  
+	        digibs[i].addActionListener(new ActionListener(){  
 	        public void actionPerformed(ActionEvent e) {  
 		        	try {
 		        		if (timerStopped) {
 		        			return;
 		        		}
 		        		selectedDigit = digit;
+						for (int j = 1; j < cols + 1; j++) {
+							digibs[j].setBackground(Color.WHITE);
+						}
+						digibs[selectedDigit].setBackground(Color.CYAN);
 					} catch (Exception e1) {
 		
 		
 					}
 		        }  
 		    });
-	        digib.addKeyListener(k);
-	        frame.add(digib);
+	        digibs[i].addKeyListener(k);
+	        frame.add(digibs[i]);
 	        x += w;
 		}
 		
