@@ -312,8 +312,8 @@ public class SolveSudoku extends Sudoku {
     	numHints++;
     	//System.out.println(numHints);
     	helpLabel.setText("Iskorištena pomoæ: " + String.valueOf(numHints));
-		/*modeb.setText("Bilješke UKLJUÈENE");
-    	mode = 1;
+		modeb.setText("Izaði iz pomoæi");
+    	/*mode = 1;
 		checkIfCorrect();*/
 	}
 	int errornum = 0;
@@ -755,7 +755,7 @@ public class SolveSudoku extends Sudoku {
 	        			return;
 	        		}
 	        		mode = 2;
-        			modeb.setText("Odaberi pomoæ");
+        			modeb.setText("Izaði iz pomoæi");
 				} catch (Exception e1) {
 	
 				}
