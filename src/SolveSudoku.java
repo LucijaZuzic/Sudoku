@@ -309,8 +309,8 @@ public class SolveSudoku extends Sudoku {
     	numHints++;
     	//System.out.println(numHints);
     	helpLabel.setText("Iskorištena pomoæ: " + String.valueOf(numHints));
-		modeb.setText("Bilješke UKLJUÈENE");
-    	/*mode = 1;
+		/*modeb.setText("Bilješke UKLJUÈENE");
+    	mode = 1;
 		checkIfCorrect();*/
 	}
 	int errornum = 0;
@@ -346,6 +346,32 @@ public class SolveSudoku extends Sudoku {
 	    }
 	    instructionArea.setText(solvingInstructions);
 	    timerStopped = true;
+
+		for (int i2 = 0; i2 < rows; i2++){
+	    	for (int j2 = 0; j2 < cols; j2++) {
+    			if (hints.contains(i2 * cols + j2)) {
+	    			field[i2 * cols + j2].setBackground(Color.BLUE);
+	    		} else {
+	    	        if (border[i2 * cols + j2] == 3) {
+	    	    		field[i2 * cols + j2].setBackground(Color.LIGHT_GRAY);
+	    	    	}
+	    	        if (border[i2 * cols + j2] == 2) {
+	    	    		field[i2 * cols + j2].setBackground(Color.DARK_GRAY);
+	    	    	}
+	    	    	if (border[i2 * cols + j2] == 1) {
+	    	    		field[i2 * cols + j2].setBackground(Color.BLACK);
+	    	    	}
+	    	        if (border[i2 * cols + j2] == 0) {
+	    	    		field[i2 * cols + j2].setBackground(Color.GRAY);
+	    	    	}
+	    	        if (border[i2 * cols + j2] == -1) {
+	    	    		field[i2 * cols + j2].setBackground(Color.RED);
+	    	    	}
+	    		}  				    			
+	    		field[i2 * cols + j2].setFont(field[i2 * cols + j2].getFont().deriveFont(~Font.BOLD | ~Font.ITALIC));
+	    		
+	    	}
+	    }
 	    InformationBox.infoBox("Errors: " + String.valueOf(errornum) + "\nEmpty: " + String.valueOf(emptynum) + "\nCorrect: " + String.valueOf(correctnum), "Submission");
 		return haserrors;
 	}
@@ -400,6 +426,9 @@ public class SolveSudoku extends Sudoku {
 			    field[num].addFocusListener(new FocusListener(){  
 			        public void focusGained(FocusEvent e) {
 			        	if (backup[num] != 0 || hints.contains(num) || mode == 2) {
+			        		return;
+			        	}
+			        	if (timerStopped) {
 			        		return;
 			        	}
     				    for (int i2 = 0; i2 < rows; i2++){
@@ -726,6 +755,32 @@ public class SolveSudoku extends Sudoku {
 	        	try {
 	        		showSteps = true;
 	        	    timerStopped = true;
+
+	        		for (int i2 = 0; i2 < rows; i2++){
+				    	for (int j2 = 0; j2 < cols; j2++) {
+			    			if (hints.contains(i2 * cols + j2)) {
+				    			field[i2 * cols + j2].setBackground(Color.BLUE);
+				    		} else {
+				    	        if (border[i2 * cols + j2] == 3) {
+				    	    		field[i2 * cols + j2].setBackground(Color.LIGHT_GRAY);
+				    	    	}
+				    	        if (border[i2 * cols + j2] == 2) {
+				    	    		field[i2 * cols + j2].setBackground(Color.DARK_GRAY);
+				    	    	}
+				    	    	if (border[i2 * cols + j2] == 1) {
+				    	    		field[i2 * cols + j2].setBackground(Color.BLACK);
+				    	    	}
+				    	        if (border[i2 * cols + j2] == 0) {
+				    	    		field[i2 * cols + j2].setBackground(Color.GRAY);
+				    	    	}
+				    	        if (border[i2 * cols + j2] == -1) {
+				    	    		field[i2 * cols + j2].setBackground(Color.RED);
+				    	    	}
+				    		}  				    			
+				    		field[i2 * cols + j2].setFont(field[i2 * cols + j2].getFont().deriveFont(~Font.BOLD | ~Font.ITALIC));
+				    		
+				    	}
+				    }
 	        	    for (int i = 0; i < rows; i++){ 
 	        	    	for (int j = 0; j < cols; j++) {
 	        	    		userInput[i * cols + j] = backup[i * cols + j];
