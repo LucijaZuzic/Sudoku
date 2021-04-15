@@ -113,6 +113,7 @@ public class SolveSudoku extends Sudoku {
 	    	}	
 	    }
 	    frame.setVisible(true);
+	    frame.requestFocus();
 	}
 	
 	public SolveSudoku(int x, int y, int xl, int yl, int[] br, int[] bn, int[] ui) {
@@ -161,6 +162,7 @@ public class SolveSudoku extends Sudoku {
 	    	}	
 	    }
 	    frame.setVisible(true);
+	    frame.requestFocus();
 	}
 
 	boolean incorrect[] = new boolean[rows * cols];

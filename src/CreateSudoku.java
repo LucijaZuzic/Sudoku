@@ -42,6 +42,7 @@ public class CreateSudoku extends Sudoku {
 		checkBoxes();
 	    frame.setVisible(true);
 	    checkIfCorrect();
+	    frame.requestFocus();
 	}
 	
 
@@ -61,6 +62,7 @@ public class CreateSudoku extends Sudoku {
 		checkBoxes();
 	    checkIfCorrect();
 	    frame.setVisible(true);
+	    frame.requestFocus();
 	}
 
 	@Override
@@ -188,7 +190,6 @@ public class CreateSudoku extends Sudoku {
 		int w = 60;
 		int h = 60;
 		int fontsize = 12;
-		
 	    for (int i = 0; i < rows; i++){ 
 	    	x = 15;
 	    	for (int j = 0; j < cols; j++) {
