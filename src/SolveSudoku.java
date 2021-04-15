@@ -375,7 +375,7 @@ public class SolveSudoku extends Sudoku {
 	    		
 	    	}
 	    }
-	    InformationBox.infoBox("Errors: " + String.valueOf(errornum) + "\nEmpty: " + String.valueOf(emptynum) + "\nCorrect: " + String.valueOf(correctnum), "Submission");
+	    InformationBox.infoBox("Greške: " + String.valueOf(errornum) + "\nPrazno: " + String.valueOf(emptynum) + "\nIspravno: " + String.valueOf(correctnum), "Rezultat");
 		return haserrors;
 	}
 
