@@ -34,6 +34,7 @@ public class SolveSudoku extends Sudoku {
 	int[] result;
 	int numerrors = 0;
 	int penalty = 0;
+	boolean errorwarn = true;
 	long startTime;
 	long elapsedTime;
 	JLabel timeLabel;
@@ -247,7 +248,11 @@ public class SolveSudoku extends Sudoku {
     			int num = i * cols + j;
 	    		if (incorrect[num] && backup[num] == 0) {
 	    			localnumerrors++;
-    				field[num].setForeground(Color.ORANGE);
+	    			if (errorwarn) {
+	    				field[num].setForeground(Color.ORANGE);
+	    			} else {
+	    				field[num].setForeground(Color.WHITE);
+	    			}
 	    		} else {
     				field[num].setForeground(Color.WHITE);
 	    		}
@@ -257,9 +262,17 @@ public class SolveSudoku extends Sudoku {
 	    	//penalty += localnumerrors - numerrors;
 	    	penalty++;
 	    }
-	    errorArea.setText(errortext);
+		if (errorwarn) {
+			errorArea.setText(errortext);
+		} else {
+			errorArea.setText("Greške se ne prikazuju.");
+		}
 	    numerrors = localnumerrors;
-	    penaltyLabel.setText("Kazneni bodovi: " + String.valueOf(penalty));
+		if (errorwarn) {
+			penaltyLabel.setText("Kazneni bodovi: " + String.valueOf(penalty));
+		} else {
+			penaltyLabel.setText("Kazneni bodovi: *");
+		}
 		return correct;
 	}
 	
@@ -441,7 +454,7 @@ public class SolveSudoku extends Sudoku {
     				    for (int i2 = 0; i2 < rows; i2++){
     				    	for (int j2 = 0; j2 < cols; j2++) {
     				    		if (j2 == num % cols || i2 == num / cols) {
-    				    			field[i2 * cols + j2].setBackground(Color.PINK);
+    				    			field[i2 * cols + j2].setBackground(new Color(119, 136, 153));
     				    		} else {
     				    			if (hints.contains(i2 * cols + j2)) {
 	    				    			field[i2 * cols + j2].setBackground(Color.BLUE);
@@ -498,6 +511,10 @@ public class SolveSudoku extends Sudoku {
 				        		options[num][selectedDigit - 1] = 1;
 				        		userInput[num] = selectedDigit;
 				        		field[num].setText(String.valueOf(selectedDigit));
+				        		if (errorwarn == false) {
+					        		checkIfCorrect();
+				        			return;
+				        		}
 				        		for (int samcol = 0; samcol < cols; samcol++) {
 				        			int num2 = samcol * cols + num % cols;
 				        			if (userInput[num2] != 0) {
@@ -687,6 +704,8 @@ public class SolveSudoku extends Sudoku {
 	        		if (timerStopped) {
 	        			return;
 	        		}
+	        	    errorwarn = true;
+	        	    checkIfCorrect();
 	        		showerror();
 				} catch (Exception e1) {
 	
@@ -772,7 +791,7 @@ public class SolveSudoku extends Sudoku {
 	        	try {
 	        		showSteps = true;
 	        	    timerStopped = true;
-
+	        	    errorwarn = true;
 	        		for (int i2 = 0; i2 < rows; i2++){
 				    	for (int j2 = 0; j2 < cols; j2++) {
 			    			if (hints.contains(i2 * cols + j2)) {
@@ -813,15 +832,40 @@ public class SolveSudoku extends Sudoku {
 	        }  
 	    });
         showstepb.addKeyListener(k);
+
+        JButton errorwarnb = new JButton("Upozori na greške");  
+        errorwarnb.setMargin(new Insets(1,1,1,1));
+        errorwarnb.setBounds(cols * w + 15 * 2, 15 + 15 * 5 + h * 5, 9 * w / 4, h);
+        errorwarnb.setFont(new Font("Arial", Font.PLAIN, fontsize));
+        errorwarnb.addActionListener(new ActionListener(){  
+        public void actionPerformed(ActionEvent e) {  
+	        	try {
+	        		if (timerStopped) {
+	        			return;
+	        		}
+	        		if (errorwarn) {
+		        		errorwarnb.setText("Ne upozori na greške");
+	        			errorwarn = false;
+	        		} else {
+		        		errorwarnb.setText("Upozori na greške");
+	        			errorwarn = true;
+	        		}
+	        		checkIfCorrect();
+				} catch (Exception e1) {
+	
+				}
+	        }  
+	    });
+        errorwarnb.addKeyListener(k);
         
-        difficulty.setBounds(cols * w + 15 * 2, 15 * 5 + 15 + h * 5, 200, h / 2);
+        difficulty.setBounds(cols * w + 15 * 2, 15 * 6 + 15 + h * 6, 200, h / 2);
         frame.add(difficulty);
         
-        difficulty.setBounds(cols * w + 15 * 2, 15 * 5 + 15 + h * 5, 200, h / 2);
+        difficulty.setBounds(cols * w + 15 * 2, 15 * 6 + 15 + h * 6, 200, h / 2);
         frame.add(difficulty);
 
         
-        penaltyLabel.setBounds(cols * w + 15 * 2, 15 * 11 / 2 + 15 + h * 11 / 2, 9 * w / 4, h / 2);
+        penaltyLabel.setBounds(cols * w + 15 * 2, 15 * 13 / 2 + 15 + h * 13 / 2, 9 * w / 4, h / 2);
         frame.add(penaltyLabel);
         
         startTime = System.currentTimeMillis();
@@ -831,11 +875,11 @@ public class SolveSudoku extends Sudoku {
         new Timer().scheduleAtFixedRate(t, 0, 1000);
 
 	    timeLabel = new JLabel("Proteklo vrijeme: 00:00:00");
-	    timeLabel.setBounds(cols * w + 15 * 2, 15 * 6 + 15 + h * 6, 200, h / 2);
+	    timeLabel.setBounds(cols * w + 15 * 2, 15 * 7 + 15 + h * 7, 200, h / 2);
 	    frame.add(timeLabel);
 	    
 	    helpLabel = new JLabel("Iskorištena pomoæ: 0");
-	    helpLabel.setBounds(cols * w + 15 * 2, 15 * 13 / 2 + 15 + h * 13 / 2, 200, h / 2);
+	    helpLabel.setBounds(cols * w + 15 * 2, 15 * 15 / 2 + 15 + h * 15 / 2, 200, h / 2);
 	    frame.add(helpLabel);
 
         errorArea = new JTextArea(0, 0);
@@ -845,7 +889,7 @@ public class SolveSudoku extends Sudoku {
 	    JScrollPane errorscroll = new JScrollPane(errorpanel, 
                 JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
                 JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-	    errorscroll.setBounds(cols * w + 15 * 2 + 200 + 15, 15, 250, Math.max((rows + 1) * h + 15, 7 * h + 8 * 15));
+	    errorscroll.setBounds(cols * w + 15 * 2 + 200 + 15, 15, 250, Math.max((rows + 1) * h + 15, 8 * h + 9 * 15));
 	    frame.add(errorscroll);
 	    errorpanel.setVisible(true);  
 	    errorpanel.setBackground(Color.WHITE);
@@ -857,7 +901,7 @@ public class SolveSudoku extends Sudoku {
 	    JScrollPane instructionscroll = new JScrollPane(instructionpanel, 
                 JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
                 JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-	    instructionscroll.setBounds(cols * w + 15 * 2 + 200 + 15 + 15 + 250, 15, 500, Math.max((rows + 1) * h + 15, 7 * h + 8 * 15));
+	    instructionscroll.setBounds(cols * w + 15 * 2 + 200 + 15 + 15 + 250, 15, 500, Math.max((rows + 1) * h + 15, 8 * h + 9 * 15));
 	    frame.add(instructionscroll);
 	    instructionpanel.setVisible(true);  
 	    instructionpanel.setBackground(Color.WHITE);
@@ -868,7 +912,8 @@ public class SolveSudoku extends Sudoku {
         frame.add(randomhintb);
         frame.add(hintb);
         frame.add(showstepb);
-	    frame.setSize(cols * w + 15 * 2 + 200 + 15 + 15 + 750 + 30, Math.max((rows + 1) * h + 15 * 3 + 40, 7 * h + 10 * 15 + 40));  
+        frame.add(errorwarnb);
+	    frame.setSize(cols * w + 15 * 2 + 200 + 15 + 15 + 750 + 30, Math.max((rows + 1) * h + 15 * 3 + 40, 8 * h + 11 * 15 + 40));  
 	    frame.setLayout(null);  
     }
 	

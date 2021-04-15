@@ -208,7 +208,7 @@ public class CreateSudoku extends Sudoku {
     				    for (int i2 = 0; i2 < rows; i2++){
     				    	for (int j2 = 0; j2 < cols; j2++) {
     				    		if (j2 == num % cols || i2 == num / cols) {
-    				    			field[i2 * cols + j2].setBackground(Color.PINK);
+    				    			field[i2 * cols + j2].setBackground(new Color(119, 136, 153));
     				    		} else {
 	    				    	        if (border[i2 * cols + j2] == 3) {
 	    				    	    		field[i2 * cols + j2].setBackground(Color.LIGHT_GRAY);
