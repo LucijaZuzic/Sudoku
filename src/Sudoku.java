@@ -1,4 +1,5 @@
 import java.awt.Color;
+import java.awt.Font;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Stack;
@@ -2195,7 +2196,7 @@ public abstract class Sudoku {
 		    		if (showSteps == true) {
 		    		    instructionArea.setText(solvingInstructions);
     		    		print();
-    	    			InformationBox.infoBox("Za red" + String.valueOf(i + 1) + ", broj " + String.valueOf(val) + " je jedino moguć u ćeliji (" + String.valueOf(i + 1) + ", " + String.valueOf(x + 1) + ").", "Rješavač");
+    	    			InformationBox.infoBox("Za red " + String.valueOf(i + 1) + ", broj " + String.valueOf(val) + " je jedino moguć u ćeliji (" + String.valueOf(i + 1) + ", " + String.valueOf(x + 1) + ").", "Rješavač");
 		    		}
 			    	temporary[i * cols + x] = val;
     		    	field[i * cols + x].setForeground(Color.BLACK);
@@ -2862,4 +2863,26 @@ public abstract class Sudoku {
 
 	abstract public void draw();
 	
+	public void resethighlight() {
+		for (int i2 = 0; i2 < rows; i2++){
+	    	for (int j2 = 0; j2 < cols; j2++) {
+    	        if (border[i2 * cols + j2] == 3) {
+    	    		field[i2 * cols + j2].setBackground(Color.LIGHT_GRAY);
+    	    	}
+    	        if (border[i2 * cols + j2] == 2) {
+    	    		field[i2 * cols + j2].setBackground(Color.DARK_GRAY);
+    	    	}
+    	    	if (border[i2 * cols + j2] == 1) {
+    	    		field[i2 * cols + j2].setBackground(Color.BLACK);
+    	    	}
+    	        if (border[i2 * cols + j2] == 0) {
+    	    		field[i2 * cols + j2].setBackground(Color.GRAY);
+    	    	}
+    	        if (border[i2 * cols + j2] == -1) {
+    	    		field[i2 * cols + j2].setBackground(Color.RED);
+    	    	}	    			
+	    		field[i2 * cols + j2].setFont(field[i2 * cols + j2].getFont().deriveFont(~Font.BOLD | ~Font.ITALIC));
+	    	}
+	    }
+	}
 }
