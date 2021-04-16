@@ -4,8 +4,6 @@ import java.awt.Font;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
@@ -17,6 +15,49 @@ import javax.swing.JTextArea;
 
 public class CreateSudoku extends Sudoku {
 	JButton digibs[];
+
+	public void highlightcell(int num) {
+	    for (int i2 = 0; i2 < rows; i2++){
+	    	for (int j2 = 0; j2 < cols; j2++) {
+	    		if (j2 == num % cols || i2 == num / cols) {
+	    			field[i2 * cols + j2].setBackground(new Color(119, 136, 153));
+	    		} else {
+	    	        if (border[i2 * cols + j2] == 3) {
+	    	    		field[i2 * cols + j2].setBackground(Color.LIGHT_GRAY);
+	    	    	}
+	    	        if (border[i2 * cols + j2] == 2) {
+	    	    		field[i2 * cols + j2].setBackground(Color.DARK_GRAY);
+	    	    	}
+	    	    	if (border[i2 * cols + j2] == 1) {
+	    	    		field[i2 * cols + j2].setBackground(Color.BLACK);
+	    	    	}
+	    	        if (border[i2 * cols + j2] == 0) {
+	    	    		field[i2 * cols + j2].setBackground(Color.GRAY);
+	    	    	}
+	    	        if (border[i2 * cols + j2] == -1) {
+	    	    		field[i2 * cols + j2].setBackground(Color.RED);
+	    	    	}
+	    		}
+	    	}
+	    }
+	}
+
+	public void highlightdigit() {
+		for (int j = 0; j < cols + 1; j++) {
+			digibs[j].setBackground(Color.WHITE);
+		}
+		digibs[selectedDigit].setBackground(Color.CYAN);
+	    for (int i2 = 0; i2 < rows; i2++){
+	    	for (int j2 = 0; j2 < cols; j2++) {
+	    		if (userInput[i2 * cols + j2] == selectedDigit && selectedDigit != 0) {
+	    			field[i2 * cols + j2].setFont(field[i2 * cols + j2].getFont().deriveFont(Font.BOLD | Font.ITALIC));
+	    		} else {    				    			
+	    			field[i2 * cols + j2].setFont(field[i2 * cols + j2].getFont().deriveFont(~Font.BOLD | ~Font.ITALIC));
+	    		}
+	    	}
+	    }
+	}
+	
 	public CreateSudoku(int x, int y, int xl, int yl, int[] br, int[] bn) {
 		super(x, y, xl, yl);
 		border = br;
@@ -174,11 +215,10 @@ public class CreateSudoku extends Sudoku {
 			int key = e.getKeyCode();
 			if (key - 48 >= 0 && key - 48 <= 9) {
 				selectedDigit = key - 48;
-				for (int j = 0; j < cols + 1; j++) {
-					digibs[j].setBackground(Color.WHITE);
-				}
-				digibs[selectedDigit].setBackground(Color.CYAN);
+				resethighlight();
+				highlightdigit();
 			}
+    		checkIfCorrect();
 		}
 		public void keyReleased(KeyEvent e) {}
 		public void keyTyped(KeyEvent e) {}
@@ -203,61 +243,12 @@ public class CreateSudoku extends Sudoku {
 			    field[num].setFont(new Font("Arial", Font.PLAIN, fontsize));
 			    field[num].setBounds(x, y, w, h);
 			    
-			    field[num].addFocusListener(new FocusListener(){  
-			        public void focusGained(FocusEvent e) {
-    				    for (int i2 = 0; i2 < rows; i2++){
-    				    	for (int j2 = 0; j2 < cols; j2++) {
-    				    		if (j2 == num % cols || i2 == num / cols) {
-    				    			field[i2 * cols + j2].setBackground(new Color(119, 136, 153));
-    				    		} else {
-	    				    	        if (border[i2 * cols + j2] == 3) {
-	    				    	    		field[i2 * cols + j2].setBackground(Color.LIGHT_GRAY);
-	    				    	    	}
-	    				    	        if (border[i2 * cols + j2] == 2) {
-	    				    	    		field[i2 * cols + j2].setBackground(Color.DARK_GRAY);
-	    				    	    	}
-	    				    	    	if (border[i2 * cols + j2] == 1) {
-	    				    	    		field[i2 * cols + j2].setBackground(Color.BLACK);
-	    				    	    	}
-	    				    	        if (border[i2 * cols + j2] == 0) {
-	    				    	    		field[i2 * cols + j2].setBackground(Color.GRAY);
-	    				    	    	}
-	    				    	        if (border[i2 * cols + j2] == -1) {
-	    				    	    		field[i2 * cols + j2].setBackground(Color.RED);
-	    				    	    	}
-    				    		}
-    				    		if (userInput[num] == 0) {
-	    				    		if (userInput[i2 * cols + j2] == selectedDigit && selectedDigit != 0) {
-	    				    			field[i2 * cols + j2].setFont(field[i2 * cols + j2].getFont().deriveFont(Font.BOLD | Font.ITALIC));
-	    				    		} else {    				    			
-	    				    			field[i2 * cols + j2].setFont(field[i2 * cols + j2].getFont().deriveFont(~Font.BOLD | ~Font.ITALIC));
-	    				    		}
-    				    		} else {
-	    				    		if (userInput[i2 * cols + j2] == userInput[num]) {
-	    				    			field[i2 * cols + j2].setFont(field[i2 * cols + j2].getFont().deriveFont(Font.BOLD | Font.ITALIC));
-	    				    		} else {    				    			
-	    				    			field[i2 * cols + j2].setFont(field[i2 * cols + j2].getFont().deriveFont(~Font.BOLD | ~Font.ITALIC));
-	    				    		}
-    				    		}
-    				    	}
-    				    }
-			        	field[num].setFont(field[num].getFont().deriveFont(Font.BOLD | Font.ITALIC));
-			        }
-					public void focusLost(FocusEvent e) {
-	
-						
-					}
-				});
-			    
 			    field[num].addActionListener(new ActionListener(){  
 			        public void actionPerformed(ActionEvent e) {  
 			        	try {
 			        		userInput[num] = selectedDigit;
-			    	        /*if (selectedDigit == 0) {
-			    	        	field[num].setForeground(Color.RED);
-			    	        } else {
-			    	        	field[num].setForeground(Color.WHITE);
-			    	        }*/
+			        		highlightcell(num);
+			        		highlightdigit();
 			        		field[num].setText(String.valueOf(selectedDigit));
 			        		checkIfCorrect();
 						} catch (Exception e1) {
@@ -274,7 +265,7 @@ public class CreateSudoku extends Sudoku {
 
         JButton fillb = new JButton("Nasumièmo nadopuni");  
 		fillb.setMargin(new Insets(1,1,1,1));
-		fillb.setBounds((cols + 1) * w + 15 * 2, 15, 9 * w / 4, h);
+		fillb.setBounds((cols + 1) * w + 15 * 2, 15 + 15 * 3 + h * 3, 9 * w / 4, h);
 		fillb.setFont(new Font("Arial", Font.PLAIN, fontsize));
 		fillb.addActionListener(new ActionListener(){  
         public void actionPerformed(ActionEvent e) {  
@@ -291,7 +282,7 @@ public class CreateSudoku extends Sudoku {
 		fillb.addKeyListener(k);
         JButton uniqueb = new JButton("Jedinstvenost rješenja");  
 		uniqueb.setMargin(new Insets(1,1,1,1));
-		uniqueb.setBounds((cols + 1) * w + 15 * 2, 15 + 15 + h, 9 * w / 4, h);
+		uniqueb.setBounds((cols + 1) * w + 15 * 2, 15, 9 * w / 4, h);
 		uniqueb.setFont(new Font("Arial", Font.PLAIN, fontsize));
 		uniqueb.addActionListener(new ActionListener(){  
         public void actionPerformed(ActionEvent e) {  
@@ -333,7 +324,7 @@ public class CreateSudoku extends Sudoku {
 		cleargrid.addKeyListener(k);
         JButton removeb = new JButton("Simetrièno ukloni");  
         removeb.setMargin(new Insets(1,1,1,1));
-        removeb.setBounds((cols + 1) * w + 15 * 2, 15 + 15 * 3 + h * 3, 9 * w / 4, h);
+        removeb.setBounds((cols + 1) * w + 15 * 2, 15 + 15 * 4 + h * 4, 9 * w / 4, h);
         removeb.setFont(new Font("Arial", Font.PLAIN, fontsize));
         removeb.addActionListener(new ActionListener(){  
         public void actionPerformed(ActionEvent e) {  
@@ -350,7 +341,7 @@ public class CreateSudoku extends Sudoku {
 		removeb.addKeyListener(k);
         JButton restoreb = new JButton("Vrati uklonjeno");  
         restoreb.setMargin(new Insets(1,1,1,1));
-        restoreb.setBounds((cols + 1) * w + 15 * 2, 15 + 15 * 4 + h * 4, 9 * w / 4, h);
+        restoreb.setBounds((cols + 1) * w + 15 * 2, 15 + 15 * 5 + h * 5, 9 * w / 4, h);
         restoreb.setFont(new Font("Arial", Font.PLAIN, fontsize));
         restoreb.addActionListener(new ActionListener(){  
         public void actionPerformed(ActionEvent e) {  
@@ -369,7 +360,7 @@ public class CreateSudoku extends Sudoku {
 		f.setSudoku(this);
         JButton filesaveb = new JButton("Spremi zagonetku");  
         filesaveb.setMargin(new Insets(1,1,1,1));
-        filesaveb.setBounds((cols + 1) * w + 15 * 2, 15 + 15 * 5 + h * 5, 9 * w / 4, h);
+        filesaveb.setBounds((cols + 1) * w + 15 * 2, 15 + 15 * 6 + h * 6, 9 * w / 4, h);
         filesaveb.setFont(new Font("Arial", Font.PLAIN, fontsize));
         filesaveb.addActionListener(new ActionListener(){  
         public void actionPerformed(ActionEvent e) {  
@@ -384,7 +375,7 @@ public class CreateSudoku extends Sudoku {
 		filesaveb.addKeyListener(k);
         JButton filereadb = new JButton("Uèitaj zagonetku");  
         filereadb.setMargin(new Insets(1,1,1,1));
-        filereadb.setBounds((cols + 1) * w + 15 * 2, 15 + 15 * 6 + h * 6, 9 * w / 4, h);
+        filereadb.setBounds((cols + 1) * w + 15 * 2, 15 + 15 * 7 + h * 7, 9 * w / 4, h);
         filereadb.setFont(new Font("Arial", Font.PLAIN, fontsize));
         filereadb.addActionListener(new ActionListener(){  
         public void actionPerformed(ActionEvent e) {  
@@ -412,7 +403,11 @@ public class CreateSudoku extends Sudoku {
 		for (int i = 0; i < cols + 1; i++) {
 			digibs[i] = new JButton(String.valueOf(i));  
 			digibs[i].setMargin(new Insets(1,1,1,1));
-			digibs[i].setBackground(Color.WHITE);
+			if (i != selectedDigit) {
+				digibs[i].setBackground(Color.WHITE);
+			} else {
+				digibs[i].setBackground(Color.CYAN);
+			}
 			digibs[i].setBounds(x, rows * h + 15 * 2, w, h);
 			digibs[i].setFont(new Font("Arial", Font.PLAIN, fontsize));
 	        if (i == 0) {
@@ -423,10 +418,8 @@ public class CreateSudoku extends Sudoku {
 	        public void actionPerformed(ActionEvent e) {  
 		        	try {
 		        		selectedDigit = digit;
-						for (int j = 0; j < cols + 1; j++) {
-							digibs[j].setBackground(Color.WHITE);
-						}
-						digibs[selectedDigit].setBackground(Color.CYAN);
+						resethighlight();
+						highlightdigit();
 		        		checkIfCorrect();
 					} catch (Exception e1) {
 		
@@ -442,7 +435,7 @@ public class CreateSudoku extends Sudoku {
 
         JButton showstepb = new JButton("Prikaži korake");  
         showstepb.setMargin(new Insets(1,1,1,1));
-        showstepb.setBounds((cols + 1) * w + 15 * 2, 15 + 15 * 7 + h * 7, 9 * w / 4, h);
+        showstepb.setBounds((cols + 1) * w + 15 * 2, 15 + 15 * 1 + h * 1, 9 * w / 4, h);
         showstepb.setFont(new Font("Arial", Font.PLAIN, fontsize));
         showstepb.addActionListener(new ActionListener(){  
         public void actionPerformed(ActionEvent e) {  
