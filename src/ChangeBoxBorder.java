@@ -137,13 +137,13 @@ public class ChangeBoxBorder extends Sudoku {
 	    x = 15;
 	    
 	    JLabel bcol = new JLabel("Boja kutije: ");
-	    bcol.setBounds(cols * w + 15 * 2 + 9 * 60 / 4 + 80, 15, 9 * w / 4, h / 2);
+	    bcol.setBounds(cols * w + 15 * 2, 15 + 15 + 30 * 10, 9 * w / 4, h / 2);
 	    frame.add(bcol);
 	    		
 	    JButton modeb1 = new JButton("");  
         modeb1.setMargin(new Insets(1,1,1,1));
         modeb1.setBackground(Color.GRAY);
-        modeb1.setBounds(cols * w + 15 * 2 + 9 * 60 / 4 + 80, 15 + h / 2, 9 * w / 16, h / 2);
+        modeb1.setBounds(cols * w + 15 * 2, 15 + h / 2 + 15 + 30 * 10, 9 * w / 16, h / 2);
         modeb1.setFont(new Font("Arial", Font.PLAIN, fontsize));
         modeb1.addActionListener(new ActionListener(){  
         public void actionPerformed(ActionEvent e) {  
@@ -158,7 +158,7 @@ public class ChangeBoxBorder extends Sudoku {
 	    JButton modeb2 = new JButton("");  
         modeb2.setMargin(new Insets(1,1,1,1));
         modeb2.setBackground(Color.BLACK);
-        modeb2.setBounds(cols * w + 15 * 2 + 9 * 60 / 4 + 80 + 9 * w / 16, 15 + h / 2, 9 * w / 16, h / 2);
+        modeb2.setBounds(cols * w + 15 * 2 + 9 * w / 16, 15 + h / 2 + 15 + 30 * 10, 9 * w / 16, h / 2);
         modeb2.setFont(new Font("Arial", Font.PLAIN, fontsize));
         modeb2.addActionListener(new ActionListener(){  
         public void actionPerformed(ActionEvent e) {  
@@ -173,7 +173,7 @@ public class ChangeBoxBorder extends Sudoku {
 	    JButton modeb3 = new JButton("");  
         modeb3.setMargin(new Insets(1,1,1,1));
         modeb3.setBackground(Color.DARK_GRAY);
-        modeb3.setBounds(cols * w + 15 * 2 + 9 * 60 / 4 + 80 + 9 * w / 16 * 2, 15 + h / 2, 9 * w / 16, h / 2);
+        modeb3.setBounds(cols * w + 15 * 2 + 9 * w / 16 * 2, 15 + h / 2 + 15 + 30 * 10, 9 * w / 16, h / 2);
         modeb3.setFont(new Font("Arial", Font.PLAIN, fontsize));
         modeb3.addActionListener(new ActionListener(){  
         public void actionPerformed(ActionEvent e) {  
@@ -188,7 +188,7 @@ public class ChangeBoxBorder extends Sudoku {
 	    JButton modeb4 = new JButton("");  
         modeb4.setMargin(new Insets(1,1,1,1));
         modeb4.setBackground(Color.LIGHT_GRAY);
-        modeb4.setBounds(cols * w + 15 * 2 + 9 * 60 / 4 + 80 + 9 * w / 16 * 3, 15 + h / 2, 9 * w / 16, h / 2);
+        modeb4.setBounds(cols * w + 15 * 2 + 9 * w / 16 * 3, 15 + h / 2 + 15 + 30 * 10, 9 * w / 16, h / 2);
         modeb4.setFont(new Font("Arial", Font.PLAIN, fontsize));
         modeb4.addActionListener(new ActionListener(){  
         public void actionPerformed(ActionEvent e) {  
@@ -202,7 +202,7 @@ public class ChangeBoxBorder extends Sudoku {
 
         JButton designb = new JButton("Dizajniraj zagonetku");  
         designb.setMargin(new Insets(1,1,1,1));
-        designb.setBounds(cols * w + 15 * 2 + 9 * 60 / 4 + 80, 15 * 2 + 15 + h * 2, 9 * w / 4, h);
+        designb.setBounds(cols * w + 15 * 2, 15 + h / 2 + 15 + 30 * 10 + 30 * 2 + 15 * 2, 9 * w / 4, h / 2);
         designb.setFont(new Font("Arial", Font.PLAIN, fontsize));
         designb.addActionListener(new ActionListener(){  
         public void actionPerformed(ActionEvent e) {  
@@ -223,7 +223,7 @@ public class ChangeBoxBorder extends Sudoku {
         
         JButton designcontb = new JButton("Nastavi dizajn");  
         designcontb.setMargin(new Insets(1,1,1,1));
-        designcontb.setBounds(cols * w + 15 * 2 + 9 * 60 / 4 + 80, 15 + 15 + h, 9 * w / 4, h);
+        designcontb.setBounds(cols * w + 15 * 2, 15 + h / 2 + 15 + 30 * 10 + 30 + 15, 9 * w / 4, h / 2);
         designcontb.setFont(new Font("Arial", Font.PLAIN, fontsize));
         designcontb.addActionListener(new ActionListener(){  
         public void actionPerformed(ActionEvent e) {  
@@ -241,7 +241,7 @@ public class ChangeBoxBorder extends Sudoku {
 
         JButton solveb = new JButton("Riješi spremljeno");  
         solveb.setMargin(new Insets(1,1,1,1));
-        solveb.setBounds(cols * w + 15 * 2 + 9 * 60 / 4 + 80, 15 * 3 + 15 + h * 3, 9 * w / 4, h);
+        solveb.setBounds(cols * w + 15 * 2, 15 + h / 2 + 15 + 30 * 10 + 30 * 3 + 15 * 3, 9 * w / 4, h / 2);
         solveb.setFont(new Font("Arial", Font.PLAIN, fontsize));
         solveb.addActionListener(new ActionListener(){  
         public void actionPerformed(ActionEvent e) {  
@@ -255,7 +255,7 @@ public class ChangeBoxBorder extends Sudoku {
 				}
 	        }  
 	    });
-	    frame.setSize(cols * w + 15 * 2 + 9 * w / 4 + 15 + 130 * 5 / 4 + 70, Math.max(rows * h + 15 * 2 + 40, 15 * 5 + 15 + h * 4 + 40));  
+	    frame.setSize(cols * w + 15 * 2 + 9 * w / 4 + 15 + 70 + 15, Math.max(rows * h + 15 * 2 + 40, 15 * 5 + 15 * 3 + h * 7 + 40));  
 
 	    x = cols * w + 15 * 2 + 9 * w / 4 + 15;
 		y = 15;
@@ -296,6 +296,7 @@ public class ChangeBoxBorder extends Sudoku {
 	    
 	    JButton createb = new JButton("Izmjeni dimenzije");
 	    createb.setBounds(x - 9 * 60 / 4 - 15, y + h * 9 / 2, w * 5 / 4, h);
+	    createb.setFont(new Font("Arial", Font.PLAIN, fontsize));
 	    createb.addActionListener(new ActionListener(){  
 	        public void actionPerformed(ActionEvent e) {  
 	        	try {
@@ -351,6 +352,7 @@ public class ChangeBoxBorder extends Sudoku {
 
         JButton solverandomb = new JButton("Riješi nasumièno");  
         solverandomb.setMargin(new Insets(1,1,1,1));
+        solverandomb.setFont(new Font("Arial", Font.PLAIN, fontsize));
         solverandomb.setBounds(x - 9 * 60 / 4 - 15, y + h * 9, 9 * 60 / 4, 30);
         solverandomb.addActionListener(new ActionListener(){  
         public void actionPerformed(ActionEvent e) {  
