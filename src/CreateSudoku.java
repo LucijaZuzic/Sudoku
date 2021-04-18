@@ -262,7 +262,7 @@ public class CreateSudoku extends Sudoku {
 		    }
 		    y += h;
 	    }
-
+	    h = 30;
         JButton fillb = new JButton("Nasumièmo nadopuni");  
 		fillb.setMargin(new Insets(1,1,1,1));
 		fillb.setBounds((cols + 1) * w + 15 * 2, 15 + 15 * 3 + h * 3, 9 * w / 4, h);
@@ -398,6 +398,7 @@ public class CreateSudoku extends Sudoku {
 	        }  
 	    });
 		x = 15;
+		h = 60;
 		filereadb.addKeyListener(k);
 		digibs = new JButton[cols + 1];
 		for (int i = 0; i < cols + 1; i++) {
@@ -432,7 +433,7 @@ public class CreateSudoku extends Sudoku {
 	        x += w;
 		}
 		filesaveb.addKeyListener(k);
-
+		h = 30;
         JButton showstepb = new JButton("Prikaži korake");  
         showstepb.setMargin(new Insets(1,1,1,1));
         showstepb.setBounds((cols + 1) * w + 15 * 2, 15 + 15 * 1 + h * 1, 9 * w / 4, h);
@@ -453,7 +454,7 @@ public class CreateSudoku extends Sudoku {
         showstepb.addKeyListener(k);
         difficulty.setBounds((cols + 1) * w + 15 * 2, 15 * 8 + 15 + h * 8, 200, h / 2);
         frame.add(difficulty);
-        
+        h = 60;
         errorArea = new JTextArea(0, 0);
         errorArea.setEditable (false);
 	    JPanel errorpanel = new JPanel();

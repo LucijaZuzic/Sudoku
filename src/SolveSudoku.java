@@ -739,7 +739,7 @@ public class SolveSudoku extends Sudoku {
 	        frame.add(digibs[i]);
 	        x += w;
 		}
-		
+		h = 30;
         JButton solvedb = new JButton("Ispravnost rješenja");  
         solvedb.setMargin(new Insets(1,1,1,1));
         solvedb.setBounds(cols * w + 15 * 2, 15, 9 * w / 4, h);
@@ -923,7 +923,6 @@ public class SolveSudoku extends Sudoku {
 	        }  
 	    });
         errorwarnb.addKeyListener(k);
-        
         difficulty.setBounds(cols * w + 15 * 2, 15 * 7 + 15 + h * 7, 200, h / 2);
         frame.add(difficulty);
         
@@ -948,6 +947,7 @@ public class SolveSudoku extends Sudoku {
 	    helpLabel.setBounds(cols * w + 15 * 2, 15 * 17 / 2 + 15 + h * 17 / 2, 200, h / 2);
 	    frame.add(helpLabel);
 
+        h = 60;
         errorArea = new JTextArea(0, 0);
         errorArea.setEditable (false);
 	    JPanel errorpanel = new JPanel();
