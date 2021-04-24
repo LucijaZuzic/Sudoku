@@ -1,8 +1,9 @@
 import java.awt.BorderLayout;
 import java.awt.Color;
-
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Insets;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -40,8 +41,8 @@ public class SolveSudoku extends Sudoku {
 	JLabel helpLabel;
 
 	boolean setAssumed = false;
-	public SolveSudoku(int x, int y, int xl, int yl, int[] br, int[] bn, int mint, int maxt) {
-		super(x, y, xl, yl);
+	public SolveSudoku(int constructRows, int constructCols, int rowLimit, int colLimit, int[] constructBorder, int[] constructBoxNumber, int constructMinDifficulty, int constructMaxDifficulty) {
+		super(constructRows, constructCols, rowLimit, colLimit);
 		JFrame newf = new JFrame();
 		int dialogResult = JOptionPane.showConfirmDialog (newf, "Želite li da se prikazuju greške?","Prikaži greške",0);
 		if(dialogResult == JOptionPane.YES_OPTION){
@@ -61,8 +62,8 @@ public class SolveSudoku extends Sudoku {
 		} else {
 			mode = 0;
 		}
-		border = br;
-		boxNumber = bn;
+		border = constructBorder;
+		boxNumber = constructBoxNumber;
 	    int retval = 1;
 	    while(retval == 1) {
 		    for (int row = 0; row < rows; row++){ 
@@ -81,13 +82,13 @@ public class SolveSudoku extends Sudoku {
 	    		field[numCell].setText(String.valueOf(userInput[numCell]));
 	    	}
 	    }
-		options = new int[x * y][x];
-		result = new int[x * y];
+		options = new int[constructRows * constructCols][constructRows];
+		result = new int[constructRows * constructCols];
 		checkBoxes();
 	    int solvable = 0;
 	    int numReturns = 0;
-	    mintargetDifficulty = mint;
-	    maxtargetDifficulty = maxt;
+	    mintargetDifficulty = constructMinDifficulty;
+	    maxtargetDifficulty = constructMaxDifficulty;
 	    long startGen = System.currentTimeMillis();
 	    while (solvable == 0 || difficultyScore > maxtargetDifficulty || difficultyScore < mintargetDifficulty) {
 		    removeSymetricPair();
@@ -112,7 +113,7 @@ public class SolveSudoku extends Sudoku {
 	    		break;
 	    	}
 	    }
-		backup = new int[x * y];
+		backup = new int[constructRows * constructCols];
 	    for (int row = 0; row < rows; row++){ 
 	    	for (int col = 0; col < cols; col++) {
 		    	int numCell = row * cols + col;
@@ -139,40 +140,40 @@ public class SolveSudoku extends Sudoku {
 	    frame.requestFocus();
 	}
 	
-	public SolveSudoku(int x, int y, int xl, int yl, int[] br, int[] bn, int[] ui) {
-		super(x, y, xl, yl);
-		JFrame newf = new JFrame();
-		int dialogResult = JOptionPane.showConfirmDialog (newf, "Želite li da se prikazuju greške?","Prikaži greške",0);
+	public SolveSudoku(int constructRows, int constructCols, int rowLimit, int colLimit, int[] constructBorder, int[] constructBoxNumber, int[] constructUserInput) {
+		super(constructRows, constructCols, rowLimit, colLimit);
+		JFrame newFrame = new JFrame();
+		int dialogResult = JOptionPane.showConfirmDialog (newFrame, "Želite li da se prikazuju greške?","Prikaži greške",0);
 		if(dialogResult == JOptionPane.YES_OPTION){
 			errorWarn = true;
 		} else {
 			errorWarn = false;
 		}
-		dialogResult = JOptionPane.showConfirmDialog (newf, "Želite li da se automatski postave bilješke?","Postavi bilješke",0);
+		dialogResult = JOptionPane.showConfirmDialog (newFrame, "Želite li da se automatski postave bilješke?","Postavi bilješke",0);
 		if(dialogResult == JOptionPane.YES_OPTION){
 			setAssumed = true;
 		} else {
 			setAssumed = false;
 		}
-		dialogResult = JOptionPane.showConfirmDialog (newf, "Želite li da se ukljuèi pisanje bilješki?","Ukljuèi bilješke",0);
+		dialogResult = JOptionPane.showConfirmDialog (newFrame, "Želite li da se ukljuèi pisanje bilješki?","Ukljuèi bilješke",0);
 		if(dialogResult == JOptionPane.YES_OPTION){
 			mode = 1;
 		} else {
 			mode = 0;
 		}
-		border = br;
-		boxNumber = bn;
+		border = constructBorder;
+		boxNumber = constructBoxNumber;
 	    draw();
 	    for (int row = 0; row < rows; row++){ 
 	    	for (int col = 0; col < cols; col++) {
 		    	int numCell = row * cols + col;
-	    		userInput[numCell] = ui[numCell];
+	    		userInput[numCell] = constructUserInput[numCell];
 	    		solution[numCell] = 0;
 	    		field[numCell].setText(String.valueOf(userInput[numCell]));
 	    	}
 	    }
-		options = new int[x * y][x];
-		result = new int[x * y];
+		options = new int[constructRows * constructCols][constructRows];
+		result = new int[constructRows * constructCols];
 		checkBoxes();
 		selectedDigit = 1;
 		isOnlyOneSolution();
@@ -183,7 +184,7 @@ public class SolveSudoku extends Sudoku {
 	    	}
 	    }
 	    checkIfCorrect();
-		backup = new int[x * y];
+		backup = new int[constructRows * constructCols];
 	    for (int row = 0; row < rows; row++){ 
 	    	for (int col = 0; col < cols; col++) {
 		    	int numCell = row * cols + col;
@@ -213,7 +214,7 @@ public class SolveSudoku extends Sudoku {
 	boolean incorrect[] = new boolean[rows * cols];
 	@Override
 	public boolean checkIfCorrect() {
-		String errortext = "";
+		String errorText = "";
 	    for (int row = 0; row < rows; row++){ 
 	    	for (int col = 0; col < cols; col++) {
 		    	int numCell = row * cols + col;
@@ -242,19 +243,19 @@ public class SolveSudoku extends Sudoku {
 			    		usedCols[col]++;
 			    		usedBoxes[boxNumber[row * cols + col]]++;
 			    		if (usedRows[row] > 1) {
-			    			errortext += val + ": " + "(" + (row + 1) + ", " + (col + 1) + ") Broj " + val + " veæ postoji u retku " + (row + 1) + "\n";
+			    			errorText += val + ": " + "(" + (row + 1) + ", " + (col + 1) + ") Broj " + val + " veæ postoji u retku " + (row + 1) + "\n";
 			    			correct = false;
 			    			status = true;
 			    			incorrect[row * cols + col] = true;
 			    		}
 			    		if (usedCols[col] > 1) {
-			    			errortext += val + ": " + "(" + (row + 1) + ", " + (col + 1) + ") Broj " + val + " veæ postoji u stupcu " + (col + 1) + "\n";
+			    			errorText += val + ": " + "(" + (row + 1) + ", " + (col + 1) + ") Broj " + val + " veæ postoji u stupcu " + (col + 1) + "\n";
 			    			correct = false;
 			    			status = true;
 			    			incorrect[row * cols + col] = true;
 			    		}
 			    		if (usedBoxes[boxNumber[row * cols + col]] > 1) {
-			    			errortext += val + ": " + "(" + (row + 1) + ", " + (col + 1) + ") Broj " + val + " veæ postoji u kutiji " + (boxNumber[row * cols + col] + 1) + "\n";
+			    			errorText += val + ": " + "(" + (row + 1) + ", " + (col + 1) + ") Broj " + val + " veæ postoji u kutiji " + (boxNumber[row * cols + col] + 1) + "\n";
 			    			correct = false;
 			    			status = true;
 			    			incorrect[row * cols + col] = true;
@@ -272,8 +273,8 @@ public class SolveSudoku extends Sudoku {
 				    				incorrect[numCell] = true;
 				    			}
 				    		}
-						    for (int x = (row / ylim) * (cols / xlim); x < (row / ylim + 1) * (cols / xlim); x++){
-						    	for (int y = (col / xlim) * (cols / xlim); y < (col / xlim + 1) * (cols / xlim); y++) {
+						    for (int x = (row / yLim) * (cols / xLim); x < (row / yLim + 1) * (cols / xLim); x++){
+						    	for (int y = (col / xLim) * (cols / xLim); y < (col / xLim + 1) * (cols / xLim); y++) {
 					    			int numCell = x * cols + y;
 						    		if (temporary[numCell] == val && backup[numCell] == 0) {
 					    				incorrect[numCell] = true;
@@ -306,7 +307,7 @@ public class SolveSudoku extends Sudoku {
 	    	penalty++;
 	    }
 		if (errorWarn) {
-			errorArea.setText(errortext);
+			errorArea.setText(errorText);
 		} else {
 			errorArea.setText("Greške se ne prikazuju.");
 		}
@@ -593,12 +594,19 @@ public class SolveSudoku extends Sudoku {
 		frame = new JFrame("Riješi sudoku");  
 	    frame.setDefaultCloseOperation (JFrame.DISPOSE_ON_CLOSE);
 	    frame.addKeyListener(keyListener);
-	    int space = 15;
+	    Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+	    double baselineWidth = 1920;
+	    double baselineHeight = 1080;
+	    double width = screenSize.getWidth();
+	    double height = screenSize.getHeight();
+	    double widthScaling = width / baselineWidth;
+	    double heightScaling = height / baselineHeight;
+	    int space = (int) (15 * widthScaling);
 	    int x = space;
 		int y = space;
-		int w = 60;
-		int h = 60;
-		int fontsize = 12;
+		int w = (int) (60 * widthScaling);
+		int h = (int) (60 * heightScaling);
+		int fontsize = (int) (12 * heightScaling);
 
 	    for (int row = 0; row < rows; row++){ 
 	    	x = space;
@@ -743,7 +751,7 @@ public class SolveSudoku extends Sudoku {
 		}
 		int digitEnd = y + h + space;
 		h = 2 * space;
-		w = 135;
+		w = (int) (135 * widthScaling);
 		x += space;
 		y = space;
         JButton solvedButton = new JButton("Ispravnost rješenja");  
@@ -937,12 +945,14 @@ public class SolveSudoku extends Sudoku {
         errorWarnButton.addKeyListener(keyListener);
 		y += h + space;
 		h = h / 2;
-		w = 200;
+		w = (int) (200 * widthScaling);
         difficulty.setBounds(x, y, w, h);
+        difficulty.setFont(new Font("Arial", Font.PLAIN, fontsize));
         frame.add(difficulty);
 		y += h + space;
         
         penaltyLabel.setBounds(x, y, w, h);
+        penaltyLabel.setFont(new Font("Arial", Font.PLAIN, fontsize));
         frame.add(penaltyLabel);
 		y += h + space;
         
@@ -953,18 +963,21 @@ public class SolveSudoku extends Sudoku {
         new Timer().scheduleAtFixedRate(scoreTask, 0, 1000);
 
 	    timeLabel = new JLabel("Proteklo vrijeme: 00:00:00");
+	    timeLabel.setFont(new Font("Arial", Font.PLAIN, fontsize));
 	    timeLabel.setBounds(x, y, w, h);
 	    frame.add(timeLabel);
 		y += h + space;
 	    
 	    helpLabel = new JLabel("Iskorištena pomoæ: 0");
+	    helpLabel.setFont(new Font("Arial", Font.PLAIN, fontsize));
 	    helpLabel.setBounds(x, y, w, h);
 	    frame.add(helpLabel);
 	    int buttonEnd = y + h + space;
         x += w + space;
         y = space;
-        w = 250;
+        w = (int) (250 * widthScaling);
         errorArea = new JTextArea(0, 0);
+        errorArea.setFont(new Font("Arial", Font.PLAIN, fontsize));
         errorArea.setEditable (false);
 	    JPanel errorPanel = new JPanel();
         errorPanel.add(errorArea, BorderLayout.CENTER);
@@ -974,11 +987,12 @@ public class SolveSudoku extends Sudoku {
 	    errorScroll.setBounds(x, y, w, Math.max(digitEnd, buttonEnd) - 2 * space);
 	    frame.add(errorScroll);
         x += w + space;
-        w = 500;
+        w = (int) (500 * widthScaling);
 	    errorPanel.setVisible(true);  
 	    errorPanel.setBackground(Color.WHITE);
 	    errorScroll.setVisible(true);  
         instructionArea = new JTextArea(0, 0);
+        instructionArea.setFont(new Font("Arial", Font.PLAIN, fontsize));
         instructionArea.setEditable (false);
 	    JPanel instructionPanel = new JPanel();
         instructionPanel.add(instructionArea, BorderLayout.CENTER);
@@ -998,7 +1012,7 @@ public class SolveSudoku extends Sudoku {
         frame.add(hintButton);
         frame.add(showStepButton);
         frame.add(errorWarnButton);
-	    frame.setSize(x, Math.max(digitEnd, buttonEnd) + 40);  
+	    frame.setSize(x, Math.max(digitEnd, buttonEnd) +  (int) (40 * widthScaling));  
 	    frame.setLayout(null);  
     }
 	
