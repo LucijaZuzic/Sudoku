@@ -1,7 +1,9 @@
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Insets;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -16,10 +18,10 @@ import javax.swing.JTextArea;
 public class CreateSudoku extends Sudoku {
 	JButton digitButtons[];
 
-	public void highlightCell(int num) {
+	public void highlightCell(int numCell) {
 	    for (int row = 0; row < rows; row++){
 	    	for (int col = 0; col < cols; col++) {
-	    		if (col == num % cols || row == num / cols) {
+	    		if (col == numCell % cols || row == numCell / cols) {
 	    			field[row * cols + col].setBackground(new Color(119, 136, 153));
 	    		} else {
 	    	        if (border[row * cols + col] == 3) {
@@ -58,10 +60,10 @@ public class CreateSudoku extends Sudoku {
 	    }
 	}
 	
-	public CreateSudoku(int x, int y, int xl, int yl, int[] br, int[] bn) {
-		super(x, y, xl, yl);
-		border = br;
-		boxNumber = bn;
+	public CreateSudoku(int constructRows, int constructCols, int rowLimit, int colLimit, int[] constructBorder, int[] constructBoxNumber) {
+		super(constructRows, constructCols, rowLimit, colLimit);
+		border = constructBorder;
+		boxNumber = constructBoxNumber;
 	    int retval = 1;
 	    while(retval == 1) {
 		    for (int row = 0; row < rows; row++){ 
@@ -74,10 +76,10 @@ public class CreateSudoku extends Sudoku {
 	    draw();
 	    for (int row = 0; row < rows; row++){ 
 	    	for (int col = 0; col < cols; col++) {
-		    	int num = row * cols + col;
-	    		userInput[num] = temporary[num];
-	    		solution[num] = temporary[num];
-	    		field[num].setText(String.valueOf(userInput[num]));
+		    	int numCell = row * cols + col;
+	    		userInput[numCell] = temporary[numCell];
+	    		solution[numCell] = temporary[numCell];
+	    		field[numCell].setText(String.valueOf(userInput[numCell]));
 	    	}
 	    }
 		checkBoxes();
@@ -87,17 +89,17 @@ public class CreateSudoku extends Sudoku {
 	}
 	
 
-	public CreateSudoku(int x, int y, int xl, int yl, int[] br, int[] bn, int ui[]) {
-		super(x, y, xl, yl);
-		border = br;
-		boxNumber = bn;
+	public CreateSudoku(int constructRows, int constructCols, int rowLimit, int colLimit, int[] constructBorder, int[] constructBoxNumber, int constructUserInput[]) {
+		super(constructRows, constructCols, rowLimit, colLimit);
+		border = constructBorder;
+		boxNumber = constructBoxNumber;
 	    draw();
 	    for (int row = 0; row < rows; row++){ 
 	    	for (int j = 0; j < cols; j++) {
-		    	int num = row * cols + j;
-	    		userInput[num] = ui[num];
-	    		solution[num] = 0;
-	    		field[num].setText(String.valueOf(userInput[num]));
+		    	int numCell = row * cols + j;
+	    		userInput[numCell] = constructUserInput[numCell];
+	    		solution[numCell] = 0;
+	    		field[numCell].setText(String.valueOf(userInput[numCell]));
 	    	}
 	    }
 		checkBoxes();
@@ -112,10 +114,10 @@ public class CreateSudoku extends Sudoku {
 		boolean incorrect[] = new boolean[rows * cols];
 	    for (int row = 0; row < rows; row++){ 
 	    	for (int j = 0; j < cols; j++) {
-		    	int num = row * cols + j;
+		    	int numCell = row * cols + j;
 		    	field[row * cols + j].setForeground(Color.BLACK);
-		    	temporary[num] = userInput[num];
-		    	incorrect[num] = false;
+		    	temporary[numCell] = userInput[numCell];
+		    	incorrect[numCell] = false;
 	    	}
 	    }
 		boolean correct = true;
@@ -157,22 +159,22 @@ public class CreateSudoku extends Sudoku {
 			    		}
 			    		if (status) {
 			    			for (int k = 0; k < rows; k++) {
-				    			int num = k * cols + j;
-				    			if (temporary[num] == val) {
-				    				incorrect[num] = true;
+				    			int numCell = k * cols + j;
+				    			if (temporary[numCell] == val) {
+				    				incorrect[numCell] = true;
 				    			}
 				    		}
 				    		for (int k = 0; k < cols; k++) {
-				    			int num = row * cols + k;
-				    			if (temporary[num] == val) {
-				    				incorrect[num] = true;
+				    			int numCell = row * cols + k;
+				    			if (temporary[numCell] == val) {
+				    				incorrect[numCell] = true;
 				    			}
 				    		}
-						    for (int x = (row / ylim) * (cols / xlim); x < (row / ylim + 1) * (cols / xlim); x++){
-						    	for (int y = (j / xlim) * (cols / xlim); y < (j / xlim + 1) * (cols / xlim); y++) {
-					    			int num = x * cols + y;
-						    		if (temporary[num] == val) {
-					    				incorrect[num] = true;
+						    for (int x = (row / yLim) * (cols / xLim); x < (row / yLim + 1) * (cols / xLim); x++){
+						    	for (int y = (j / xLim) * (cols / xLim); y < (j / xLim + 1) * (cols / xLim); y++) {
+					    			int numCell = x * cols + y;
+						    		if (temporary[numCell] == val) {
+					    				incorrect[numCell] = true;
 						    		}
 						    	}
 						    }
@@ -183,14 +185,14 @@ public class CreateSudoku extends Sudoku {
 		}
 	    for (int row = 0; row < rows; row++){
 	    	for (int j = 0; j < cols; j++) {
-    			int num = row * cols + j;
-	    		if (incorrect[num] && temporary[num] != 0) {
-    				field[num].setForeground(Color.ORANGE);
+    			int numCell = row * cols + j;
+	    		if (incorrect[numCell] && temporary[numCell] != 0) {
+    				field[numCell].setForeground(Color.ORANGE);
 	    		} else {
-	    			if (temporary[num] == 0) {
-	    				field[num].setForeground(Color.RED);
+	    			if (temporary[numCell] == 0) {
+	    				field[numCell].setForeground(Color.RED);
 		    		} else {
-	    				field[num].setForeground(Color.GREEN);	
+	    				field[numCell].setForeground(Color.GREEN);	
 		    		}
 	    		}
 		    }
@@ -227,14 +229,21 @@ public class CreateSudoku extends Sudoku {
 	public void draw () 
     {
 		frame = new JFrame("Stvori sudoku");  
-	    frame.setDefaultCloseOperation (JFrame.DISPOSE_ON_CLOSE);
-	    frame.addKeyListener(keyListener);
-	    int space = 15;
+	    Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+	    double baselineWidth = 1920;
+	    double baselineHeight = 1080;
+	    double width = screenSize.getWidth();
+	    double height = screenSize.getHeight();
+	    double widthScaling = width / baselineWidth;
+	    double heightScaling = height / baselineHeight;
+	    int space = (int) (15 * widthScaling);
 	    int x = space;
 		int y = space;
-		int w = 60;
-		int h = 60;
-		int fontsize = 12;
+		int w = (int) (60 * widthScaling);
+		int h = (int) (60 * heightScaling);
+		int fontsize = (int) (12 * heightScaling);
+	    frame.setDefaultCloseOperation (JFrame.DISPOSE_ON_CLOSE);
+	    frame.addKeyListener(keyListener);
 	    for (int row = 0; row < rows; row++){ 
 	    	x = space;
 	    	for (int col = 0; col < cols; col++) {
@@ -299,7 +308,7 @@ public class CreateSudoku extends Sudoku {
 		}
 		int digitEnd = y + h + space;
 	    h = h / 2;
-	    w = 135;
+	    w = (int) (135 * widthScaling);
 	    y = space;
 	    x += space;
         JButton uniqueButton = new JButton("Jedinstvenost rješenja");  
@@ -348,12 +357,12 @@ public class CreateSudoku extends Sudoku {
 	        	try {
 	        	    for (int row = 0; row < rows; row++){
 	        	    	for (int j = 0; j < cols; j++) {
-	        	        	int num = row * cols + j;
-	        	    		temporary[num] = 0;
-	        	    		solution[num] = 0;
-	        	    		userInput[num] = 0;
-	        	    		field[num].setText("0");
-	        	    		field[num].setForeground(Color.RED);
+	        	        	int numCell = row * cols + j;
+	        	    		temporary[numCell] = 0;
+	        	    		solution[numCell] = 0;
+	        	    		userInput[numCell] = 0;
+	        	    		field[numCell].setText("0");
+	        	    		field[numCell].setForeground(Color.RED);
 	        		    }
 	        	    }
 				} catch (Exception e1) {
@@ -443,9 +452,9 @@ public class CreateSudoku extends Sudoku {
 	        		if (f.ReadFile() == 0) {
 		        	    for (int row = 0; row < rows; row++){ 
 		        	    	for (int j = 0; j < cols; j++) {
-		        		    	int num = row * cols + j;
-		        	    		solution[num] = 0;
-		        	    		field[num].setText(String.valueOf(userInput[num]));
+		        		    	int numCell = row * cols + j;
+		        	    		solution[numCell] = 0;
+		        	    		field[numCell].setText(String.valueOf(userInput[numCell]));
 		        	    	}
 		        	    }
 		        		checkBoxes();
@@ -459,14 +468,16 @@ public class CreateSudoku extends Sudoku {
 	    });
 		fileReadButton.addKeyListener(keyListener);
 		y += h + space;
-		w = 200;
+		w = (int) (200 * widthScaling);
         difficulty.setBounds(x, y, w, h);
+        difficulty.setFont(new Font("Arial", Font.PLAIN, fontsize));
         frame.add(difficulty);
 		int buttonEnd = y + h + space;
         x += w + space;
-        w = 250;
+        w = (int) (250 * widthScaling);
         y = space;
         errorArea = new JTextArea(0, 0);
+        errorArea.setFont(new Font("Arial", Font.PLAIN, fontsize));
         errorArea.setEditable (false);
 	    JPanel errorPanel = new JPanel();
         errorPanel.add(errorArea, BorderLayout.CENTER);
@@ -476,11 +487,12 @@ public class CreateSudoku extends Sudoku {
 	    errorScroll.setBounds(x, y, w, Math.max(digitEnd, buttonEnd) - 2 * space);
 	    frame.add(errorScroll);
         x += w + space;
-        w = 500;
+        w = (int) (500 * widthScaling);
 	    errorPanel.setVisible(true);  
 	    errorPanel.setBackground(Color.WHITE);
 	    errorScroll.setVisible(true);  
         instructionArea = new JTextArea(0, 0);
+        instructionArea.setFont(new Font("Arial", Font.PLAIN, fontsize));
         instructionArea.setEditable (false);
 	    JPanel instructionPanel = new JPanel();
         instructionPanel.add(instructionArea, BorderLayout.CENTER);
@@ -502,7 +514,7 @@ public class CreateSudoku extends Sudoku {
         frame.add(fileSaveButton);
         frame.add(fileReadButton);
         frame.add(showStepButton);
-	    frame.setSize(x, Math.max(digitEnd, buttonEnd) + 40);  
+	    frame.setSize(x, Math.max(digitEnd, buttonEnd) + (int) (40 * widthScaling));  
 	    frame.setLayout(null);  
     }
 }
