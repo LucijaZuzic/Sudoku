@@ -15,14 +15,14 @@ import javax.swing.JTextField;
 
 public class ChangeBoxBorder extends Sudoku {
 	int mode = 0;
-	public ChangeBoxBorder(int x, int y, int xl, int yl) {
-		super(x, y, xl, yl);
-	    for (int i = 0; i < rows; i++){ 
-	    	for (int j = 0; j < cols; j++) {
-		    	boxNumber[i * cols + j] = -1;
-		    	border[i * cols + j] = -1;
-	    		temporary[i * cols + j] = 0;
-		    	int num = i * cols + j;
+	public ChangeBoxBorder(int contructRows, int constructCols, int xl, int yl) {
+		super(constructCols, contructRows, xl, yl);
+	    for (int row = 0; row < rows; row++){ 
+	    	for (int col = 0; col < cols; col++) {
+		    	boxNumber[row * cols + col] = -1;
+		    	border[row * cols + col] = -1;
+	    		temporary[row * cols + col] = 0;
+		    	int num = row * cols + col;
 	    		userInput[num] = temporary[num];
 	    		solution[num] = temporary[num];
 		    }
@@ -41,86 +41,86 @@ public class ChangeBoxBorder extends Sudoku {
 	public void draw() {
 		frame = new JFrame("Promjeni kutiju za sudoku");  
 	    frame.setDefaultCloseOperation (JFrame.DISPOSE_ON_CLOSE);
-
-	    int x = 15;
-		int y = 15;
+	    int space = 15;
+	    int x = space;
+		int y = space;
 		int w = 60;
 		int h = 60;
 		int fontsize = 12;
 
-	    for (int i = 0; i < rows; i++){ 
+	    for (int row = 0; row < rows; row++){ 
 	    	x = 15;
-	    	for (int j = 0; j < cols; j++) {
-	    		int num = i * cols + j;
-        		border[num] = -1;
-	    	    field[num] = new JButton("");  
-			    field[num].setMargin(new Insets(1,1,1,1));
-			    field[num].setFont(new Font("Arial", Font.PLAIN, fontsize));
-			    field[num].setBounds(x, y, w, h);
+	    	for (int col = 0; col < cols; col++) {
+	    		int numCell = row * cols + col;
+        		border[numCell] = -1;
+	    	    field[numCell] = new JButton("");  
+			    field[numCell].setMargin(new Insets(1,1,1,1));
+			    field[numCell].setFont(new Font("Arial", Font.PLAIN, fontsize));
+			    field[numCell].setBounds(x, y, w, h);
 			    int lb = 1;
 			    int rb = 1;
 			    int tb = 1;
 			    int bb = 1;
-			    if (j % xlim== 0) {
-			    	if (j != cols - 1 && j != 0) {
+			    if (col % xlim== 0) {
+			    	if (col != cols - 1 && col != 0) {
 				    	lb = 3;
 			    	} else {
 			    		lb = 4;
 			    	}
 			    }
-			    if (j % xlim == (xlim - 1)) {
-			    	if (j != cols - 1 && j != 0) {
+			    if (col % xlim == (xlim - 1)) {
+			    	if (col != cols - 1 && col != 0) {
 				    	rb = 3;
 			    	} else {
 			    		rb = 4;
 			    	}
 			    }
-			    if (i % ylim == 0) {
-			    	if (i != rows - 1 && i != 0) {
+			    if (row % ylim == 0) {
+			    	if (row != rows - 1 && row != 0) {
 				    	tb = 3;
 			    	} else {
 			    		tb = 4;
 			    	}
 			    }
-			    if (i % ylim == (ylim - 1)) {
-			    	if (i != rows - 1 && i != 0) {
+			    if (row % ylim == (ylim - 1)) {
+			    	if (row != rows - 1 && row != 0) {
 				    	bb = 3;
 			    	} else {
 			    		bb = 4;
 			    	}
 			    }
-			    field[num].setBorder(BorderFactory.createMatteBorder(tb, lb, bb, rb, Color.WHITE));
-		    	int box = (i / ylim) * (cols / xlim) + (j / xlim);
+			    field[numCell].setBorder(BorderFactory.createMatteBorder(tb, lb, bb, rb, Color.WHITE));
+		    	int box = (row / ylim) * (cols / xlim) + (col / xlim);
 		    	if (((box % (cols / xlim) % 2 == 0) && (box / (cols / xlim) % 2  == 0)) || 
 		    		((box % (cols / xlim) % 2 != 0) && (box / (cols / xlim) % 2  == 1))) {
-	        		border[num] = 1;
-		    		field[num].setBackground(Color.BLACK);
+	        		border[numCell] = 1;
+		    		field[numCell].setBackground(Color.BLACK);
 		    	} else {
-	        		border[num] = 0;
-		    		field[num].setBackground(Color.GRAY);
+	        		border[numCell] = 0;
+		    		field[numCell].setBackground(Color.GRAY);
 		    	}
-			    field[num].addActionListener(new ActionListener(){  
+			    field[numCell].addActionListener(new ActionListener(){  
 			        public void actionPerformed(ActionEvent e) {  
 			        	try {
 			        		showBoxMsg = false;
 			        		if (mode == 0)  {
-					    		field[num].setBackground(Color.GRAY);
-				        		border[num] = 0;
+					    		field[numCell].setBackground(Color.GRAY);
+				        		border[numCell] = 0;
 				        		checkBoxes();
 			        		}
 			        		if (mode == 1)  {
-					    		field[num].setBackground(Color.BLACK);
-				        		border[num] = 1;
+					    		field[numCell].setBackground(Color.BLACK);
+				        		border[numCell] = 1;
 				        		checkBoxes();
 			        		} 
 			        		if (mode == 2)  {
-					    		field[num].setBackground(Color.DARK_GRAY);
-				        		border[num] = 2;
+					    		field[numCell].setBackground(Color.DARK_GRAY);
+				        		border[numCell] = 2;
 				        		checkBoxes();
 			        		} 
 			        		if (mode == 3)  {
-					    		field[num].setBackground(Color.LIGHT_GRAY);
-				        		border[num] = 3;
+					    		field[numCell].setBackground(Color.LIGHT_GRAY);
+				        		border[numCell] = 3;
 				        		checkBoxes();
 			        		} 
 			        		showBoxMsg = true;
@@ -129,173 +129,59 @@ public class ChangeBoxBorder extends Sudoku {
 						}
 			        }  
 			    });
-			    frame.add(field[num]);
+			    frame.add(field[numCell]);
 		    	x += w;
 		    }
 		    y += h;
 	    }
-	    x = 15;
+		int digitEnd = y + space;
+	    h = h / 2;
+	    w = 135;
+	    y = space;
+	    x += space;
 	    
-	    JLabel bcol = new JLabel("Boja kutije: ");
-	    bcol.setBounds(cols * w + 15 * 2, 15 + 15 + 30 * 10, 9 * w / 4, h / 2);
-	    frame.add(bcol);
-	    		
-	    JButton modeb1 = new JButton("");  
-        modeb1.setMargin(new Insets(1,1,1,1));
-        modeb1.setBackground(Color.GRAY);
-        modeb1.setBounds(cols * w + 15 * 2, 15 + h / 2 + 15 + 30 * 10, 9 * w / 16, h / 2);
-        modeb1.setFont(new Font("Arial", Font.PLAIN, fontsize));
-        modeb1.addActionListener(new ActionListener(){  
-        public void actionPerformed(ActionEvent e) {  
-	        	try {
-	        		mode = 0;
-				} catch (Exception e1) {
-					
-				}
-	        }  
-	    });
-
-	    JButton modeb2 = new JButton("");  
-        modeb2.setMargin(new Insets(1,1,1,1));
-        modeb2.setBackground(Color.BLACK);
-        modeb2.setBounds(cols * w + 15 * 2 + 9 * w / 16, 15 + h / 2 + 15 + 30 * 10, 9 * w / 16, h / 2);
-        modeb2.setFont(new Font("Arial", Font.PLAIN, fontsize));
-        modeb2.addActionListener(new ActionListener(){  
-        public void actionPerformed(ActionEvent e) {  
-	        	try {
-	        		mode = 1;
-				} catch (Exception e1) {
-					
-				}
-	        }  
-	    });
-
-	    JButton modeb3 = new JButton("");  
-        modeb3.setMargin(new Insets(1,1,1,1));
-        modeb3.setBackground(Color.DARK_GRAY);
-        modeb3.setBounds(cols * w + 15 * 2 + 9 * w / 16 * 2, 15 + h / 2 + 15 + 30 * 10, 9 * w / 16, h / 2);
-        modeb3.setFont(new Font("Arial", Font.PLAIN, fontsize));
-        modeb3.addActionListener(new ActionListener(){  
-        public void actionPerformed(ActionEvent e) {  
-	        	try {
-	        		mode = 2;
-				} catch (Exception e1) {
-					
-				}
-	        }  
-	    });
-        
-	    JButton modeb4 = new JButton("");  
-        modeb4.setMargin(new Insets(1,1,1,1));
-        modeb4.setBackground(Color.LIGHT_GRAY);
-        modeb4.setBounds(cols * w + 15 * 2 + 9 * w / 16 * 3, 15 + h / 2 + 15 + 30 * 10, 9 * w / 16, h / 2);
-        modeb4.setFont(new Font("Arial", Font.PLAIN, fontsize));
-        modeb4.addActionListener(new ActionListener(){  
-        public void actionPerformed(ActionEvent e) {  
-	        	try {
-	        		mode = 3;
-				} catch (Exception e1) {
-					
-				}
-	        }  
-	    });
-
-        JButton designb = new JButton("Dizajniraj zagonetku");  
-        designb.setMargin(new Insets(1,1,1,1));
-        designb.setBounds(cols * w + 15 * 2, 15 + h / 2 + 15 + 30 * 10 + 30 * 2 + 15 * 2, 9 * w / 4, h / 2);
-        designb.setFont(new Font("Arial", Font.PLAIN, fontsize));
-        designb.addActionListener(new ActionListener(){  
-        public void actionPerformed(ActionEvent e) {  
-	        	try {
-	        		if (checkBoxes()) {
-	        			CreateSudoku s = new CreateSudoku(rows, cols, xlim, ylim, border, boxNumber);
-	        		}
-				} catch (Exception e1) {
-	
-	
-				}
-	        }  
-	    });
-
-
-		FileManipulator f = new FileManipulator();
-		f.setSudoku(this);
-        
-        JButton designcontb = new JButton("Nastavi dizajn");  
-        designcontb.setMargin(new Insets(1,1,1,1));
-        designcontb.setBounds(cols * w + 15 * 2, 15 + h / 2 + 15 + 30 * 10 + 30 + 15, 9 * w / 4, h / 2);
-        designcontb.setFont(new Font("Arial", Font.PLAIN, fontsize));
-        designcontb.addActionListener(new ActionListener(){  
-        public void actionPerformed(ActionEvent e) {  
-	        	try {
-	        		if (f.ReadFile() == 0) {
-	        			CreateSudoku s = new CreateSudoku(rows, cols, xlim, ylim, border, boxNumber, userInput);
-	        		}
-				} catch (Exception e1) {
-	
-	
-				}
-	        }  
-	    });
-        
-
-        JButton solveb = new JButton("Riješi spremljeno");  
-        solveb.setMargin(new Insets(1,1,1,1));
-        solveb.setBounds(cols * w + 15 * 2, 15 + h / 2 + 15 + 30 * 10 + 30 * 3 + 15 * 3, 9 * w / 4, h / 2);
-        solveb.setFont(new Font("Arial", Font.PLAIN, fontsize));
-        solveb.addActionListener(new ActionListener(){  
-        public void actionPerformed(ActionEvent e) {  
-	        	try {
-	        		if (f.ReadFile() == 0) {
-	        			SolveSudoku s = new SolveSudoku(rows, cols, xlim, ylim, border, boxNumber, userInput);
-	        		}
-				} catch (Exception e1) {
-	
-	
-				}
-	        }  
-	    });
-	    frame.setSize(cols * w + 15 * 2 + 9 * w / 4 + 15 + 70 + 15, Math.max(rows * h + 15 * 2 + 40, 15 * 5 + 15 * 3 + h * 7 + 40));  
-
-	    x = cols * w + 15 * 2 + 9 * w / 4 + 15;
-		y = 15;
-		w = 130;
-		h = 30;
-		
-        JLabel rowLabel = new JLabel("Broj redaka mreže: ");
-	    rowLabel.setBounds(x - 9 * 60 / 4 - 15, y, w, h);
+	    JLabel rowLabel = new JLabel("Broj redaka mreže: ");
+	    rowLabel.setBounds(x, y, w, h);
 	    frame.add(rowLabel);
 	    
 	    JTextField row = new JTextField(String.valueOf(rows));
-        row.setBounds(x + w - 9 * 60 / 4 - 15, y, w / 4, h);
+        row.setBounds(x + w, y, h, h);
 	    frame.add(row);
 
+	    y += h;
+	    
 	    JLabel xlimLabel = new JLabel("Broj redaka kutije: ");
-	    xlimLabel.setBounds(x - 9 * 60 / 4 - 15, y + h, w, h);
+	    xlimLabel.setBounds(x, y, w, h);
 	    frame.add(xlimLabel);
 	    
 	    JTextField xlimval = new JTextField(String.valueOf(ylim));
-	    xlimval.setBounds(x + w - 9 * 60 / 4 - 15, y + h, w / 4, h);
+	    xlimval.setBounds(x + w, y, h, h);
 	    frame.add(xlimval);
 
+	    y += h;
+	    
 	    JLabel colLabel = new JLabel("Broj stupaca mreže: ");
-	    colLabel.setBounds(x - 9 * 60 / 4 - 15, y + h * 2, w, h);
+	    colLabel.setBounds(x, y, w, h);
 	    frame.add(colLabel);
 	    
 	    JTextField col = new JTextField(String.valueOf(cols));
-	    col.setBounds(x + w - 9 * 60 / 4 - 15, y + h * 2, w / 4, h);
+	    col.setBounds(x + w, y, h, h);
 	    frame.add(col);
 
+	    y += h;
+	    
 	    JLabel ylimLabel = new JLabel("Broj stupaca kutije: ");
-	    ylimLabel.setBounds(x - 9 * 60 / 4 - 15, y + h * 3, w, h);
+	    ylimLabel.setBounds(x, y, w, h);
 	    frame.add(ylimLabel);
 	    
 	    JTextField ylimval = new JTextField(String.valueOf(xlim));
-	    ylimval.setBounds(x + w - 9 * 60 / 4 - 15, y + h * 3, w / 4, h);
+	    ylimval.setBounds(x + w, y, h, h);
 	    frame.add(ylimval);
-	    
+
+	    y += h + space;
+	   
 	    JButton createb = new JButton("Izmjeni dimenzije");
-	    createb.setBounds(x - 9 * 60 / 4 - 15, y + h * 9 / 2, w * 5 / 4, h);
+	    createb.setBounds(x, y, w, h);
 	    createb.setFont(new Font("Arial", Font.PLAIN, fontsize));
 	    createb.addActionListener(new ActionListener(){  
 	        public void actionPerformed(ActionEvent e) {  
@@ -334,26 +220,32 @@ public class ChangeBoxBorder extends Sudoku {
 	    });
 	    frame.add(createb);
 
+	    y += h + space;
+
 	    JLabel miniLabel = new JLabel("Minimalna težina: ");
-	    miniLabel.setBounds(x - 9 * 60 / 4 - 15, y + h * 6, 200, 30);
+	    miniLabel.setBounds(x, y, w, h);
 	    frame.add(miniLabel);
 	    
 	    JTextField mini = new JTextField(String.valueOf(mintargetDifficulty));
-        mini.setBounds(x - 9 * 60 / 4 + 130 - 15, y + h * 6, 70, 30);
+        mini.setBounds(x + w, y, 2 * h, h);
 	    frame.add(mini);
 
+	    y += h + space;
+
 	    JLabel maksiLabel = new JLabel("Maksimalna težina: ");
-	    maksiLabel.setBounds(x - 9 * 60 / 4 - 15, y + h * 13 / 2 + 30, 200, 30);
+	    maksiLabel.setBounds(x, y, w, h);
 	    frame.add(maksiLabel);
 	    
 	    JTextField maksi = new JTextField(String.valueOf(maxtargetDifficulty));
-	    maksi.setBounds(x - 9 * 60 / 4 + 130 - 15, y + h * 13 / 2 + 30, 70, 30);
+	    maksi.setBounds(x + w, y, 2 * h, h);
 	    frame.add(maksi);
+
+	    y += h + space;
 
         JButton solverandomb = new JButton("Riješi nasumièno");  
         solverandomb.setMargin(new Insets(1,1,1,1));
         solverandomb.setFont(new Font("Arial", Font.PLAIN, fontsize));
-        solverandomb.setBounds(x - 9 * 60 / 4 - 15, y + h * 9, 9 * 60 / 4, 30);
+        solverandomb.setBounds(x, y, w, h);
         solverandomb.addActionListener(new ActionListener(){  
         public void actionPerformed(ActionEvent e) {  
 	        	try {
@@ -366,6 +258,135 @@ public class ChangeBoxBorder extends Sudoku {
 				}
 	        }  
 	    });
+
+	    y += h + space;
+	    JLabel bcol = new JLabel("Boja kutije: ");
+	    bcol.setBounds(x, y, w, h);
+	    frame.add(bcol);
+	    		
+	    y += h + space;
+	    JButton modeb1 = new JButton("");  
+        modeb1.setMargin(new Insets(1,1,1,1));
+        modeb1.setBackground(Color.GRAY);
+        modeb1.setBounds(x, y, w / 4, h);
+        modeb1.setFont(new Font("Arial", Font.PLAIN, fontsize));
+        modeb1.addActionListener(new ActionListener(){  
+        public void actionPerformed(ActionEvent e) {  
+	        	try {
+	        		mode = 0;
+				} catch (Exception e1) {
+					
+				}
+	        }  
+	    });
+
+	    JButton modeb2 = new JButton("");  
+        modeb2.setMargin(new Insets(1,1,1,1));
+        modeb2.setBackground(Color.BLACK);
+        modeb2.setBounds(x + w / 4, y, w / 4, h);
+        modeb2.setFont(new Font("Arial", Font.PLAIN, fontsize));
+        modeb2.addActionListener(new ActionListener(){  
+        public void actionPerformed(ActionEvent e) {  
+	        	try {
+	        		mode = 1;
+				} catch (Exception e1) {
+					
+				}
+	        }  
+	    });
+
+	    JButton modeb3 = new JButton("");  
+        modeb3.setMargin(new Insets(1,1,1,1));
+        modeb3.setBackground(Color.DARK_GRAY);
+        modeb3.setBounds(x + 2 * w / 4, y, w / 4, h);
+        modeb3.setFont(new Font("Arial", Font.PLAIN, fontsize));
+        modeb3.addActionListener(new ActionListener(){  
+        public void actionPerformed(ActionEvent e) {  
+	        	try {
+	        		mode = 2;
+				} catch (Exception e1) {
+					
+				}
+	        }  
+	    });
+        
+	    JButton modeb4 = new JButton("");  
+        modeb4.setMargin(new Insets(1,1,1,1));
+        modeb4.setBackground(Color.LIGHT_GRAY);
+        modeb4.setBounds(x + 3 * w / 4, y, w / 4, h);
+        modeb4.setFont(new Font("Arial", Font.PLAIN, fontsize));
+        modeb4.addActionListener(new ActionListener(){  
+        public void actionPerformed(ActionEvent e) {  
+	        	try {
+	        		mode = 3;
+				} catch (Exception e1) {
+					
+				}
+	        }  
+	    });
+
+	    y += h + space;
+		FileManipulator f = new FileManipulator();
+		f.setSudoku(this);
+        
+        JButton designcontb = new JButton("Nastavi dizajn");  
+        designcontb.setMargin(new Insets(1,1,1,1));
+        designcontb.setBounds(x, y, w, h);
+        designcontb.setFont(new Font("Arial", Font.PLAIN, fontsize));
+        designcontb.addActionListener(new ActionListener(){  
+        public void actionPerformed(ActionEvent e) {  
+	        	try {
+	        		if (f.ReadFile() == 0) {
+	        			CreateSudoku s = new CreateSudoku(rows, cols, xlim, ylim, border, boxNumber, userInput);
+	        		}
+				} catch (Exception e1) {
+	
+	
+				}
+	        }  
+	    });
+	    y += h + space;
+        JButton designb = new JButton("Dizajniraj zagonetku");  
+        designb.setMargin(new Insets(1,1,1,1));
+        designb.setBounds(x, y, w, h);
+        designb.setFont(new Font("Arial", Font.PLAIN, fontsize));
+        designb.addActionListener(new ActionListener(){  
+        public void actionPerformed(ActionEvent e) {  
+	        	try {
+	        		if (checkBoxes()) {
+	        			CreateSudoku s = new CreateSudoku(rows, cols, xlim, ylim, border, boxNumber);
+	        		}
+				} catch (Exception e1) {
+	
+	
+				}
+	        }  
+	    });
+
+
+
+	    y += h + space;
+
+        JButton solveb = new JButton("Riješi spremljeno");  
+        solveb.setMargin(new Insets(1,1,1,1));
+        solveb.setBounds(x, y, w, h);
+        solveb.setFont(new Font("Arial", Font.PLAIN, fontsize));
+        solveb.addActionListener(new ActionListener(){  
+        public void actionPerformed(ActionEvent e) {  
+	        	try {
+	        		if (f.ReadFile() == 0) {
+	        			SolveSudoku s = new SolveSudoku(rows, cols, xlim, ylim, border, boxNumber, userInput);
+	        		}
+				} catch (Exception e1) {
+	
+	
+				}
+	        }  
+	    });
+		int buttonEnd = y + h + space;
+	    frame.setSize(x + w + 2 * h + 2 * space, Math.max(digitEnd, buttonEnd) + 40);  
+
+       
         frame.add(modeb1);
         frame.add(modeb2);
         frame.add(modeb3);
