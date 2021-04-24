@@ -14,11 +14,11 @@ import javax.swing.UnsupportedLookAndFeelException;
 
 public class FileManipulator {
 
-	Sudoku s;
+	Sudoku sudoku;
 
 	
 	public void setSudoku(Sudoku s1) {
-		s = s1;
+		sudoku = s1;
 	}
 	
 	public void CreateFile(String filename) {
@@ -39,16 +39,16 @@ public class FileManipulator {
 		  try {
 	        FileWriter myWriter = new FileWriter(testFile());
 	        String line1 = "";
-	        for (int i = 0; i < s.rows; i++) {
-	        	for (int j = 0; j < s.cols; j++) {
-	        		line1 += String.valueOf(s.userInput[i * s.cols + j]);
+	        for (int i = 0; i < sudoku.rows; i++) {
+	        	for (int j = 0; j < sudoku.cols; j++) {
+	        		line1 += String.valueOf(sudoku.userInput[i * sudoku.cols + j]);
 	        	}
 	        	line1 += "\n";
 	        }
 	        String line2 = "";
-	        for (int i = 0; i < s.rows; i++) {
-	        	for (int j = 0; j < s.cols; j++) {
-	        		line2 += String.valueOf(s.border[i * s.cols + j]);
+	        for (int i = 0; i < sudoku.rows; i++) {
+	        	for (int j = 0; j < sudoku.cols; j++) {
+	        		line2 += String.valueOf(sudoku.border[i * sudoku.cols + j]);
 	        	}
 	        	line2 += "\n";
 	        }
@@ -78,21 +78,21 @@ public class FileManipulator {
 				  InformationBox.infoBox("Sadržaj datoteke je neispravan.", "Uèitavanje datoteke");
 		    	  return 1;
 		      }
-		      s.rows = cols;
-		      s.cols = cols;
+		      sudoku.rows = cols;
+		      sudoku.cols = cols;
 		      for (int i = 0; i < lineNum; i++) {
 			      	//System.out.print("LineNum " +  String.valueOf(i)+ " ");
-		        	if (i < s.rows) {
+		        	if (i < sudoku.rows) {
 				        //System.out.print("userInput: ");
-			        	for (int j = 0; j < s.cols; j++) {
+			        	for (int j = 0; j < sudoku.cols; j++) {
 			        		//System.out.print(data.get(i).substring(j, j + 1) + " ");
-			        		s.userInput[i * s.cols + j] = Integer.parseInt(data.get(i).substring(j, j + 1));
+			        		sudoku.userInput[i * sudoku.cols + j] = Integer.parseInt(data.get(i).substring(j, j + 1));
 			        	}
 		        	} else {
 					    //System.out.print("border: ");
-		        		for (int j = 0; j < s.cols; j++) {
+		        		for (int j = 0; j < sudoku.cols; j++) {
 			        		//System.out.print(data.get(i).substring(j, j + 1) + " ");
-			        		s.border[(i - s.rows) * s.cols + j] = Integer.parseInt(data.get(i).substring(j, j + 1));
+			        		sudoku.border[(i - sudoku.rows) * sudoku.cols + j] = Integer.parseInt(data.get(i).substring(j, j + 1));
 		        		}
 		        	}
 				    //System.out.println("");
@@ -128,21 +128,21 @@ public class FileManipulator {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		JFileChooser j = new JFileChooser();
+		JFileChooser fileChooser = new JFileChooser();
 		try {
 			UIManager.setLookAndFeel(previousLF);
 		} catch (UnsupportedLookAndFeelException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		int returnVal = j.showOpenDialog(createb);
+		int returnVal = fileChooser.showOpenDialog(createb);
 	    //System.out.println(returnVal);
-	    File f = j.getSelectedFile();
-		String newFile = f.getAbsolutePath();
+	    File file = fileChooser.getSelectedFile();
+		String newFile = file.getAbsolutePath();
 	    if (returnVal == 1) {
 	    	newFile = "sudoku.txt";
 	    }
-	    if(!f.exists() || f.isDirectory()) { 
+	    if(!file.exists() || file.isDirectory()) { 
 	        CreateFile(newFile);
 	    }
 	    //System.out.println(newFile);
