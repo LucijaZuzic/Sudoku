@@ -39,9 +39,9 @@ public class FileManipulator {
 		  try {
 	        FileWriter myWriter = new FileWriter(testFile());
 	        String line1 = "";
-	        for (int i = 0; i < sudoku.rows; i++) {
-	        	for (int j = 0; j < sudoku.cols; j++) {
-	        		line1 += String.valueOf(sudoku.userInput[i * sudoku.cols + j]);
+	        for (int row = 0; row < sudoku.rows; row++) {
+	        	for (int col = 0; col < sudoku.cols; col++) {
+	        		line1 += String.valueOf(sudoku.userInput[row * sudoku.cols + col]);
 	        	}
 	        	line1 += "\n";
 	        }
@@ -80,22 +80,16 @@ public class FileManipulator {
 		      }
 		      sudoku.rows = cols;
 		      sudoku.cols = cols;
-		      for (int i = 0; i < lineNum; i++) {
-			      	//System.out.print("LineNum " +  String.valueOf(i)+ " ");
-		        	if (i < sudoku.rows) {
-				        //System.out.print("userInput: ");
-			        	for (int j = 0; j < sudoku.cols; j++) {
-			        		//System.out.print(data.get(i).substring(j, j + 1) + " ");
-			        		sudoku.userInput[i * sudoku.cols + j] = Integer.parseInt(data.get(i).substring(j, j + 1));
+		      for (int row = 0; row < lineNum; row++) {
+		        	if (row < sudoku.rows) {
+			        	for (int col = 0; col < sudoku.cols; col++) {
+			        		sudoku.userInput[row * sudoku.cols + col] = Integer.parseInt(data.get(row).substring(col, col + 1));
 			        	}
 		        	} else {
-					    //System.out.print("border: ");
-		        		for (int j = 0; j < sudoku.cols; j++) {
-			        		//System.out.print(data.get(i).substring(j, j + 1) + " ");
-			        		sudoku.border[(i - sudoku.rows) * sudoku.cols + j] = Integer.parseInt(data.get(i).substring(j, j + 1));
+		        		for (int col = 0; col < sudoku.cols; col++) {
+			        		sudoku.border[(row - sudoku.rows) * sudoku.cols + col] = Integer.parseInt(data.get(row).substring(col, col + 1));
 		        		}
 		        	}
-				    //System.out.println("");
 		      }
 		      return 0;
 		    } catch (FileNotFoundException e) {
