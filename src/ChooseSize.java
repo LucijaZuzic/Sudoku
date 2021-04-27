@@ -78,7 +78,7 @@ public class ChooseSize {
 	        	try {
 	        		if (Integer.parseInt(row.getText()) == Integer.parseInt(col.getText()) && Integer.parseInt(yLimVal.getText()) * Integer.parseInt(xLimVal.getText()) == Integer.parseInt(row.getText())) {
 		        		@SuppressWarnings("unused")
-						ChangeBoxBorder b = new ChangeBoxBorder(Integer.parseInt(row.getText()), Integer.parseInt(col.getText()), Integer.parseInt(yLimVal.getText()), Integer.parseInt(xLimVal.getText()));
+						ChangeBoxBorder changeBoxBorder = new ChangeBoxBorder(Integer.parseInt(row.getText()), Integer.parseInt(col.getText()), Integer.parseInt(yLimVal.getText()), Integer.parseInt(xLimVal.getText()));
 	        		} else {
 	        			if (Integer.parseInt(row.getText()) != Integer.parseInt(col.getText())) {
 	        				InformationBox.infoBox("Zagonetka nije kvadratna.", "Stvaranje zagonetke");
