@@ -77,18 +77,19 @@ public class ChooseSize {
 	        public void actionPerformed(ActionEvent e) {  
 	        	try {
 	        		if (Integer.parseInt(row.getText()) == Integer.parseInt(col.getText()) && Integer.parseInt(yLimVal.getText()) * Integer.parseInt(xLimVal.getText()) == Integer.parseInt(row.getText())) {
-		        		ChangeBoxBorder b = new ChangeBoxBorder(Integer.parseInt(row.getText()), Integer.parseInt(col.getText()), Integer.parseInt(yLimVal.getText()), Integer.parseInt(xLimVal.getText()));
+		        		@SuppressWarnings("unused")
+						ChangeBoxBorder b = new ChangeBoxBorder(Integer.parseInt(row.getText()), Integer.parseInt(col.getText()), Integer.parseInt(yLimVal.getText()), Integer.parseInt(xLimVal.getText()));
 	        		} else {
 	        			if (Integer.parseInt(row.getText()) != Integer.parseInt(col.getText())) {
-	        				//System.out.println("Zagonetka nije kvadratna.");
+	        				InformationBox.infoBox("Zagonetka nije kvadratna.", "Stvaranje zagonetke");
 	        				return;
 	        			}
 	        			if (Integer.parseInt(yLimVal.getText()) * Integer.parseInt(xLimVal.getText()) > Integer.parseInt(row.getText())) {
-	        				//System.out.println("Kutije imaju previše znamenki.");
+	        				InformationBox.infoBox("Kutije imaju previše znamenki.", "Stvaranje zagonetke");
 	        				return;
 	        			}
 	        			if (Integer.parseInt(yLimVal.getText()) * Integer.parseInt(xLimVal.getText()) < Integer.parseInt(row.getText())) {
-	        				//System.out.println("Kutije imaju premalo znamenki.");
+	        				InformationBox.infoBox("Kutije imaju premalo znamenki.", "Stvaranje zagonetke");
 	        				return;
 	        			}
 	        		}

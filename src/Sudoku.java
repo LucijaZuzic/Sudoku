@@ -1,5 +1,4 @@
 import java.awt.Color;
-import java.awt.Font;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Stack;
@@ -14,6 +13,7 @@ import javax.swing.JTextArea;
 
 public abstract class Sudoku {
 	JFrame frame;
+	JButton digitButtons[];
 	JTextArea errorArea;
 	JTextArea instructionArea;
 	JLabel difficulty = new JLabel("");
@@ -275,7 +275,166 @@ public abstract class Sudoku {
 	int dj2 = 0;
 	int dj3 = 0;
 	int dj4 = 0;
-
+	
+	public void difficultySettingNaked(Set<Integer> setCells, String matchString, int containerNum, String containerType, int firstCell) {
+		String setType = "Ogoljen";
+		String lineSolvInstr = "";
+		if (setCells.size() == 1) {
+			lineSolvInstr += setType + "i par u " + containerType + " " + String.valueOf(containerNum + 1) + ", vrijednosti";
+			int sizeOfSet = 0;
+    		for (int valInSet = 0; valInSet < cols; valInSet++) {
+    			if (matchString.charAt(valInSet) == '1') {
+    				if (sizeOfSet > 0 && sizeOfSet != 1) {
+    					lineSolvInstr += ",";
+    				}
+    				if (sizeOfSet == 1) {
+    					lineSolvInstr += " i";
+    				}
+    				lineSolvInstr += " " + String.valueOf(valInSet + 1);
+    				sizeOfSet++;
+    			}
+    		}
+    		if (!solvInstr.contains(lineSolvInstr)) {
+    			if (dj2 == 0) {
+    				difficultyScore += 750;
+    				dj2 = 1;
+    			} else {
+    				difficultyScore += 500;
+    			}
+    		}
+    		solvInstr.add(lineSolvInstr);
+		}
+		if (setCells.size() == 2) {
+			lineSolvInstr += setType + "a trojka u " + containerType + " " + String.valueOf(containerNum + 1) + ", vrijednosti";
+			int sizeOfSet = 0;
+    		for (int valInSet = 0; valInSet < cols; valInSet++) {
+    			if (matchString.charAt(valInSet) == '1') {
+    				if (sizeOfSet > 0 && sizeOfSet != 2) {
+    					lineSolvInstr += ",";
+    				}
+    				if (sizeOfSet == 2) {
+    					lineSolvInstr += " i";
+    				}
+    				lineSolvInstr += " " + String.valueOf(valInSet + 1);
+    				sizeOfSet++;
+    			}
+    		}
+    		if (!solvInstr.contains(lineSolvInstr)) {
+    			if (dj3 == 0) {
+    				difficultyScore += 2000;
+    				dj3 = 1;
+    			} else {
+    				difficultyScore += 1400;
+    			}
+    		}
+    		solvInstr.add(lineSolvInstr);
+		}
+		if (setCells.size() == 3) {
+			lineSolvInstr += setType + "a èetvorka u " + containerType + " " + String.valueOf(containerNum + 1) + ", vrijednosti";
+			int sizeOfSet = 0;
+    		for (int valInSet = 0; valInSet < cols; valInSet++) {
+    			if (matchString.charAt(valInSet) == '1') {
+    				if (sizeOfSet > 0 && sizeOfSet != 3) {
+    					lineSolvInstr += ",";
+    				}
+    				if (sizeOfSet == 3) {
+    					lineSolvInstr += " i";
+    				}
+    				lineSolvInstr += " " + String.valueOf(valInSet + 1);
+    				sizeOfSet++;
+    			}
+    		}
+    		if (!solvInstr.contains(lineSolvInstr)) {
+    			if (dj4 == 0) {
+    				difficultyScore += 5000;
+    				dj4 = 1;
+    			} else {
+    				difficultyScore += 4000;
+    			}
+    		}
+    		solvInstr.add(lineSolvInstr);
+		}
+		if (setCells.size() > 3) {
+			lineSolvInstr += setType + "ih " + String.valueOf(setCells.size() + 1) + " u " + containerType + " " + String.valueOf(containerNum + 1) + ", vrijednosti";
+			int sizeOfSet = 0;
+    		for (int valInSet = 0; valInSet < cols; valInSet++) {
+    			if (matchString.charAt(valInSet) == '1') {
+    				if (sizeOfSet > 0 && sizeOfSet != setCells.size()) {
+    					lineSolvInstr += ",";
+    				}
+    				if (sizeOfSet == setCells.size()) {
+    					lineSolvInstr += " i";
+    				}
+    				lineSolvInstr += " " + String.valueOf(valInSet + 1);
+    				sizeOfSet++;
+    			}
+    		}
+    		if (!solvInstr.contains(lineSolvInstr)) {
+    			if (dj4 == 0) {
+    				difficultyScore += 5000;
+    				dj4 = 1;
+    			} else {
+    				difficultyScore += 4000;
+    			}
+    		}
+    		solvInstr.add(lineSolvInstr);
+		}
+		lineSolvInstr += " u æelijama";
+		int sizeOfCellSet = 0;
+		if (containerType == "redu") {
+			for (int possibleCol = 0; possibleCol < cols; possibleCol++) {
+		    	int numCell = containerNum * cols + possibleCol;
+				if (setCells.contains(numCell) || numCell == firstCell) {
+					if (sizeOfCellSet > 0 && sizeOfCellSet != setCells.size()) {
+						lineSolvInstr += ",";
+					}
+					if (sizeOfCellSet == setCells.size()) {
+						lineSolvInstr += " i";
+					}
+					lineSolvInstr += " (" + String.valueOf(numCell / cols + 1) + ", " + String.valueOf(numCell % cols + 1) + ")";
+					sizeOfCellSet++;
+				}
+			}
+		}
+		if (containerType == "stupcu") {
+    		for (int possibleRow = 0; possibleRow < cols; possibleRow++) {
+    	    	int numCell = possibleRow * cols + containerNum;
+    			if (setCells.contains(numCell) || numCell == firstCell) {
+    				if (sizeOfCellSet > 0 && sizeOfCellSet != setCells.size()) {
+    					lineSolvInstr += ",";
+    				}
+    				if (sizeOfCellSet == setCells.size()) {
+    					lineSolvInstr += " i";
+    				}
+    				lineSolvInstr += " (" + String.valueOf(numCell / cols + 1) + ", " + String.valueOf(numCell % cols + 1) + ")";
+    				sizeOfCellSet++;
+    			}
+    		}
+		}
+		if (containerType == "kutiji") {
+    		for (int possibleCell = 0; possibleCell < rows * cols; possibleCell++) {
+		    	if (boxNumber[possibleCell] != boxNumber[firstCell]) {
+		    		continue;
+		    	}
+    			if (setCells.contains(possibleCell) || possibleCell == firstCell) {
+    				if (sizeOfCellSet > 0 && sizeOfCellSet != setCells.size()) {
+    					lineSolvInstr += ",";
+    				}
+    				if (sizeOfCellSet == setCells.size()) {
+    					lineSolvInstr += " i";
+    				}
+    				lineSolvInstr += " (" + String.valueOf(possibleCell / cols + 1) + ", " + String.valueOf(possibleCell % cols + 1) + ")";
+    				sizeOfCellSet++;
+    			}
+    		}
+		}
+		lineSolvInstr += ".\n";
+    	solvingInstructions += lineSolvInstr;
+    	if (showSteps == true) {
+		    instructionArea.setText(solvingInstructions);
+			InformationBox.infoBox(lineSolvInstr, "Rješavaè");
+		}
+	}
 	
 	public int nakedSetForRow (int firstRow, int firstCol, Set<Integer> sameRowCells) {
     	int firstCell = firstRow * cols + firstCol;
@@ -336,128 +495,7 @@ public abstract class Sudoku {
 			    		for (int val = 0; val < cols; val++) {
 			    			if (matchString.charAt(val) == '1' && possibilities[notInSet][val] == 1 && temporary[notInSet] == 0) {
 			    				if (numRemoved == 0) {
-			    		    		String lineSolvInstr = "";
-		    			    		if (sameRowCells.size() == 1) {
-		    			    			lineSolvInstr += "Ogoljeni par u redu " + String.valueOf(firstRow + 1) + ", vrijednosti";
-		    			    			int sizeOfSet = 0;
-		    				    		for (int valInSet = 0; valInSet < cols; valInSet++) {
-		    				    			if (matchString.charAt(valInSet) == '1') {
-							    				if (sizeOfSet > 0 && sizeOfSet != 1) {
-							    					lineSolvInstr += ",";
-							    				}
-							    				if (sizeOfSet == 1) {
-							    					lineSolvInstr += " i";
-							    				}
-		    				    				lineSolvInstr += " " + String.valueOf(valInSet + 1);
-		    				    				sizeOfSet++;
-		    				    			}
-		    				    		}
-		    				    		if (!solvInstr.contains(lineSolvInstr)) {
-			    			    			if (dj2 == 0) {
-			    			    				difficultyScore += 750;
-			    			    				dj2 = 1;
-			    			    			} else {
-			    			    				difficultyScore += 500;
-			    			    			}
-		    				    		}
-		    				    		solvInstr.add(lineSolvInstr);
-		    			    		}
-		    			    		if (sameRowCells.size() == 2) {
-		    			    			lineSolvInstr += "Ogoljena trojka u redu " + String.valueOf(firstRow + 1) + ", vrijednosti";
-		    			    			int sizeOfSet = 0;
-		    				    		for (int valInSet = 0; valInSet < cols; valInSet++) {
-		    				    			if (matchString.charAt(valInSet) == '1') {
-							    				if (sizeOfSet > 0 && sizeOfSet != 2) {
-							    					lineSolvInstr += ",";
-							    				}
-							    				if (sizeOfSet == 2) {
-							    					lineSolvInstr += " i";
-							    				}
-		    				    				lineSolvInstr += " " + String.valueOf(valInSet + 1);
-		    				    				sizeOfSet++;
-		    				    			}
-		    				    		}
-		    				    		if (!solvInstr.contains(lineSolvInstr)) {
-			    			    			if (dj3 == 0) {
-			    			    				difficultyScore += 2000;
-			    			    				dj3 = 1;
-			    			    			} else {
-			    			    				difficultyScore += 1400;
-			    			    			}
-		    				    		}
-		    				    		solvInstr.add(lineSolvInstr);
-		    			    		}
-		    			    		if (sameRowCells.size() == 3) {
-		    			    			lineSolvInstr += "Ogoljena èetvorka u redu " + String.valueOf(firstRow + 1) + ", vrijednosti";
-		    			    			int sizeOfSet = 0;
-		    				    		for (int valInSet = 0; valInSet < cols; valInSet++) {
-		    				    			if (matchString.charAt(val) == '1') {
-							    				if (sizeOfSet > 0 && sizeOfSet != 3) {
-							    					lineSolvInstr += ",";
-							    				}
-							    				if (sizeOfSet == 3) {
-							    					lineSolvInstr += " i";
-							    				}
-		    				    				lineSolvInstr += " " + String.valueOf(valInSet + 1);
-		    				    				sizeOfSet++;
-		    				    			}
-		    				    		}
-		    				    		if (!solvInstr.contains(lineSolvInstr)) {
-			    			    			if (dj4 == 0) {
-			    			    				difficultyScore += 5000;
-			    			    				dj4 = 1;
-			    			    			} else {
-			    			    				difficultyScore += 4000;
-			    			    			}
-		    				    		}
-		    				    		solvInstr.add(lineSolvInstr);
-		    			    		}
-		    			    		if (sameRowCells.size() > 3) {
-		    			    			lineSolvInstr += "Ogoljenih " + String.valueOf(sameRowCells.size() + 1) + " u redu " + String.valueOf(firstRow + 1) + ", vrijednosti";
-		    			    			int sizeOfSet = 0;
-		    				    		for (int valInSet = 0; valInSet < cols; valInSet++) {
-		    				    			if (matchString.charAt(valInSet) == '1') {
-							    				if (sizeOfSet > 0 && sizeOfSet != sameRowCells.size()) {
-							    					lineSolvInstr += ",";
-							    				}
-							    				if (sizeOfSet == sameRowCells.size()) {
-							    					lineSolvInstr += " i";
-							    				}
-		    				    				lineSolvInstr += " " + String.valueOf(valInSet + 1);
-		    				    				sizeOfSet++;
-		    				    			}
-		    				    		}
-		    				    		if (!solvInstr.contains(lineSolvInstr)) {
-			    			    			if (dj4 == 0) {
-			    			    				difficultyScore += 5000;
-			    			    				dj4 = 1;
-			    			    			} else {
-			    			    				difficultyScore += 4000;
-			    			    			}
-		    				    		}
-		    				    		solvInstr.add(lineSolvInstr);
-		    			    		}
-			    		    		lineSolvInstr += " u æelijama";
-			    		    		int sizeOfCellSet = 0;
-	    				    		for (int possibleCol = 0; possibleCol < cols; possibleCol++) {
-	    				    	    	int numCell = firstRow * cols + possibleCol;
-	    				    			if (sameRowCells.contains(numCell) || numCell == firstCell) {
-						    				if (sizeOfCellSet > 0 && sizeOfCellSet != sameRowCells.size()) {
-						    					lineSolvInstr += ",";
-						    				}
-						    				if (sizeOfCellSet == sameRowCells.size()) {
-						    					lineSolvInstr += " i";
-						    				}
-	    				    				lineSolvInstr += " (" + String.valueOf(numCell / cols + 1) + ", " + String.valueOf(numCell % cols + 1) + ")";
-	    				    				sizeOfCellSet++;
-	    				    			}
-	    				    		}
-	    				    		lineSolvInstr += ".\n";
-		    				    	solvingInstructions += lineSolvInstr;
-							    	if (showSteps == true) {
-						    		    instructionArea.setText(solvingInstructions);
-				    	    			InformationBox.infoBox(lineSolvInstr, "Rješavaè");
-						    		}
+			    					difficultySettingNaked(sameRowCells, matchString, firstRow, "redu", firstCell);
 			    				}
 			    				solvingInstructions += "Uklanjam moguænost " + String.valueOf(val + 1) + " iz æelije (" + String.valueOf(notInSet / cols + 1) + ", " + String.valueOf(notInSet % cols + 1) + ").\n";
 					    		if (showSteps == true) {
@@ -542,128 +580,7 @@ public abstract class Sudoku {
 			    		for (int val = 0; val < cols; val++) {
 			    			if (matchString.charAt(val) == '1' && possibilities[notInSet][val] == 1 && temporary[notInSet] == 0) {
 			    				if (numRemoved == 0) {
-			    		    		String lineSolvInstr = "";
-		    			    		if (sameColumnCells.size() == 1) {
-		    			    			lineSolvInstr += "Ogoljeni par u stupcu " + String.valueOf(firstCol + 1) + ", vrijednosti";
-		    			    			int sizeOfSet = 0;
-		    				    		for (int valInSet = 0; valInSet < cols; valInSet++) {
-		    				    			if (matchString.charAt(valInSet) == '1') {
-							    				if (sizeOfSet > 0 && sizeOfSet != 1) {
-							    					lineSolvInstr += ",";
-							    				}
-							    				if (sizeOfSet == 1) {
-							    					lineSolvInstr += " i";
-							    				}
-		    				    				lineSolvInstr += " " + String.valueOf(valInSet + 1);
-		    				    				sizeOfSet++;
-		    				    			}
-		    				    		}
-		    				    		if (!solvInstr.contains(lineSolvInstr)) {
-			    			    			if (dj2 == 0) {
-			    			    				difficultyScore += 750;
-			    			    				dj2 = 1;
-			    			    			} else {
-			    			    				difficultyScore += 500;
-			    			    			}
-		    				    		}
-		    				    		solvInstr.add(lineSolvInstr);
-		    			    		}
-		    			    		if (sameColumnCells.size() == 2) {
-		    			    			lineSolvInstr += "Ogoljena trojka u stupcu " + String.valueOf(firstCol + 1) + ", vrijednosti";
-		    			    			int sizeOfSet = 0;
-		    				    		for (int valInSet = 0; valInSet < cols; valInSet++) {
-		    				    			if (matchString.charAt(valInSet) == '1') {
-							    				if (sizeOfSet > 0 && sizeOfSet != 2) {
-							    					lineSolvInstr += ",";
-							    				}
-							    				if (sizeOfSet == 2) {
-							    					lineSolvInstr += " i";
-							    				}
-		    				    				lineSolvInstr += " " + String.valueOf(valInSet + 1);
-		    				    				sizeOfSet++;
-		    				    			}
-		    				    		}
-		    				    		if (!solvInstr.contains(lineSolvInstr)) {
-			    			    			if (dj3 == 0) {
-			    			    				difficultyScore += 2000;
-			    			    				dj3 = 1;
-			    			    			} else {
-			    			    				difficultyScore += 1400;
-			    			    			}
-		    				    		}
-		    				    		solvInstr.add(lineSolvInstr);
-		    			    		}
-		    			    		if (sameColumnCells.size() == 3) {
-		    			    			lineSolvInstr += "Ogoljena èetvorka u stupcu " + String.valueOf(firstCol + 1) + ", vrijednosti";
-		    			    			int sizeOfSet = 0;
-		    				    		for (int valInSet = 0; valInSet < cols; valInSet++) {
-		    				    			if (matchString.charAt(valInSet) == '1') {
-							    				if (sizeOfSet > 0 && sizeOfSet != 3) {
-							    					lineSolvInstr += ",";
-							    				}
-							    				if (sizeOfSet == 3) {
-							    					lineSolvInstr += " i";
-							    				}
-		    				    				lineSolvInstr += " " + String.valueOf(valInSet + 1);
-		    				    				sizeOfSet++;
-		    				    			}
-		    				    		}
-		    				    		if (!solvInstr.contains(lineSolvInstr)) {
-			    			    			if (dj4 == 0) {
-			    			    				difficultyScore += 5000;
-			    			    				dj4 = 1;
-			    			    			} else {
-			    			    				difficultyScore += 4000;
-			    			    			}
-		    				    		}
-		    				    		solvInstr.add(lineSolvInstr);
-		    			    		}
-		    			    		if (sameColumnCells.size() > 3) {
-		    			    			lineSolvInstr += "Ogoljenih " + String.valueOf(sameColumnCells.size() + 1) + " u stupcu " + String.valueOf(firstCol + 1) + ", vrijednosti";
-		    			    			int sizeOfSet = 0;
-		    				    		for (int valInSet = 0; valInSet < cols; valInSet++) {
-		    				    			if (matchString.charAt(valInSet) == '1') {
-							    				if (sizeOfSet > 0 && sizeOfSet != sameColumnCells.size()) {
-							    					lineSolvInstr += ",";
-							    				}
-							    				if (sizeOfSet == sameColumnCells.size()) {
-							    					lineSolvInstr += " i";
-							    				}
-		    				    				lineSolvInstr += " " + String.valueOf(valInSet + 1);
-		    				    				sizeOfSet++;
-		    				    			}
-		    				    		}
-		    				    		if (!solvInstr.contains(lineSolvInstr)) {
-			    			    			if (dj4 == 0) {
-			    			    				difficultyScore += 5000;
-			    			    				dj4 = 1;
-			    			    			} else {
-			    			    				difficultyScore += 4000;
-			    			    			}
-		    				    		}
-		    				    		solvInstr.add(lineSolvInstr);
-		    			    		}
-			    		    		lineSolvInstr += " u æelijama";
-			    		    		int sizeOfCellSet = 0;
-	    				    		for (int possibleRow = 0; possibleRow < cols; possibleRow++) {
-	    				    	    	int numCell = possibleRow * cols + firstCol;
-	    				    			if (sameColumnCells.contains(numCell) || numCell == firstCell) {
-						    				if (sizeOfCellSet > 0 && sizeOfCellSet != sameColumnCells.size()) {
-						    					lineSolvInstr += ",";
-						    				}
-						    				if (sizeOfCellSet == sameColumnCells.size()) {
-						    					lineSolvInstr += " i";
-						    				}
-	    				    				lineSolvInstr += " (" + String.valueOf(numCell / cols + 1) + ", " + String.valueOf(numCell % cols + 1) + ")";
-	    				    				sizeOfCellSet++;
-	    				    			}
-	    				    		}
-		    				    	lineSolvInstr += ".\n";
-		    				    	solvingInstructions += lineSolvInstr;
-							    	if (showSteps == true) {
-						    		    instructionArea.setText(solvingInstructions);
-				    	    			InformationBox.infoBox(lineSolvInstr, "Rješavaè");
-						    		}
+			    					difficultySettingNaked(sameColumnCells, matchString, firstCol, "stupcu", firstCell);
 			    				}
 			    				solvingInstructions += "Uklanjam moguænost " + String.valueOf(val + 1) + " iz æelije (" + String.valueOf(notInSet / cols + 1) + ", " + String.valueOf(notInSet % cols + 1) + ").\n";
 			    				if (showSteps == true) {
@@ -757,130 +674,7 @@ public abstract class Sudoku {
 			    		for (int val = 0; val < cols; val++) {
 			    			if (matchString.charAt(val) == '1' && possibilities[notInSet][val] == 1 && temporary[notInSet] == 0) {
 			    				if (numRemoved == 0) {
-			    		    		String lineSolvInstr = "";
-		    			    		if (sameBoxCells.size() == 1) {
-		    			    			lineSolvInstr += "Ogoljeni par u kutiji " + String.valueOf(boxNumber[firstCell] + 1) + ", vrijednosti";
-		    			    			int sizeOfSet = 0;
-		    				    		for (int valInSet = 0; valInSet < cols; valInSet++) {
-		    				    			if (matchString.charAt(valInSet) == '1') {
-							    				if (sizeOfSet > 0 && sizeOfSet != 1) {
-							    					lineSolvInstr += ",";
-							    				}
-							    				if (sizeOfSet == 1) {
-							    					lineSolvInstr += " i";
-							    				}
-		    				    				lineSolvInstr += " " + String.valueOf(valInSet + 1);
-		    				    				sizeOfSet++;
-		    				    			}
-		    				    		}
-		    				    		if (!solvInstr.contains(lineSolvInstr)) {
-			    			    			if (dj2 == 0) {
-			    			    				difficultyScore += 750;
-			    			    				dj2 = 1;
-			    			    			} else {
-			    			    				difficultyScore += 500;
-			    			    			}
-		    				    		}
-		    				    		solvInstr.add(lineSolvInstr);
-		    			    		}
-		    			    		if (sameBoxCells.size() == 2) {
-		    			    			lineSolvInstr += "Ogoljena trojka u kutiji " + String.valueOf(boxNumber[firstCell] + 1) + ", vrijednosti";
-		    			    			int sizeOfSet = 0;
-		    				    		for (int valInSet = 0; valInSet < cols; valInSet++) {
-		    				    			if (matchString.charAt(valInSet) == '1') {
-							    				if (sizeOfSet > 0 && sizeOfSet != 2) {
-							    					lineSolvInstr += ",";
-							    				}
-							    				if (sizeOfSet == 2) {
-							    					lineSolvInstr += " i";
-							    				}
-		    				    				lineSolvInstr += " " + String.valueOf(valInSet + 1);
-		    				    				sizeOfSet++;
-		    				    			}
-		    				    		}
-		    				    		if (!solvInstr.contains(lineSolvInstr)) {
-			    			    			if (dj3 == 0) {
-			    			    				difficultyScore += 2000;
-			    			    				dj3 = 1;
-			    			    			} else {
-			    			    				difficultyScore += 1400;
-			    			    			}
-		    				    		}
-		    				    		solvInstr.add(lineSolvInstr);
-		    			    		}
-		    			    		if (sameBoxCells.size() == 3) {
-		    			    			lineSolvInstr += "Ogoljena èetvorka u kutiji " + String.valueOf(boxNumber[firstCell] + 1) + ", vrijednosti";
-		    			    			int sizeOfSet = 0;
-		    				    		for (int valInSet = 0; valInSet < cols; valInSet++) {
-		    				    			if (matchString.charAt(valInSet) == '1') {
-							    				if (sizeOfSet > 0 && sizeOfSet != 3) {
-							    					lineSolvInstr += ",";
-							    				}
-							    				if (sizeOfSet == 3) {
-							    					lineSolvInstr += " i";
-							    				}
-		    				    				lineSolvInstr += " " + String.valueOf(valInSet + 1);
-		    				    				sizeOfSet++;
-		    				    			}
-		    				    		}
-		    				    		if (!solvInstr.contains(lineSolvInstr)) {
-			    			    			if (dj4 == 0) {
-			    			    				difficultyScore += 5000;
-			    			    				dj4 = 1;
-			    			    			} else {
-			    			    				difficultyScore += 4000;
-			    			    			}
-		    				    		}
-		    				    		solvInstr.add(lineSolvInstr);
-		    			    		}
-		    			    		if (sameBoxCells.size() > 3) {
-		    			    			lineSolvInstr += "Ogoljenih " + String.valueOf(sameBoxCells.size() + 1) + " u kutiji " + String.valueOf(boxNumber[firstCell] + 1) + ", vrijednosti";
-		    			    			int sizeOfSet = 0;
-		    				    		for (int valInSet = 0; valInSet < cols; valInSet++) {
-		    				    			if (matchString.charAt(valInSet) == '1') {
-							    				if (sizeOfSet > 0 && sizeOfSet != sameBoxCells.size()) {
-							    					lineSolvInstr += ",";
-							    				}
-							    				if (sizeOfSet == sameBoxCells.size()) {
-							    					lineSolvInstr += " i";
-							    				}
-		    				    				lineSolvInstr += " " + String.valueOf(valInSet + 1);
-		    				    				sizeOfSet++;
-		    				    			}
-		    				    		}
-		    				    		if (!solvInstr.contains(lineSolvInstr)) {
-			    			    			if (dj4 == 0) {
-			    			    				difficultyScore += 5000;
-			    			    				dj4 = 1;
-			    			    			} else {
-			    			    				difficultyScore += 4000;
-			    			    			}
-		    				    		}
-		    				    		solvInstr.add(lineSolvInstr);
-		    			    		}
-			    		    		lineSolvInstr += " u æelijama";
-			    		    		int sizeOfCellSet = 0;
-	    				    		for (int possibleCell = 0; possibleCell < rows * cols; possibleCell++) {
-	    						    	if (boxNumber[possibleCell] != boxNumber[firstCell]) {
-	    						    		continue;
-	    						    	}
-	    				    			if (sameBoxCells.contains(possibleCell) || possibleCell == firstCell) {
-						    				if (sizeOfCellSet > 0 && sizeOfCellSet != sameBoxCells.size()) {
-						    					lineSolvInstr += ",";
-						    				}
-						    				if (sizeOfCellSet == sameBoxCells.size()) {
-						    					lineSolvInstr += " i";
-						    				}
-	    				    				lineSolvInstr += " (" + String.valueOf(possibleCell / cols + 1) + ", " + String.valueOf(possibleCell % cols + 1) + ")";
-	    				    				sizeOfCellSet++;
-	    				    			}
-	    				    		}
-		    				    	lineSolvInstr += ".\n";
-		    				    	solvingInstructions += lineSolvInstr;
-							    	if (showSteps == true) {
-						    		    instructionArea.setText(solvingInstructions);
-				    	    			InformationBox.infoBox(lineSolvInstr, "Rješavaè");
-						    		}
+			    					difficultySettingNaked(sameBoxCells, matchString, boxNumber[firstCell], "stupcu", firstCell);
 			    				}
 			    				solvingInstructions += "Uklanjam moguænost " + String.valueOf(val + 1) + " iz æelije (" + String.valueOf(notInSet / cols + 1) + ", " + String.valueOf(notInSet % cols + 1) + ").\n";
 			    				if (showSteps == true) {
@@ -949,20 +743,180 @@ public abstract class Sudoku {
 		return 0;
 	}
 	
+	String valuePos[] = new String[cols];
+
+
 	int us2 = 0;
 	int us3 = 0;
 	int us4 = 0;
 	
-	String valuePos[] = new String[cols];
+	public void difficultySettingHidden(Set<Integer> setValues, String matchString, int matchStringLen, int containerNum, String containerType, int firstVal) {
+		String setType = "Skriven";
+		String lineSolvInstr = "";
+		if (setValues.size() == 1) {
+			lineSolvInstr += setType + "i par u " + containerType + " " + String.valueOf(containerNum + 1) + ", vrijednosti";
+			int sizeOfSet = 0;
+    		for (int valInSet = 0; valInSet < cols; valInSet++) {
+    			if (setValues.contains(valInSet) || valInSet == firstVal) {
+    				if (sizeOfSet != 0) {
+    					lineSolvInstr += " i";
+    				}
+    				lineSolvInstr += " " + String.valueOf(valInSet + 1);
+    				sizeOfSet++;
+    			}
+    		}
+    		if (!solvInstr.contains(lineSolvInstr)) {
+    			if (us2 == 0) {
+    				difficultyScore += 1500;
+    				us2 = 1;
+    			} else {
+    				difficultyScore += 1200;
+    			}
+    		}
+    		solvInstr.add(lineSolvInstr);
+		}
+		if (setValues.size() == 2) {
+			lineSolvInstr += setType + "a trojka u " + containerType + " " + String.valueOf(containerNum + 1) + ", vrijednosti";
+			int sizeOfSet = 0;
+    		for (int valInSet = 0; valInSet < cols; valInSet++) {
+    			if (setValues.contains(valInSet) || valInSet == firstVal) {
+    				if (sizeOfSet > 0 && sizeOfSet != 2) {
+    					lineSolvInstr += ",";
+    				}
+    				if (sizeOfSet == 2) {
+    					lineSolvInstr += " i";
+    				}
+    				lineSolvInstr += " " + String.valueOf(valInSet + 1);
+    				sizeOfSet++;
+    			}
+    		}
+    		if (!solvInstr.contains(lineSolvInstr)) {
+    			if (us3 == 0) {
+    				difficultyScore += 2400;
+    				us3 = 1;
+    			} else {
+    				difficultyScore += 1600;
+    			}
+    		}
+    		solvInstr.add(lineSolvInstr);
+		}
+		if (setValues.size() == 3) {
+			lineSolvInstr += setType + "a èetvorka u " + containerType + " " + String.valueOf(containerNum + 1) + ", vrijednosti";
+			int sizeOfSet = 0;
+    		for (int valInSet = 0; valInSet < cols; valInSet++) {
+    			if (setValues.contains(valInSet) || valInSet == firstVal) {
+    				if (sizeOfSet > 0 && sizeOfSet != 3) {
+    					lineSolvInstr += ",";
+    				}
+    				if (sizeOfSet == 3) {
+    					lineSolvInstr += " i";
+    				}
+    				lineSolvInstr += " " + String.valueOf(valInSet + 1);
+    				sizeOfSet++;
+    			}
+    		}
+    		if (!solvInstr.contains(lineSolvInstr)) {
+    			if (us4 == 0) {
+    				difficultyScore += 7000;
+    				us4 = 1;
+    			} else {
+    				difficultyScore += 5000;
+    			}
+    		}
+    		solvInstr.add(lineSolvInstr);
+		}
+		if (setValues.size() > 3) {
+			lineSolvInstr += setType + "ih " + String.valueOf(setValues.size() + 1) + " u " + containerType + " " + String.valueOf(containerNum + 1) + ", vrijednosti";
+			int sizeOfSet = 0;
+    		for (int valInSet = 0; valInSet < cols; valInSet++) {
+    			if (setValues.contains(valInSet) || valInSet == firstVal) {
+    				if (sizeOfSet > 0 && sizeOfSet != setValues.size()) {
+    					lineSolvInstr += ",";
+    				}
+    				if (sizeOfSet == setValues.size()) {
+    					lineSolvInstr += " i";
+    				}
+    				lineSolvInstr += " " + String.valueOf(valInSet + 1);
+    				sizeOfSet++;
+    			}
+    		}
+    		if (!solvInstr.contains(lineSolvInstr)) {
+    			if (us4 == 0) {
+    				difficultyScore += 7000;
+    				us4 = 1;
+    			} else {
+    				difficultyScore += 5000;
+    			}
+    		}
+    		solvInstr.add(lineSolvInstr);
+		}
+		lineSolvInstr += " u æelijama";
+		int sizeOfSet = 0;
+		if (containerType == "redu") {
+			for (int colInSet = 0; colInSet < cols; colInSet++) {
+				if (matchString.charAt(colInSet) == '1') {
+					if (sizeOfSet > 0 && sizeOfSet != matchStringLen - 1) {
+						lineSolvInstr += ",";
+					}
+					if (sizeOfSet == matchStringLen - 1) {
+						lineSolvInstr += " i";
+					}
+					lineSolvInstr += " (" + String.valueOf(containerNum + 1) + ", " + String.valueOf(colInSet + 1) + ")";
+					sizeOfSet++;
+				}
+			}
+		}
+		if (containerType == "stupcu") {
+			for (int rowInSet = 0; rowInSet < rows; rowInSet++) {
+				if (matchString.charAt(rowInSet) == '1') {
+					if (sizeOfSet > 0 && sizeOfSet != matchStringLen - 1) {
+						lineSolvInstr += ",";
+					}
+					if (sizeOfSet == matchStringLen - 1) {
+						lineSolvInstr += " i";
+					}
+					lineSolvInstr += " (" + String.valueOf(rowInSet + 1) + ", " + String.valueOf(containerNum + 1) + ")";
+					sizeOfSet++;
+				}
+			}
+		}
+		if (containerType == "kutiji") {
+		int matchPositionInBox = -1;
+			for (int cell = 0; cell < rows * cols; cell++) {
+	    		if (containerNum != boxNumber[cell]) {
+	    			continue;
+	    		} else {
+	    			matchPositionInBox++;
+	    		}
+				if (matchString.charAt(matchPositionInBox) == '1') {
+					if (sizeOfSet > 0 && sizeOfSet != matchStringLen - 1) {
+						lineSolvInstr += ",";
+					}
+					if (sizeOfSet == matchStringLen - 1) {
+						lineSolvInstr += " i";
+					}
+					lineSolvInstr += " (" + String.valueOf(cell / cols + 1) + ", " + String.valueOf(cell % cols + 1) + ")";
+					sizeOfSet++;
+				}
+			}
+		}
 
-	public int hiddenSetForRow(int firstVal, int firstRow, Set<Integer> sameRowVals) {
+    	lineSolvInstr += ".\n";
+    	solvingInstructions += lineSolvInstr;
+    	if (showSteps == true) {
+		    instructionArea.setText(solvingInstructions);
+			InformationBox.infoBox(lineSolvInstr, "Rješavaè");
+		}
+	}
+	
+	public int hiddenSetForRow(int firstVal, int firstRow, Set<Integer> sameRowValues) {
 		for (int newToSet = firstVal + 1; newToSet < cols; newToSet++) {
-			if (newToSet == firstVal || sameRowVals.contains(newToSet)) {
+			if (newToSet == firstVal || sameRowValues.contains(newToSet)) {
     			continue;
     		}
     		int match = 0;
     		for (int alreadyInSet = 0; alreadyInSet < cols; alreadyInSet++) {
-    			if (alreadyInSet == firstVal || sameRowVals.contains(alreadyInSet)) {
+    			if (alreadyInSet == firstVal || sameRowValues.contains(alreadyInSet)) {
 		    		for (int positionInRow = 0; positionInRow < cols; positionInRow++) {
 		    			if (valuePos[newToSet].charAt(positionInRow) == '1' && valuePos[alreadyInSet].charAt(positionInRow) == '1') {
 		    				match++;
@@ -971,10 +925,10 @@ public abstract class Sudoku {
 		    		}
     			}
     		}
-    		if (match == sameRowVals.size() + 1) {
+    		if (match == sameRowValues.size() + 1) {
     			Set<Integer> sameRowValuesNextIteration = new HashSet<Integer>();
         		for (int val = 0; val < cols; val++) {
-        			if (sameRowVals.contains(val)) {
+        			if (sameRowValues.contains(val)) {
         				sameRowValuesNextIteration.add(val);
         			}
         		}
@@ -989,7 +943,7 @@ public abstract class Sudoku {
 	    	for (int col = 0; col < cols; col++) {
 	    		String containsCell = "0";
 	    		for (int val = 0; val < cols; val++) {
-	    			if (val == firstVal || sameRowVals.contains(val)) {
+	    			if (val == firstVal || sameRowValues.contains(val)) {
 				    	if (valuePos[val].charAt(col) == '1') {
 				    		containsCell = "1";
 				    		matchStringLen++;
@@ -999,131 +953,14 @@ public abstract class Sudoku {
 	    		}
 	    		matchString += containsCell;
     		}
-	    	if (sameRowVals.size() == matchStringLen - 1 && sameRowVals.size() > 0) {
+	    	if (sameRowValues.size() == matchStringLen - 1 && sameRowValues.size() > 0) {
 	    		int numRemoved = 0;
 				for (int col = 0; col < cols; col++) {
 					if (matchString.charAt(col) == '1') {
 						 for (int val = 0; val < cols; val++) {
-							if (!sameRowVals.contains(val) && val != firstVal && possibilities[firstRow * cols + col][val] == 1) {
+							if (!sameRowValues.contains(val) && val != firstVal && possibilities[firstRow * cols + col][val] == 1) {
 						    	if (numRemoved == 0) {
-						    		String lineSolvInst = "";
-						    		if (sameRowVals.size() == 1) {
-						    			lineSolvInst += "Skriveni par u redu " + String.valueOf(firstRow + 1) + ", vrijednosti";
-						    			int sizeOfSet = 0;
-							    		for (int valInSet = 0; valInSet < cols; valInSet++) {
-							    			if (sameRowVals.contains(valInSet) || valInSet == firstVal) {
-							    				if (sizeOfSet != 0) {
-							    					lineSolvInst += " i";
-							    				}
-							    				lineSolvInst += " " + String.valueOf(valInSet + 1);
-							    				sizeOfSet++;
-							    			}
-							    		}
-		    				    		if (!solvInstr.contains(lineSolvInst)) {
-							    			if (us2 == 0) {
-							    				difficultyScore += 1500;
-							    				us2 = 1;
-							    			} else {
-							    				difficultyScore += 1200;
-							    			}
-		    				    		}
-		    				    		solvInstr.add(lineSolvInst);
-						    		}
-						    		if (sameRowVals.size() == 2) {
-						    			lineSolvInst += "Skrivena trojka u redu " + String.valueOf(firstRow + 1) + ", vrijednosti";
-						    			int sizeOfSet = 0;
-							    		for (int valInSet = 0; valInSet < cols; valInSet++) {
-							    			if (sameRowVals.contains(valInSet) || valInSet == firstVal) {
-							    				if (sizeOfSet > 0 && sizeOfSet != 2) {
-							    					lineSolvInst += ",";
-							    				}
-							    				if (sizeOfSet == 2) {
-							    					lineSolvInst += " i";
-							    				}
-							    				lineSolvInst += " " + String.valueOf(valInSet + 1);
-							    				sizeOfSet++;
-							    			}
-							    		}
-		    				    		if (!solvInstr.contains(lineSolvInst)) {
-							    			if (us3 == 0) {
-							    				difficultyScore += 2400;
-							    				us3 = 1;
-							    			} else {
-							    				difficultyScore += 1600;
-							    			}
-		    				    		}
-		    				    		solvInstr.add(lineSolvInst);
-						    		}
-						    		if (sameRowVals.size() == 3) {
-						    			lineSolvInst += "Skrivena èetvorka u redu " + String.valueOf(firstRow + 1) + ", vrijednosti";
-						    			int sizeOfSet = 0;
-							    		for (int valInSet = 0; valInSet < cols; valInSet++) {
-							    			if (sameRowVals.contains(valInSet) || valInSet == firstVal) {
-							    				if (sizeOfSet > 0 && sizeOfSet != 3) {
-							    					lineSolvInst += ",";
-							    				}
-							    				if (sizeOfSet == 3) {
-							    					lineSolvInst += " i";
-							    				}
-							    				lineSolvInst += " " + String.valueOf(valInSet + 1);
-							    				sizeOfSet++;
-							    			}
-							    		}
-		    				    		if (!solvInstr.contains(lineSolvInst)) {
-							    			if (us4 == 0) {
-							    				difficultyScore += 7000;
-							    				us4 = 1;
-							    			} else {
-							    				difficultyScore += 5000;
-							    			}
-		    				    		}
-		    				    		solvInstr.add(lineSolvInst);
-						    		}
-						    		if (sameRowVals.size() > 3) {
-						    			lineSolvInst += "Skrivenih " + String.valueOf(sameRowVals.size() + 1) + " u redu " + String.valueOf(firstRow + 1) + ", vrijednosti";
-						    			int sizeOfSet = 0;
-							    		for (int valInSet = 0; valInSet < cols; valInSet++) {
-							    			if (sameRowVals.contains(valInSet) || valInSet == firstVal) {
-							    				if (sizeOfSet > 0 && sizeOfSet != sameRowVals.size()) {
-							    					lineSolvInst += ",";
-							    				}
-							    				if (sizeOfSet == sameRowVals.size()) {
-							    					lineSolvInst += " i";
-							    				}
-							    				lineSolvInst += " " + String.valueOf(valInSet + 1);
-							    				sizeOfSet++;
-							    			}
-							    		}
-		    				    		if (!solvInstr.contains(lineSolvInst)) {
-							    			if (us4 == 0) {
-							    				difficultyScore += 7000;
-							    				us4 = 1;
-							    			} else {
-							    				difficultyScore += 5000;
-							    			}
-		    				    		}
-		    				    		solvInstr.add(lineSolvInst);
-						    		}
-			    		    		lineSolvInst += " u æelijama";
-			    		    		int sizeOfSet = 0;
-	    				    		for (int colInSet = 0; colInSet < cols; colInSet++) {
-	    				    			if (matchString.charAt(colInSet) == '1') {
-						    				if (sizeOfSet > 0 && sizeOfSet != matchStringLen - 1) {
-						    					lineSolvInst += ",";
-						    				}
-						    				if (sizeOfSet == matchStringLen - 1) {
-						    					lineSolvInst += " i";
-						    				}
-	    				    				lineSolvInst += " (" + String.valueOf(firstRow + 1) + ", " + String.valueOf(colInSet + 1) + ")";
-	    				    				sizeOfSet++;
-	    				    			}
-	    				    		}
-							    	lineSolvInst += ".\n";
-							    	solvingInstructions += lineSolvInst;
-							    	if (showSteps == true) {
-						    		    instructionArea.setText(solvingInstructions);
-				    	    			InformationBox.infoBox(lineSolvInst, "Rješavaè");
-						    		}
+						    		difficultySettingHidden(sameRowValues, matchString, matchStringLen, firstRow, "redu", firstVal);
 						    	}		    			    		
 								solvingInstructions += "Uklanjam moguænost " + String.valueOf(val + 1) + " iz æelije (" + String.valueOf(firstRow + 1) + ", " + String.valueOf(col + 1) + ").\n" ;
 								if (showSteps == true) {
@@ -1200,124 +1037,7 @@ public abstract class Sudoku {
 						for (int val = 0; val < cols; val++) {
 							if (!sameColValues.contains(val) && val != firstVal && possibilities[row * cols + firstCol][val] == 1) {
 						    	if (numRemoved == 0) {
-						    		String lineSolvInstr = "";
-						    		if (sameColValues.size() == 1) {
-						    			lineSolvInstr += "Skriveni par u stupcu " + String.valueOf(firstCol + 1) + ", vrijednosti";
-						    			int sizeOfSet = 0;
-							    		for (int valInSet = 0; valInSet < cols; valInSet++) {
-							    			if (sameColValues.contains(valInSet) || valInSet == firstVal) {
-							    				if (sizeOfSet != 0) {
-							    					lineSolvInstr += " i";
-							    				}
-							    				lineSolvInstr += " " + String.valueOf(valInSet + 1);
-							    				sizeOfSet++;
-							    			}
-							    		}
-		    				    		if (!solvInstr.contains(lineSolvInstr)) {
-							    			if (us2 == 0) {
-							    				difficultyScore += 1500;
-							    				us2 = 1;
-							    			} else {
-							    				difficultyScore += 1200;
-							    			}
-		    				    		}
-		    				    		solvInstr.add(lineSolvInstr);
-						    		}
-						    		if (sameColValues.size() == 2) {
-						    			lineSolvInstr += "Skrivena trojka u stupcu " + String.valueOf(firstCol + 1) + ", vrijednosti";
-						    			int sizeOfSet = 0;
-							    		for (int valInSet = 0; valInSet < cols; valInSet++) {
-							    			if (sameColValues.contains(valInSet) || valInSet == firstVal) {
-							    				if (sizeOfSet > 0 && sizeOfSet != 2) {
-							    					lineSolvInstr += ",";
-							    				}
-							    				if (sizeOfSet == 2) {
-							    					lineSolvInstr += " i";
-							    				}
-							    				lineSolvInstr += " " + String.valueOf(valInSet + 1);
-							    				sizeOfSet++;
-							    			}
-							    		}
-		    				    		if (!solvInstr.contains(lineSolvInstr)) {
-							    			if (us3 == 0) {
-							    				difficultyScore += 2400;
-							    				us3 = 1;
-							    			} else {
-							    				difficultyScore += 1600;
-							    			}
-		    				    		}
-		    				    		solvInstr.add(lineSolvInstr);
-						    		}
-						    		if (sameColValues.size() == 3) {
-						    			lineSolvInstr += "Skrivena èetvorka u stupcu " + String.valueOf(firstCol + 1) + ", vrijednosti";
-						    			int sizeOfSet = 0;
-							    		for (int valInSet = 0; valInSet < cols; valInSet++) {
-							    			if (sameColValues.contains(valInSet) || valInSet == firstVal) {
-							    				if (sizeOfSet > 0 && sizeOfSet != 3) {
-							    					lineSolvInstr += ",";
-							    				}
-							    				if (sizeOfSet == 3) {
-							    					lineSolvInstr += " i";
-							    				}
-							    				lineSolvInstr += " " + String.valueOf(valInSet + 1);
-							    				sizeOfSet++;
-							    			}
-							    		}
-		    				    		if (!solvInstr.contains(lineSolvInstr)) {
-							    			if (us4 == 0) {
-							    				difficultyScore += 7000;
-							    				us4 = 1;
-							    			} else {
-							    				difficultyScore += 5000;
-							    			}
-		    				    		}
-		    				    		solvInstr.add(lineSolvInstr);
-						    		}
-						    		if (sameColValues.size() > 3) {
-						    			lineSolvInstr += "Skrivenih " + String.valueOf(sameColValues.size() + 1) + " u stupcu " + String.valueOf(firstCol + 1) + ", vrijednosti";
-						    			int sizeOfSet = 0;
-							    		for (int valInSet = 0; valInSet < cols; valInSet++) {
-							    			if (sameColValues.contains(valInSet) || valInSet == firstVal) {
-							    				if (sizeOfSet > 0 && sizeOfSet != sameColValues.size()) {
-							    					lineSolvInstr += ",";
-							    				}
-							    				if (sizeOfSet == sameColValues.size()) {
-							    					lineSolvInstr += " i";
-							    				}
-							    				lineSolvInstr += " " + String.valueOf(valInSet + 1);
-							    				sizeOfSet++;
-							    			}
-							    		}
-		    				    		if (!solvInstr.contains(lineSolvInstr)) {
-							    			if (us4 == 0) {
-							    				difficultyScore += 7000;
-							    				us4 = 1;
-							    			} else {
-							    				difficultyScore += 5000;
-							    			}
-		    				    		}
-		    				    		solvInstr.add(lineSolvInstr);
-						    		}
-			    		    		lineSolvInstr += " u æelijama";
-			    		    		int sizeOfCellSet = 0;
-	    				    		for (int rowInSet = 0; rowInSet < rows; rowInSet++) {
-	    				    			if (matchString.charAt(rowInSet) == '1') {
-						    				if (sizeOfCellSet > 0 && sizeOfCellSet != matchStringLen - 1) {
-						    					lineSolvInstr += ",";
-						    				}
-						    				if (sizeOfCellSet == matchStringLen - 1) {
-						    					lineSolvInstr += " i";
-						    				}
-	    				    				lineSolvInstr += " (" + String.valueOf(rowInSet + 1) + ", " + String.valueOf(firstCol + 1) + ")";
-	    				    				sizeOfCellSet++;
-	    				    			}
-	    				    		}
-							    	lineSolvInstr += ".\n";
-							    	solvingInstructions += lineSolvInstr;
-							    	if (showSteps == true) {
-						    		    instructionArea.setText(solvingInstructions);
-				    	    			InformationBox.infoBox(lineSolvInstr, "Rješavaè");
-						    		}
+						    		difficultySettingHidden(sameColValues, matchString, matchStringLen, firstCol, "stupcu", firstVal);
 						    	}		    			    	    		
 								solvingInstructions += "Uklanjam moguænost " + String.valueOf(val + 1) + " iz æelije (" + String.valueOf(row + 1) + ", " + String.valueOf(firstCol + 1) + ").\n";
 								if (showSteps == true) {
@@ -1400,130 +1120,7 @@ public abstract class Sudoku {
 						for (int notInSet = 0; notInSet < cols; notInSet++) {
 							if (!sameBoxValues.contains(notInSet) && notInSet != firstVal && possibilities[numCell][notInSet] == 1) {
 						    	if (numRemoved == 0) {
-						    		String lineSolvInstr = "";
-						    		if (sameBoxValues.size() == 1) {
-						    			lineSolvInstr += "Skriveni par u kutiji " + String.valueOf(firstBox + 1) + ", vrijednosti";
-						    			int sizeOfSet = 0;
-							    		for (int val = 0; val < cols; val++) {
-							    			if (sameBoxValues.contains(val) || val == firstVal) {
-							    				if (sizeOfSet != 0) {
-							    					lineSolvInstr += " i";
-							    				}
-							    				lineSolvInstr += " " + String.valueOf(val + 1);
-							    				sizeOfSet++;
-							    			}
-							    		}
-		    				    		if (!solvInstr.contains(lineSolvInstr)) {
-							    			if (us2 == 0) {
-							    				difficultyScore += 1500;
-							    				us2 = 1;
-							    			} else {
-							    				difficultyScore += 1200;
-							    			}
-		    				    		}
-		    				    		solvInstr.add(lineSolvInstr);
-						    		}
-						    		if (sameBoxValues.size() == 2) {
-						    			lineSolvInstr += "Skrivena trojka u kutiji " + String.valueOf(firstBox + 1) + ", vrijednosti";
-						    			int sizeOfSet = 0;
-							    		for (int val = 0; val < cols; val++) {
-							    			if (sameBoxValues.contains(val) || val == firstVal) {
-							    				if (sizeOfSet > 0 && sizeOfSet != 2) {
-							    					lineSolvInstr += ",";
-							    				}
-							    				if (sizeOfSet == 2) {
-							    					lineSolvInstr += " i";
-							    				}
-							    				lineSolvInstr += " " + String.valueOf(val + 1);
-							    				sizeOfSet++;
-							    			}
-							    		}
-		    				    		if (!solvInstr.contains(lineSolvInstr)) {
-							    			if (us3 == 0) {
-							    				difficultyScore += 2400;
-							    				us3 = 1;
-							    			} else {
-							    				difficultyScore += 1600;
-							    			}
-		    				    		}
-		    				    		solvInstr.add(lineSolvInstr);
-						    		}
-						    		if (sameBoxValues.size() == 3) {
-						    			lineSolvInstr += "Skrivena èetvorka u kutiji " + String.valueOf(firstBox + 1) + ", vrijednosti";
-						    			int sizeOfSet = 0;
-							    		for (int val = 0; val < cols; val++) {
-							    			if (sameBoxValues.contains(val) || val == firstVal) {
-							    				if (sizeOfSet > 0 && sizeOfSet != 3) {
-							    					lineSolvInstr += ",";
-							    				}
-							    				if (sizeOfSet == 3) {
-							    					lineSolvInstr += " i";
-							    				}
-							    				lineSolvInstr += " " + String.valueOf(val + 1);
-							    				sizeOfSet++;
-							    			}
-							    		}
-		    				    		if (!solvInstr.contains(lineSolvInstr)) {
-							    			if (us4 == 0) {
-							    				difficultyScore += 7000;
-							    				us4 = 1;
-							    			} else {
-							    				difficultyScore += 5000;
-							    			}
-		    				    		}
-		    				    		solvInstr.add(lineSolvInstr);
-						    		}
-						    		if (sameBoxValues.size() > 3) {
-						    			lineSolvInstr += "Skrivenih " + String.valueOf(sameBoxValues.size() + 1) + " u kutiji " + String.valueOf(firstBox + 1) + ", vrijednosti";
-						    			int sizeOfSet = 0;
-							    		for (int val = 0; val < cols; val++) {
-							    			if (sameBoxValues.contains(val) || val == firstVal) {
-							    				if (sizeOfSet > 0 && sizeOfSet != sameBoxValues.size()) {
-							    					lineSolvInstr += ",";
-							    				}
-							    				if (sizeOfSet == sameBoxValues.size()) {
-							    					lineSolvInstr += " i";
-							    				}
-							    				lineSolvInstr += " " + String.valueOf(val + 1);
-							    				sizeOfSet++;
-							    			}
-							    		}
-		    				    		if (!solvInstr.contains(lineSolvInstr)) {
-							    			if (us4 == 0) {
-							    				difficultyScore += 7000;
-							    				us4 = 1;
-							    			} else {
-							    				difficultyScore += 5000;
-							    			}
-		    				    		}
-		    				    		solvInstr.add(lineSolvInstr);
-						    		}
-			    		    		lineSolvInstr += " u æelijama";
-			    		    		int sizeOfCellSet = 0;
-			    					int matchPositionInBox = -1;
-			    					for (int cell = 0; cell < rows * cols; numCell++) {
-			    			    		if (firstBox != boxNumber[cell]) {
-			    			    			continue;
-			    			    		} else {
-			    			    			matchPositionInBox++;
-			    			    		}
-	    				    			if (matchString.charAt(matchPositionInBox) == '1') {
-						    				if (sizeOfCellSet > 0 && sizeOfCellSet != matchStringLen - 1) {
-						    					lineSolvInstr += ",";
-						    				}
-						    				if (sizeOfCellSet == matchStringLen - 1) {
-						    					lineSolvInstr += " i";
-						    				}
-	    				    				lineSolvInstr += " (" + String.valueOf(cell / cols + 1) + ", " + String.valueOf(cell % cols + 1) + ")";
-	    				    				sizeOfCellSet++;
-	    				    			}
-			    					}
-			    					lineSolvInstr += ".\n";
-							    	solvingInstructions += lineSolvInstr;
-							    	if (showSteps == true) {
-						    		    instructionArea.setText(solvingInstructions);
-				    	    			InformationBox.infoBox(lineSolvInstr, "Rješavaè");
-						    		}
+						    		difficultySettingHidden(sameBoxValues, matchString, matchStringLen, firstBox, "kutiji", firstVal);
 						    	}		 
 								solvingInstructions += "Uklanjam moguænost " + String.valueOf(notInSet + 1) + " iz æelije (" + String.valueOf(numCell / cols + 1) + ", " + String.valueOf(numCell % cols + 1) + ").\n";
 								if (showSteps == true) {
@@ -2115,6 +1712,7 @@ public abstract class Sudoku {
 	}
 	
 	public int isOnlyOneSolution() {
+		solvInstr.clear();
 		clt = 0;
 		us2 = 0;
 		us3 = 0;
@@ -2413,12 +2011,18 @@ public abstract class Sudoku {
     	}
     	lastRemovedPosOriginal.push(original);
     	lastRemovedValOriginal.push(userInput[original]);
+    	numUseDigit[userInput[original]]--;
+    	checkIfDigitMaxUsed(userInput[original]);
     	temporary[original] = 0;
 		userInput[original] = temporary[original];
 	    field[original].setText("0");
     	field[original].setForeground(Color.RED);
     	lastRemovedPosSymetric.push(symetric);
     	lastRemovedValSymetric.push(userInput[symetric]);
+    	if (original != symetric) {
+        	numUseDigit[userInput[symetric]]--;
+        	checkIfDigitMaxUsed(userInput[symetric]);
+    	}
     	temporary[symetric] = 0;
 		userInput[symetric] = temporary[symetric];
 	    field[symetric].setText("0");
@@ -2434,7 +2038,13 @@ public abstract class Sudoku {
 	    field[lastRemovedPosSymetric.peek()].setText(String.valueOf(lastRemovedValSymetric.peek()));
     	field[lastRemovedPosSymetric.peek()].setForeground(Color.BLACK);
 		userInput[lastRemovedPosOriginal.peek()] = lastRemovedValOriginal.peek();
+    	numUseDigit[lastRemovedValOriginal.peek()]++;
+    	checkIfDigitMaxUsed(lastRemovedValOriginal.peek());
 		userInput[lastRemovedPosSymetric.peek()] = lastRemovedValSymetric.peek();
+		if (lastRemovedPosSymetric.peek() != lastRemovedPosOriginal.peek()) {
+	    	numUseDigit[lastRemovedValSymetric.peek()]++;
+	    	checkIfDigitMaxUsed(lastRemovedValSymetric.peek());
+		}
 		solution[lastRemovedPosOriginal.peek()] = lastRemovedValOriginal.peek();
 		solution[lastRemovedPosSymetric.peek()] = lastRemovedValSymetric.peek();
 		temporary[lastRemovedPosOriginal.peek()] = lastRemovedValOriginal.peek();
@@ -2550,26 +2160,16 @@ public abstract class Sudoku {
 
 	abstract public void draw();
 	
-	public void resetHighlight() {
-		for (int row = 0; row < rows; row++){
-	    	for (int col = 0; col < cols; col++) {
-    	        if (border[row * cols + col] == 3) {
-    	    		field[row * cols + col].setBackground(Color.LIGHT_GRAY);
-    	    	}
-    	        if (border[row * cols + col] == 2) {
-    	    		field[row * cols + col].setBackground(Color.DARK_GRAY);
-    	    	}
-    	    	if (border[row * cols + col] == 1) {
-    	    		field[row * cols + col].setBackground(Color.BLACK);
-    	    	}
-    	        if (border[row * cols + col] == 0) {
-    	    		field[row * cols + col].setBackground(Color.GRAY);
-    	    	}
-    	        if (border[row * cols + col] == -1) {
-    	    		field[row * cols + col].setBackground(Color.RED);
-    	    	}	    			
-	    		field[row * cols + col].setFont(field[row * cols + col].getFont().deriveFont(~Font.BOLD | ~Font.ITALIC));
-	    	}
-	    }
+	int[] numUseDigit = new int[cols + 1];
+	
+	public void checkIfDigitMaxUsed(int digit) {
+		if (digit == 0) {
+			return;
+		}
+		if (numUseDigit[digit] >= cols) {
+			digitButtons[digit].setForeground(Color.LIGHT_GRAY);
+		} else {
+			digitButtons[digit].setForeground(Color.BLACK);
+		}
 	}
 }
