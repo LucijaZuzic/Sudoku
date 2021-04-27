@@ -223,7 +223,7 @@ public class ChangeBoxBorder extends Sudoku {
         		    frame.dispose();
         		    frame.setVisible(false);
 	        		@SuppressWarnings("unused")
-					ChangeBoxBorder b = new ChangeBoxBorder(pr, pc, yl, xl);
+					ChangeBoxBorder changeBoxBorder = new ChangeBoxBorder(pr, pc, yl, xl);
 
 				} catch (Exception e1) {
 
@@ -267,7 +267,7 @@ public class ChangeBoxBorder extends Sudoku {
 	        	try {
 	        		if (checkBoxes()) {
 	        			@SuppressWarnings("unused")
-						SolveSudoku s = new SolveSudoku(rows, cols, xLim, yLim, border, boxNumber, Integer.parseInt(mini.getText()), Integer.parseInt(maksi.getText()));
+						SolveSudoku solveSudoku = new SolveSudoku(rows, cols, xLim, yLim, border, boxNumber, Integer.parseInt(mini.getText()), Integer.parseInt(maksi.getText()));
 	        		}
 				} catch (Exception e1) {
 	
@@ -356,7 +356,7 @@ public class ChangeBoxBorder extends Sudoku {
 	        	try {
 	        		if (f.ReadFile() == 0) {
 	        			@SuppressWarnings("unused")
-						CreateSudoku s = new CreateSudoku(rows, cols, xLim, yLim, border, boxNumber, userInput);
+						CreateSudoku createSudoku = new CreateSudoku(rows, cols, xLim, yLim, border, boxNumber, userInput);
 	        		}
 				} catch (Exception e1) {
 	
@@ -374,7 +374,7 @@ public class ChangeBoxBorder extends Sudoku {
 	        	try {
 	        		if (checkBoxes()) {
 	        			@SuppressWarnings("unused")
-						CreateSudoku s = new CreateSudoku(rows, cols, xLim, yLim, border, boxNumber);
+						CreateSudoku createSudoku = new CreateSudoku(rows, cols, xLim, yLim, border, boxNumber);
 	        		}
 				} catch (Exception e1) {
 	
@@ -396,7 +396,7 @@ public class ChangeBoxBorder extends Sudoku {
 	        	try {
 	        		if (f.ReadFile() == 0) {
 	        			@SuppressWarnings("unused")
-						SolveSudoku s = new SolveSudoku(rows, cols, xLim, yLim, border, boxNumber, userInput);
+						SolveSudoku solveSudoku = new SolveSudoku(rows, cols, xLim, yLim, border, boxNumber, userInput);
 	        		}
 				} catch (Exception e1) {
 	
@@ -423,7 +423,7 @@ public class ChangeBoxBorder extends Sudoku {
 
 	public static void main(String args[]) {
 		@SuppressWarnings("unused")
-		ChangeBoxBorder b = new ChangeBoxBorder(9, 9, 3, 3);
+		ChangeBoxBorder changeBoxBorder = new ChangeBoxBorder(9, 9, 3, 3);
 	}
 
 	@Override

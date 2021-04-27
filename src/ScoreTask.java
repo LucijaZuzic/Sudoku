@@ -3,20 +3,20 @@ import java.util.TimerTask;
 
 public class ScoreTask extends TimerTask {
 
-	SolveSudoku s;
+	SolveSudoku solveSudoku;
 	
-	public void setSudoku(SolveSudoku s1) {
-		s = s1;
+	public void setSudoku(SolveSudoku newSolveSudoku) {
+		solveSudoku = newSolveSudoku;
 	}
 	
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
 
-		if (s.timerStopped) {
+		if (solveSudoku.timerStopped) {
 			return;
 		}
-        s.changeTime();
+        solveSudoku.changeTime();
 	}
 
 }

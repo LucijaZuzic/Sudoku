@@ -88,8 +88,8 @@ public class CreateSudoku extends Sudoku {
 	    int retval = 1;
 	    while(retval == 1) {
 		    for (int row = 0; row < rows; row++){ 
-		    	for (int j = 0; j < cols; j++) {
-		    		temporary[row * cols + j] = 0;
+		    	for (int col = 0; col < cols; col++) {
+		    		temporary[row * cols + col] = 0;
 			    }
 		    }
 		    retval = randomPuzzle();
@@ -125,8 +125,8 @@ public class CreateSudoku extends Sudoku {
 		boxNumber = constructBoxNumber;
 	    draw();
 	    for (int row = 0; row < rows; row++){ 
-	    	for (int j = 0; j < cols; j++) {
-		    	int numCell = row * cols + j;
+	    	for (int col = 0; col < cols; col++) {
+		    	int numCell = row * cols + col;
 	    		userInput[numCell] = constructUserInput[numCell];
 	    		solution[numCell] = 0;
 	    		field[numCell].setText(String.valueOf(userInput[numCell]));
@@ -151,9 +151,9 @@ public class CreateSudoku extends Sudoku {
 		String errortext = "";
 		boolean incorrect[] = new boolean[rows * cols];
 	    for (int row = 0; row < rows; row++){ 
-	    	for (int j = 0; j < cols; j++) {
-		    	int numCell = row * cols + j;
-		    	field[row * cols + j].setForeground(Color.BLACK);
+	    	for (int col = 0; col < cols; col++) {
+		    	int numCell = row * cols + col;
+		    	field[numCell].setForeground(Color.BLACK);
 		    	temporary[numCell] = userInput[numCell];
 		    	incorrect[numCell] = false;
 	    	}
@@ -164,40 +164,40 @@ public class CreateSudoku extends Sudoku {
 			int[] usedCols = new int[cols];
 			int[] usedBoxes = new int[rows];
 		    for (int row = 0; row < rows; row++){
-		    	for (int j = 0; j < cols; j++) {
+		    	for (int col = 0; col < cols; col++) {
 		    		usedRows[row] = 0;
-		    		usedCols[j] = 0;
+		    		usedCols[col] = 0;
 		    		usedBoxes[row] = 0;
 			    }
 		    }
 		    for (int row = 0; row < rows; row++){
-		    	for (int j = 0; j < cols; j++) {
+		    	for (int col = 0; col < cols; col++) {
 		    		boolean status = false;
-		    		if (temporary[row * cols + j] == val) {
+		    		if (temporary[row * cols + col] == val) {
 			    		usedRows[row]++;
-			    		usedCols[j]++;
-			    		usedBoxes[boxNumber[row * cols + j]]++;
+			    		usedCols[col]++;
+			    		usedBoxes[boxNumber[row * cols + col]]++;
 			    		if (usedRows[row] > 1) {
-			    			errortext += val + ": " + "(" + (row + 1) + ", " + (j + 1) + ") Broj " + val + " veæ postoji u retku " + (row + 1) + "\n";
+			    			errortext += val + ": " + "(" + (row + 1) + ", " + (col + 1) + ") Broj " + val + " veæ postoji u retku " + (row + 1) + "\n";
 			    			correct = false;
 			    			status = true;
-			    			incorrect[row * cols + j] = true;
+			    			incorrect[row * cols + col] = true;
 			    		}
-			    		if (usedCols[j] > 1) {
-			    			errortext += val + ": " + "(" + (row + 1) + ", " + (j + 1) + ") Broj " + val + " veæ postoji u stupcu " + (j + 1) + "\n";
+			    		if (usedCols[col] > 1) {
+			    			errortext += val + ": " + "(" + (row + 1) + ", " + (col + 1) + ") Broj " + val + " veæ postoji u stupcu " + (col + 1) + "\n";
 			    			correct = false;
 			    			status = true;
-			    			incorrect[row * cols + j] = true;
+			    			incorrect[row * cols + col] = true;
 			    		}
-			    		if (usedBoxes[boxNumber[row * cols + j]] > 1) {
-			    			errortext += val + ": " + "(" + (row + 1) + ", " + (j + 1) + ") Broj " + val + " veæ postoji u kutiji " + (boxNumber[row * cols + j] + 1) + "\n";
+			    		if (usedBoxes[boxNumber[row * cols + col]] > 1) {
+			    			errortext += val + ": " + "(" + (row + 1) + ", " + (col + 1) + ") Broj " + val + " veæ postoji u kutiji " + (boxNumber[row * cols + col] + 1) + "\n";
 			    			correct = false;
 			    			status = true;
-			    			incorrect[row * cols + j] = true;
+			    			incorrect[row * cols + col] = true;
 			    		}
 			    		if (status) {
 			    			for (int sameCol = 0; sameCol < rows; sameCol++) {
-				    			int numCell = sameCol * cols + j;
+				    			int numCell = sameCol * cols + col;
 				    			if (temporary[numCell] == val) {
 				    				incorrect[numCell] = true;
 				    			}
@@ -209,7 +209,7 @@ public class CreateSudoku extends Sudoku {
 				    			}
 				    		}
 						    for (int x = (row / yLim) * (cols / xLim); x < (row / yLim + 1) * (cols / xLim); x++){
-						    	for (int y = (j / xLim) * (cols / xLim); y < (j / xLim + 1) * (cols / xLim); y++) {
+						    	for (int y = (col / xLim) * (cols / xLim); y < (col / xLim + 1) * (cols / xLim); y++) {
 					    			int numCell = x * cols + y;
 						    		if (temporary[numCell] == val) {
 					    				incorrect[numCell] = true;
@@ -222,8 +222,8 @@ public class CreateSudoku extends Sudoku {
 		    }
 		}
 	    for (int row = 0; row < rows; row++){
-	    	for (int j = 0; j < cols; j++) {
-    			int numCell = row * cols + j;
+	    	for (int col = 0; col < cols; col++) {
+    			int numCell = row * cols + col;
 	    		if (incorrect[numCell] && temporary[numCell] != 0) {
     				field[numCell].setForeground(Color.ORANGE);
 	    		} else {
@@ -404,8 +404,8 @@ public class CreateSudoku extends Sudoku {
         public void actionPerformed(ActionEvent e) {  
 	        	try {
 	        	    for (int row = 0; row < rows; row++){
-	        	    	for (int j = 0; j < cols; j++) {
-	        	        	int numCell = row * cols + j;
+	        	    	for (int col = 0; col < cols; col++) {
+	        	        	int numCell = row * cols + col;
 	        	    		temporary[numCell] = 0;
 	        	    		solution[numCell] = 0;
 	        	    		userInput[numCell] = 0;
@@ -448,7 +448,6 @@ public class CreateSudoku extends Sudoku {
 	        		difficulty.setText("");
 				} catch (Exception e1) {
 	
-	
 				}
 	        }  
 	    });
@@ -488,8 +487,8 @@ public class CreateSudoku extends Sudoku {
 	    });
 		restoreButton.addKeyListener(keyListener);
 		y += h + space;
-		FileManipulator f = new FileManipulator();
-		f.setSudoku(this);
+		FileManipulator fileManipulator = new FileManipulator();
+		fileManipulator.setSudoku(this);
         JButton fileSaveButton = new JButton("Spremi zagonetku");  
         fileSaveButton.setMargin(new Insets(1,1,1,1));
         fileSaveButton.setBounds(x, y, w, h);
@@ -497,7 +496,7 @@ public class CreateSudoku extends Sudoku {
         fileSaveButton.addActionListener(new ActionListener(){  
         public void actionPerformed(ActionEvent e) {  
 	        	try {
-	        		f.WriteToFile();
+	        		fileManipulator.WriteToFile();
 				} catch (Exception e1) {
 					
 				}
@@ -512,16 +511,25 @@ public class CreateSudoku extends Sudoku {
         fileReadButton.addActionListener(new ActionListener(){  
         public void actionPerformed(ActionEvent e) {  
 	        	try {
-	        		if (f.ReadFile() == 0) {
+	        		if (fileManipulator.ReadFile() == 0) {
 		        	    for (int row = 0; row < rows; row++){ 
-		        	    	for (int j = 0; j < cols; j++) {
-		        		    	int numCell = row * cols + j;
+		        	    	for (int col = 0; col < cols; col++) {
+		        		    	int numCell = row * cols + col;
 		        	    		solution[numCell] = 0;
 		        	    		field[numCell].setText(String.valueOf(userInput[numCell]));
 		        	    	}
 		        	    }
 		        		checkBoxes();
 		        	    checkIfCorrect();
+		        		for (int digit = 0; digit < cols + 1; digit++) {
+		        			numUseDigit[digit] = 0;
+		        		}
+		        		for (int cell = 0; cell < rows * cols; cell++){
+		        	    	numUseDigit[userInput[cell]]++;
+		        	    }
+		        		for (int digit = 1; digit < cols + 1; digit++) {
+		        			checkIfDigitMaxUsed(digit);
+		        		}
 	        		}
 				} catch (Exception e1) {
 	
