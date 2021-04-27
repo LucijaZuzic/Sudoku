@@ -34,12 +34,6 @@ public class ChangeBoxBorder extends Sudoku {
 	}
 
 	@Override
-	boolean checkIfCorrect() {
-		// TODO Auto-generated method stub
-		return true;
-	}
-
-	@Override
 	public void draw() {
 		frame = new JFrame("Promjeni kutiju za sudoku");  
 	    frame.setDefaultCloseOperation (JFrame.DISPOSE_ON_CLOSE);
@@ -198,7 +192,7 @@ public class ChangeBoxBorder extends Sudoku {
 	    y += h + space;
 	   
 	    JButton createButton = new JButton("Izmjeni dimenzije");
-	    createButton.setBounds(x, y, w, h);
+	    createButton.setBounds(x, y, w + h, h);
 	    createButton.setFont(new Font("Arial", Font.PLAIN, fontsize));
 	    createButton.addActionListener(new ActionListener(){  
 	        public void actionPerformed(ActionEvent e) {  
@@ -228,7 +222,8 @@ public class ChangeBoxBorder extends Sudoku {
         		    frame.removeAll();
         		    frame.dispose();
         		    frame.setVisible(false);
-	        		ChangeBoxBorder b = new ChangeBoxBorder(pr, pc, yl, xl);
+	        		@SuppressWarnings("unused")
+					ChangeBoxBorder b = new ChangeBoxBorder(pr, pc, yl, xl);
 
 				} catch (Exception e1) {
 
@@ -271,7 +266,8 @@ public class ChangeBoxBorder extends Sudoku {
         public void actionPerformed(ActionEvent e) {  
 	        	try {
 	        		if (checkBoxes()) {
-	        			SolveSudoku s = new SolveSudoku(rows, cols, xLim, yLim, border, boxNumber, Integer.parseInt(mini.getText()), Integer.parseInt(maksi.getText()));
+	        			@SuppressWarnings("unused")
+						SolveSudoku s = new SolveSudoku(rows, cols, xLim, yLim, border, boxNumber, Integer.parseInt(mini.getText()), Integer.parseInt(maksi.getText()));
 	        		}
 				} catch (Exception e1) {
 	
@@ -359,7 +355,8 @@ public class ChangeBoxBorder extends Sudoku {
         public void actionPerformed(ActionEvent e) {  
 	        	try {
 	        		if (f.ReadFile() == 0) {
-	        			CreateSudoku s = new CreateSudoku(rows, cols, xLim, yLim, border, boxNumber, userInput);
+	        			@SuppressWarnings("unused")
+						CreateSudoku s = new CreateSudoku(rows, cols, xLim, yLim, border, boxNumber, userInput);
 	        		}
 				} catch (Exception e1) {
 	
@@ -376,7 +373,8 @@ public class ChangeBoxBorder extends Sudoku {
         public void actionPerformed(ActionEvent e) {  
 	        	try {
 	        		if (checkBoxes()) {
-	        			CreateSudoku s = new CreateSudoku(rows, cols, xLim, yLim, border, boxNumber);
+	        			@SuppressWarnings("unused")
+						CreateSudoku s = new CreateSudoku(rows, cols, xLim, yLim, border, boxNumber);
 	        		}
 				} catch (Exception e1) {
 	
@@ -397,7 +395,8 @@ public class ChangeBoxBorder extends Sudoku {
         public void actionPerformed(ActionEvent e) {  
 	        	try {
 	        		if (f.ReadFile() == 0) {
-	        			SolveSudoku s = new SolveSudoku(rows, cols, xLim, yLim, border, boxNumber, userInput);
+	        			@SuppressWarnings("unused")
+						SolveSudoku s = new SolveSudoku(rows, cols, xLim, yLim, border, boxNumber, userInput);
 	        		}
 				} catch (Exception e1) {
 	
@@ -423,7 +422,14 @@ public class ChangeBoxBorder extends Sudoku {
 	}
 
 	public static void main(String args[]) {
+		@SuppressWarnings("unused")
 		ChangeBoxBorder b = new ChangeBoxBorder(9, 9, 3, 3);
+	}
+
+	@Override
+	boolean checkIfCorrect() {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }

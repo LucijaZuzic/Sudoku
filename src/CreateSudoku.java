@@ -8,7 +8,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -16,8 +15,30 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 public class CreateSudoku extends Sudoku {
-	JButton digitButtons[];
 
+	public void resetHighlight() {
+		for (int row = 0; row < rows; row++){
+	    	for (int col = 0; col < cols; col++) {
+    	        if (border[row * cols + col] == 3) {
+    	    		field[row * cols + col].setBackground(Color.LIGHT_GRAY);
+    	    	}
+    	        if (border[row * cols + col] == 2) {
+    	    		field[row * cols + col].setBackground(Color.DARK_GRAY);
+    	    	}
+    	    	if (border[row * cols + col] == 1) {
+    	    		field[row * cols + col].setBackground(Color.BLACK);
+    	    	}
+    	        if (border[row * cols + col] == 0) {
+    	    		field[row * cols + col].setBackground(Color.GRAY);
+    	    	}
+    	        if (border[row * cols + col] == -1) {
+    	    		field[row * cols + col].setBackground(Color.RED);
+    	    	}	    			
+	    		field[row * cols + col].setFont(field[row * cols + col].getFont().deriveFont(~Font.BOLD | ~Font.ITALIC));
+	    	}
+	    }
+	}
+	
 	public void highlightCell(int numCell) {
 	    for (int row = 0; row < rows; row++){
 	    	for (int col = 0; col < cols; col++) {
@@ -83,8 +104,17 @@ public class CreateSudoku extends Sudoku {
 	    	}
 	    }
 		checkBoxes();
-	    frame.setVisible(true);
 	    checkIfCorrect();
+		for (int digit = 0; digit < cols + 1; digit++) {
+			numUseDigit[digit] = 0;
+		}
+		for (int cell = 0; cell < rows * cols; cell++){
+	    	numUseDigit[userInput[cell]]++;
+	    }
+		for (int digit = 1; digit < cols + 1; digit++) {
+			checkIfDigitMaxUsed(digit);
+		}
+	    frame.setVisible(true);
 	    frame.requestFocus();
 	}
 	
@@ -104,11 +134,19 @@ public class CreateSudoku extends Sudoku {
 	    }
 		checkBoxes();
 	    checkIfCorrect();
+		for (int digit = 0; digit < cols + 1; digit++) {
+			numUseDigit[digit] = 0;
+		}
+		for (int cell = 0; cell < rows * cols; cell++){
+	    	numUseDigit[userInput[cell]]++;
+	    }
+		for (int digit = 1; digit < cols + 1; digit++) {
+			checkIfDigitMaxUsed(digit);
+		}
 	    frame.setVisible(true);
 	    frame.requestFocus();
 	}
 
-	@Override
 	public boolean checkIfCorrect() {
 		String errortext = "";
 		boolean incorrect[] = new boolean[rows * cols];
@@ -158,14 +196,14 @@ public class CreateSudoku extends Sudoku {
 			    			incorrect[row * cols + j] = true;
 			    		}
 			    		if (status) {
-			    			for (int k = 0; k < rows; k++) {
-				    			int numCell = k * cols + j;
+			    			for (int sameCol = 0; sameCol < rows; sameCol++) {
+				    			int numCell = sameCol * cols + j;
 				    			if (temporary[numCell] == val) {
 				    				incorrect[numCell] = true;
 				    			}
 				    		}
-				    		for (int k = 0; k < cols; k++) {
-				    			int numCell = row * cols + k;
+				    		for (int sameRow = 0; sameRow < cols; sameRow++) {
+				    			int numCell = row * cols + sameRow;
 				    			if (temporary[numCell] == val) {
 				    				incorrect[numCell] = true;
 				    			}
@@ -256,10 +294,20 @@ public class CreateSudoku extends Sudoku {
 			    field[numCell].addActionListener(new ActionListener(){  
 			        public void actionPerformed(ActionEvent e) {  
 			        	try {
+			        		if (userInput[numCell] != selectedDigit) {
+			        			numUseDigit[userInput[numCell]]--;
+			        			numUseDigit[selectedDigit]++;
+			        			if (userInput[numCell] != 0) {
+			        				checkIfDigitMaxUsed(userInput[numCell]);
+			        			}
+			        			if (selectedDigit != 0) {
+			        				checkIfDigitMaxUsed(selectedDigit);
+			        			}
+			        		}
 			        		userInput[numCell] = selectedDigit;
-			        		highlightCell(numCell);
-			        		highlightDigit();
 			        		field[numCell].setText(String.valueOf(selectedDigit));
+			        		highlightCell(numCell);
+							highlightDigit();
 			        		checkIfCorrect();
 						} catch (Exception e1) {
 		
@@ -365,6 +413,12 @@ public class CreateSudoku extends Sudoku {
 	        	    		field[numCell].setForeground(Color.RED);
 	        		    }
 	        	    }
+	        		for (int digit = 0; digit < cols + 1; digit++) {
+	        			numUseDigit[digit] = 0;
+	        		}
+	        		for (int digit = 1; digit < cols + 1; digit++) {
+	        			checkIfDigitMaxUsed(digit);
+	        		}
 				} catch (Exception e1) {
 	
 	
@@ -381,6 +435,15 @@ public class CreateSudoku extends Sudoku {
         public void actionPerformed(ActionEvent e) {  
 	        	try {
 	        		fill();
+	        		for (int digit = 0; digit < cols + 1; digit++) {
+	        			numUseDigit[digit] = 0;
+	        		}
+	        		for (int cell = 0; cell < rows * cols; cell++){
+	        	    	numUseDigit[userInput[cell]]++;
+	        	    }
+	        		for (int digit = 1; digit < cols + 1; digit++) {
+	        			checkIfDigitMaxUsed(digit);
+	        		}
 	        		checkIfCorrect();
 	        		difficulty.setText("");
 				} catch (Exception e1) {
