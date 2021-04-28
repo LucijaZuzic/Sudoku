@@ -253,7 +253,8 @@ public class SolveSudoku extends Sudoku {
 	}
 
 	boolean incorrect[] = new boolean[rows * cols];
-	
+
+    @Override
 	public boolean checkIfCorrect() {
 		String errorText = "";
 	    for (int row = 0; row < rows; row++){ 
