@@ -1,10 +1,8 @@
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
-import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Insets;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
@@ -15,7 +13,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 
-public class ChangeBoxBorder extends Sudoku {
+public class ChangeBoxBorder extends SudokuGrid {
 	int mode = 0;
 	public ChangeBoxBorder(int contructRows, int constructCols, int rowLimit, int colLimit) {
 		super(constructCols, contructRows, rowLimit, colLimit);
@@ -37,19 +35,6 @@ public class ChangeBoxBorder extends Sudoku {
 	public void draw() {
 		frame = new JFrame("Promjeni kutiju za sudoku");  
 	    frame.setDefaultCloseOperation (JFrame.DISPOSE_ON_CLOSE);
-	    Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-	    double baselineWidth = 1920;
-	    double baselineHeight = 1080;
-	    double width = screenSize.getWidth();
-	    double height = screenSize.getHeight();
-	    double widthScaling = width / baselineWidth;
-	    double heightScaling = height / baselineHeight;
-	    int space = (int) (15 * widthScaling);
-	    int x = space;
-		int y = space;
-		int w = (int) (60 * widthScaling);
-		int h = (int) (60 * heightScaling);
-		int fontsize = (int) (12 * heightScaling);
 
 	    for (int row = 0; row < rows; row++){ 
 	    	x = space;
@@ -139,7 +124,7 @@ public class ChangeBoxBorder extends Sudoku {
 	    }
 		int digitEnd = y + space;
 	    h = h / 2;
-	    w = (int) (135 * widthScaling);
+	    w = (int) (150 * widthScaling);
 	    y = space;
 	    x += space;
 	    
@@ -344,8 +329,8 @@ public class ChangeBoxBorder extends Sudoku {
 	    });
 
 	    y += h + space;
-		FileManipulator f = new FileManipulator();
-		f.setSudoku(this);
+		FileManipulator fileManipulator = new FileManipulator();
+		fileManipulator.setSudoku(this);
         
         JButton designContinueButton = new JButton("Nastavi dizajn");  
         designContinueButton.setMargin(new Insets(1,1,1,1));
@@ -354,7 +339,7 @@ public class ChangeBoxBorder extends Sudoku {
         designContinueButton.addActionListener(new ActionListener(){  
         public void actionPerformed(ActionEvent e) {  
 	        	try {
-	        		if (f.ReadFile() == 0) {
+	        		if (fileManipulator.ReadFile() == 0) {
 	        			@SuppressWarnings("unused")
 						CreateSudoku createSudoku = new CreateSudoku(rows, cols, xLim, yLim, border, boxNumber, userInput);
 	        		}
@@ -394,7 +379,7 @@ public class ChangeBoxBorder extends Sudoku {
         solveButton.addActionListener(new ActionListener(){  
         public void actionPerformed(ActionEvent e) {  
 	        	try {
-	        		if (f.ReadFile() == 0) {
+	        		if (fileManipulator.ReadFile() == 0) {
 	        			@SuppressWarnings("unused")
 						SolveSudoku solveSudoku = new SolveSudoku(rows, cols, xLim, yLim, border, boxNumber, userInput);
 	        		}
@@ -425,11 +410,4 @@ public class ChangeBoxBorder extends Sudoku {
 		@SuppressWarnings("unused")
 		ChangeBoxBorder changeBoxBorder = new ChangeBoxBorder(9, 9, 3, 3);
 	}
-
-	@Override
-	boolean checkIfCorrect() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
 }

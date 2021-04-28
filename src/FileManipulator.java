@@ -14,10 +14,10 @@ import javax.swing.UnsupportedLookAndFeelException;
 
 public class FileManipulator {
 
-	Sudoku sudoku;
+	SudokuGrid sudoku;
 
 	
-	public void setSudoku(Sudoku s1) {
+	public void setSudoku(SudokuGrid s1) {
 		sudoku = s1;
 	}
 	

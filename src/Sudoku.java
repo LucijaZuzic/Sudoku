@@ -1,18 +1,15 @@
 import java.awt.Color;
+import java.awt.Font;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Stack;
 import java.util.concurrent.ThreadLocalRandom;
-
-import javax.swing.BorderFactory;
 import javax.swing.JButton;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JTextArea;
 
 
-public abstract class Sudoku {
-	JFrame frame;
+public abstract class Sudoku extends SudokuGrid {
 	JButton digitButtons[];
 	JTextArea errorArea;
 	JTextArea instructionArea;
@@ -20,21 +17,9 @@ public abstract class Sudoku {
 	JLabel penaltyLabel = new JLabel("");
 	String solvingInstructions;
 
-    int mintargetDifficulty = 0;
-    int maxtargetDifficulty = 160000;
-	int rows = 9;
-	int cols = 9;
-	int xLim = 3;
-	int yLim = 3;
 	int selectedDigit = 0;
-	JButton[] field;
-	int[] solution;
-	int[] userInput;
-	int[] temporary;
 	int difficultyScore = 0;
 	int numIter = 0;
-	int[] border;
-	int[] boxNumber;
 	
 	Stack<Integer> lastRemovedPosOriginal = new Stack<Integer>();
 	Stack<Integer> lastRemovedValOriginal = new Stack<Integer>();
@@ -47,148 +32,7 @@ public abstract class Sudoku {
 	boolean showSteps = false;
 	
 	abstract boolean checkIfCorrect();
-	boolean showBoxMsg = true;
-	public int floodFill(int row, int col, int val) {
-		int retVal = 1;
-	    int centerCell = row * cols + col;
-	    int leftBorder = 1;
-	    int rightBorder = 1;
-	    int topBorder = 1;
-	    int bottomBorder = 1;
-		boxNumber[centerCell] = val;
-        if (border[centerCell] == 3) {
-    		field[centerCell].setBackground(Color.LIGHT_GRAY);
-    	}
-        if (border[centerCell] == 2) {
-    		field[centerCell].setBackground(Color.DARK_GRAY);
-    	}
-    	if (border[centerCell] == 1) {
-    		field[centerCell].setBackground(Color.BLACK);
-    	}
-        if (border[centerCell] == 0) {
-    		field[centerCell].setBackground(Color.GRAY);
-    	}
-        if (border[centerCell] == -1) {
-    		field[centerCell].setBackground(Color.RED);
-    	}
-	    for (int rowOffset = -1; rowOffset < 2; rowOffset++){ 
-	    	for (int colOffset = -1; colOffset < 2; colOffset++) {
-	    		if (Math.abs(rowOffset) == Math.abs(colOffset)) {
-	    			continue;
-	    		}
-	    		if (row + rowOffset < 0) {
-	    			topBorder = 4;
-	    			continue;
-	    		}
-	    		if (row + rowOffset >= rows) {
-	    			bottomBorder = 4;
-	    			continue;
-	    		}
-	    		if (col + colOffset < 0) {
-	    			leftBorder = 4;
-	    			continue;
-	    		}
-	    		if (col + colOffset >= cols) {
-	    			rightBorder = 4;
-	    			continue;
-	    		}
-	    		int neighbourCell = (row + rowOffset) * cols + col + colOffset;
-	    		if (border[neighbourCell] != border[centerCell]) {
-		    		if (colOffset == -1) {
-		    			leftBorder = 3;
-		    			continue;
-		    		}
-		    		if (colOffset == 1) {
-		    			rightBorder = 3;
-		    			continue;
-		    		}
-		    		if (rowOffset == -1) {
-		    			topBorder = 3;
-		    			continue;
-		    		}
-		    		if (rowOffset == 1) {
-		    			bottomBorder = 3;
-		    			continue;
-		    		}
-	    		}
-	    		if (boxNumber[neighbourCell] != -1) {
-		    		if (colOffset == -1) {
-		    			leftBorder = 1;
-		    			continue;
-		    		}
-		    		if (colOffset == 1) {
-		    			rightBorder = 1;
-		    			continue;
-		    		}
-		    		if (rowOffset == -1) {
-		    			topBorder = 1;
-		    			continue;
-		    		}
-		    		if (rowOffset == 1) {
-		    			bottomBorder = 1;
-		    			continue;
-		    		}
-	    		}
-	    		retVal += floodFill(row + rowOffset, col + colOffset, val);
-	    	}
-	    }
-        field[centerCell].setBorder(BorderFactory.createMatteBorder(topBorder, leftBorder, bottomBorder, rightBorder, Color.WHITE));
-	    return retVal;
-	}
-	
-	public boolean checkBoxes() {
-		boxNumber = new int[rows * cols];
-	    boolean borderNotSet = false;
-	    boolean retVal = true;
-	    for (int row = 0; row < rows; row++){ 
-	    	for (int col = 0; col < cols; col++) {
-		    	int numCell = row * cols + col;
-		    	boxNumber[numCell] = -1;
-		    	if (border[numCell] == -1) {
-		    		borderNotSet = true;
-		    	}
-	    	}
-	    }
-	    if (borderNotSet) {
-	    	retVal = false;
-	    }
-	    int boxNum = 0;
-	    for (int row = 0; row < rows; row++){ 
-	    	for (int col = 0; col < cols; col++) {
-		    	int numCell = row * cols + col;
-	    		if (boxNumber[numCell] != -1) {
-	    			continue;
-	    		}
-	    		int sizeOfBox = floodFill(row, col, boxNum);
-	    	    if (sizeOfBox > rows) {
-	    	    	if (showBoxMsg) {
-	    	    		InformationBox.infoBox(String.valueOf(boxNumber[numCell]) + ". kutija je prevelika.", "Stvaranje kutije");	
-	    	    	}
-	    	    	retVal = false;
-	    	    }
-	    	    if (sizeOfBox < rows) {
-	    	    	if (showBoxMsg) {
-	    	    		InformationBox.infoBox(String.valueOf(boxNumber[numCell]) + ". kutija je premalena", "Stvaranje kutije");	
-	    	    	}
-	    	    	retVal = false;
-	    	    }
-	    		boxNum++;
-	    	}
-	    }
-	    if (boxNum > rows) {
-	    	if (showBoxMsg) {
-				InformationBox.infoBox("Previše kutija.", "Stvaranje kutije");
-	    	}
-	    	retVal = false;
-	    }
-	    if (boxNum < rows) {
-	    	if (showBoxMsg) {
-				InformationBox.infoBox("Premalo kutija", "Stvaranje kutije");
-	    	}
-	    	retVal = false;
-	    }
-	    return retVal;
-	}
+
 	
 	public int fixPencilmarks() {
 		int numChanged = 0;
@@ -1171,9 +1015,7 @@ public abstract class Sudoku {
 			for (int val = 0; val < cols; val++) {
 				Set<Integer> sameRowValues = new HashSet<Integer>();
 				if (hiddenSetForRow(val, row, sameRowValues) == 1) {
-					if (sequence() == 1) {
-		    			return 1;
-					}
+		    		return 1;
 				}
 			}
 		}
@@ -1194,9 +1036,7 @@ public abstract class Sudoku {
 			for (int val = 0; val < cols; val++) {
 				Set<Integer> sameColValues = new HashSet<Integer>();
 				if (hiddenSetForCol(val, col, sameColValues) == 1) {
-    				if (sequence() == 1) {
-    	    			return 1;
-    				}
+    	    		return 1;
 				}
 			}
 		}
@@ -1221,13 +1061,10 @@ public abstract class Sudoku {
 			for (int val = 0; val < cols; val++) {
 				Set<Integer> sameBoxValues = new HashSet<Integer>();
 				if (hiddenSetForBox(val, box, sameBoxValues) == 1) {
-    				if (sequence() == 1) {
-    	    			return 1;
-    				}
+    	    		return 1;
 				}
 			}
 	    }
-
 		return 0;
 	}
 	
@@ -1411,14 +1248,14 @@ public abstract class Sudoku {
 				Set<Integer> sameRowBoxes = new HashSet<Integer>();
 				Set<Integer> sameColBoxes = new HashSet<Integer>();
 		    	for (int matchingBox = firstBox + 1; matchingBox < cols; matchingBox ++) {
-			    	if (valueRowString[firstBox][val].compareTo(valueRowString[matchingBox][val]) == 0 && matchingBox != firstBox) {
+			    	if (valueRowString[firstBox][val].compareTo(valueRowString[matchingBox][val]) == 0 && matchingBox != firstBox && ((widthLimit && valueRowCandidates[firstBox][val] == 2 && valueRowCandidates[matchingBox][val] == 2) || (!widthLimit && (valueRowCandidates[firstBox][val] > 2 || valueRowCandidates[matchingBox][val] > 2)))) {
 						sameRowBoxes.add(matchingBox);
 			    	}
-			    	if (valueColString[firstBox][val].compareTo(valueColString[matchingBox][val]) == 0 && matchingBox != firstBox) {
+			    	if (valueColString[firstBox][val].compareTo(valueColString[matchingBox][val]) == 0 && matchingBox != firstBox && ((widthLimit && valueColCandidates[firstBox][val] == 2 && valueColCandidates[matchingBox][val] == 2) || (!widthLimit && (valueColCandidates[firstBox][val] > 2 || valueColCandidates[matchingBox][val] > 2)))) {
 						sameColBoxes.add(matchingBox);
 			    	}
 		    	}
-		    	if (sameRowBoxes.size() == valueRowVals[firstBox][val] - 1 && sameRowBoxes.size() > 0 && ((widthLimit && valueRowCandidates[firstBox][val] == 2) || (!widthLimit && valueRowCandidates[firstBox][val] > 2))) {
+		    	if (sameRowBoxes.size() == valueRowVals[firstBox][val] - 1 && sameRowBoxes.size() > 0) {
 		    		int numChanges = 0;
 					for (int row = 0; row < rows; row++) {
 						if (valueRow[firstBox][val][row] == 1) {
@@ -1426,7 +1263,7 @@ public abstract class Sudoku {
 								if (boxNumber[row * cols + col] != firstBox && !sameRowBoxes.contains(boxNumber[row * cols + col]) && possibilities[row * cols + col][val] == 1) {
 									if (numChanges == 0) {
 										String lineSolvInstr = "";
-										if (valueRowCandidates[firstBox][val] == 2) {
+										if (widthLimit) {
 											lineSolvInstr = "Dvostruki par u redovima";
 										} else {
 											lineSolvInstr = "Skup redova";
@@ -1460,7 +1297,7 @@ public abstract class Sudoku {
 							    		}
 							    		lineSolvInstr += ".\n";
 							    		if (!solvingInstructions.contains(lineSolvInstr)) {
-											if (valueRowCandidates[firstBox][val] == 2) {
+											if (widthLimit) {
 								    			if (dpt == 0) {
 								    				difficultyScore += 500;
 								    				dpt = 1;
@@ -1499,7 +1336,7 @@ public abstract class Sudoku {
 						}
 					}
 		    	}		    	
-		    	if (sameColBoxes.size() == valueColVals[firstBox][val] - 1 && sameColBoxes.size() > 0 && ((widthLimit && valueColCandidates[firstBox][val] == 2) || (!widthLimit && valueColCandidates[firstBox][val] > 2))) {
+		    	if (sameColBoxes.size() == valueColVals[firstBox][val] - 1 && sameColBoxes.size() > 0) {
 		    		int numChanges = 0;
 					for (int col = 0; col < cols; col++) {
 						if (valueCol[firstBox][val][col] == 1) {
@@ -1507,7 +1344,7 @@ public abstract class Sudoku {
 								if (boxNumber[row * cols + col] != firstBox && !sameColBoxes.contains(boxNumber[row * cols + col]) && possibilities[row * cols + col][val] == 1) {
 									if (numChanges == 0) {
 							    		String lineSolvInstr;
-										if (valueColCandidates[firstBox][val] == 2) {
+										if (widthLimit) {
 											lineSolvInstr = "Dvostruki par u stupcima";
 										} else {
 											lineSolvInstr = "Skup stupaca";
@@ -1529,10 +1366,10 @@ public abstract class Sudoku {
 							    		sizeOfSet = 0;
 							    		for (int box = 0; box < cols; box++) {
 							    			if (sameColBoxes.contains(box) || box == firstBox) {
-							    				if (sizeOfSet > 0 && sizeOfSet != sameRowBoxes.size()) {
+							    				if (sizeOfSet > 0 && sizeOfSet != sameColBoxes.size()) {
 							    					lineSolvInstr += ",";
 							    				}
-							    				if (sizeOfSet == sameRowBoxes.size()) {
+							    				if (sizeOfSet == sameColBoxes.size()) {
 							    					lineSolvInstr += " i";
 							    				}
 							    				lineSolvInstr += " " + String.valueOf(box + 1);
@@ -1541,7 +1378,7 @@ public abstract class Sudoku {
 							    		}
 							    		lineSolvInstr += ".\n";
 							    		if (!solvingInstructions.contains(lineSolvInstr)) {
-											if (valueColCandidates[firstBox][val] == 2) {
+											if (widthLimit) {
 								    			if (dpt == 0) {
 								    				difficultyScore += 500;
 								    				dpt = 1;
@@ -1761,7 +1598,7 @@ public abstract class Sudoku {
 		if (multipleLines() == 1 || unset == 0) {
 			return 1;
 		}
-		for (int depth = 2; depth <= maxDepth; depth++) {
+		for (int depth = 2; depth < maxDepth; depth++) {
 			depthLimit = depth;
 			if (nakedSet() == 1 || unset == 0) {
 				return 1;
@@ -1770,6 +1607,23 @@ public abstract class Sudoku {
 				return 1;
 			}
 		}
+		Stack<Integer> cell = new Stack<Integer>();
+		chainLength = 2;
+		for (int val = 0; val < cols; val++) {
+			if (closedChain(cell, -1, 1, 1, val) == 1 || unset == 0) {
+				return 1;
+			}
+			if (closedChain(cell, -1, 1, 0, val) == 1 || unset == 0) {
+				return 1;
+			}
+		}
+		depthLimit = maxDepth;
+		if (nakedSet() == 1 || unset == 0) {
+			return 1;
+		}
+		if (hiddenSet() == 1 || unset == 0) {
+			return 1;
+		}
 		depthLimit = cols;
 		if (nakedSet() == 1 || unset == 0) {
 			return 1;
@@ -1777,8 +1631,27 @@ public abstract class Sudoku {
 		if (hiddenSet() == 1 || unset == 0) {
 			return 1;
 		}
-		if (guessing() == 1) {
-			involvesGuesses = 1;
+		chainLength = 3;
+		for (int val = 0; val < cols; val++) {
+			if (closedChain(cell, -1, 1, 1, val) == 1 || unset == 0) {
+				return 1;
+			}
+			if (closedChain(cell, -1, 1, 0, val) == 1 || unset == 0) {
+				return 1;
+			}
+		}
+		chainLength = 4;
+		for (int val = 0; val < cols; val++) {
+			if (closedChain(cell, -1, 1, 1, val) == 1 || unset == 0) {
+				return 1;
+			}
+			if (closedChain(cell, -1, 1, 0, val) == 1 || unset == 0) {
+				return 1;
+			}
+		}
+		print();
+		involvesGuesses = 1;
+		if (guessing() == 1 || unset == 0) {
 			return 1;
 		}
 		return 0;
@@ -1795,6 +1668,8 @@ public abstract class Sudoku {
 		dj3 = 0;
 		us4 = 0;
 		dj4 = 0;
+		xwg = 0;
+		sf4 = 0;
 		solvingInstructions = "";
 		numIter = 0;
 		difficultyScore = 0;
@@ -1890,6 +1765,8 @@ public abstract class Sudoku {
 		    		if (possibilities[row * cols + col][val] == 1 && temporary[row * cols + col] == 0) {
 		    			solvingInstructions += "Poèinjem pogaðati.\n";
 						solvingInstructions += "Pokušavam " + String.valueOf(val + 1) + " u æeliji (" + String.valueOf(row + 1) + ", " + String.valueOf(col + 1) + ").\n";
+						backupSolvingInstructions += "Poèinjem pogaðati.\n";
+						backupSolvingInstructions += "Pokušavam " + String.valueOf(val + 1) + " u æeliji (" + String.valueOf(row + 1) + ", " + String.valueOf(col + 1) + ").\n";
 				    	temporary[row * cols + col] = val + 1;
 			    		for (int clearVal = 0; clearVal < cols; clearVal++) {
 			    			possibilities[row * cols + col][clearVal] = 0;
@@ -1908,6 +1785,7 @@ public abstract class Sudoku {
 			    				}
 			    			}
 						    difficultyScore = backupDifficultyScore;
+						    backupSolvingInstructions += "Povlaèim " + String.valueOf(val + 1) + " u æeliji (" + String.valueOf(row + 1) + ", " + String.valueOf(col + 1) + ").\n";
 						    solvingInstructions = backupSolvingInstructions;
 						    unset = backupUnset;
 						    possibilities[row * cols + col][val] = 0;
@@ -1917,88 +1795,166 @@ public abstract class Sudoku {
 			    }
 		    }
 		}
-	    for (int rowRestore = 0; rowRestore < rows; rowRestore++){
-	    	for (int colRestore = 0; colRestore < cols; colRestore++) {
-	    		temporary[rowRestore * cols + colRestore] = backupTemporary[rowRestore * cols + colRestore];
-	    		for (int valRestore = 0; valRestore < cols; valRestore++) {
-	    			possibilities[rowRestore * cols + colRestore][valRestore] = backupPossibilities[rowRestore * cols + colRestore][valRestore];
-	    		}
+	    if (unset > 0) {
+	    	for (int rowRestore = 0; rowRestore < rows; rowRestore++){
+		    	for (int colRestore = 0; colRestore < cols; colRestore++) {
+		    		temporary[rowRestore * cols + colRestore] = backupTemporary[rowRestore * cols + colRestore];
+		    		for (int valRestore = 0; valRestore < cols; valRestore++) {
+		    			possibilities[rowRestore * cols + colRestore][valRestore] = backupPossibilities[rowRestore * cols + colRestore][valRestore];
+		    		}
+				}
 			}
-		}
-	    difficultyScore = backupDifficultyScore;
-	    solvingInstructions = backupSolvingInstructions;
-	    unset = backupUnset;
-		return 0;
+		    difficultyScore = backupDifficultyScore;
+		    solvingInstructions = backupSolvingInstructions;
+	        unset = backupUnset;
+	    	return 0;
+	    } else {
+	    	return 1;
+	    }
 	}
 	
-
-	public int forcingChains() {
-		int [][] pv = new int[rows * cols][cols];
-	    for (int row = 0; row < rows; row++){
-	    	for (int col = 0; col < cols; col++) {
-    			for (int v = 0; v < cols; v++) {
-    				pv[row * cols + col][v] = 0;
-    			}
+	public void startNextIterationOfClosedChains(Stack<Integer> cells, int beginCell, int direction, int rowOrcols, int beginVal, int numCell) {
+		if (cells.contains(numCell) || temporary[numCell] != 0 || possibilities[numCell][beginVal] == 0) {
+			return;
+		}
+		int numPossibilities = 0;
+		for (int val = 0; val < cols; val++) {
+			if (possibilities[numCell][val] == 1) {
+				numPossibilities++;
+			}
+		}
+		if (numPossibilities != 2) {
+			return;
+		}
+		Stack<Integer> StackNextIteration = new Stack<Integer>();
+		for (int cell = 0; cell < rows * cols; cell++) {
+			if (cells.contains(cell)) {
+				StackNextIteration.add(cell);
+			}
+		}
+		StackNextIteration.add(numCell);
+		if (cells.size() == 0) {
+			beginCell = numCell;
+		}
+		if (rowOrcols == 1) {
+			closedChain(StackNextIteration, beginCell, direction, 0, beginVal);
+		} else {
+			closedChain(StackNextIteration, beginCell, direction, 1, beginVal);
+		}
+	}
+	int chainLength;
+	int xwg = 0;
+	int sf4 = 0;
+	public int closedChain(Stack<Integer> cells, int beginCell, int direction, int rowOrcols, int beginVal) {
+		if (cells.size() == chainLength) {
+			direction = 0;
+		}
+		if (cells.size() == chainLength * 2) {
+			if (cells.peek() / cols != beginCell / cols && cells.peek() % cols != beginCell % cols) {
+				return 0;
+			}
+			Set<Integer> usedRows = new HashSet<Integer>();
+			Set<Integer> usedCols = new HashSet<Integer>();
+			int numRemoved = 0;
+			for (int cell = 0; cell < rows * cols; cell++) {
+				if (cells.contains(cell)) {
+					usedRows.add(cell / cols);
+					usedCols.add(cell % cols);
+				}
+			}
+			for (int cell = 0; cell < rows * cols; cell++) {
+				if (cells.contains(cell) || (!usedRows.contains(cell / cols) && !usedCols.contains(cell % cols)) || possibilities[cell][beginVal] == 0) {
+					continue;
+				}
+				if (numRemoved == 0) {
+					String lineSolvInstr = "";
+					if (chainLength == 2) {
+						lineSolvInstr += "X-krilo vrijednosti " + String.valueOf(beginVal + 1) + " u æelijama";
+					}
+					if (chainLength == 3) {
+						lineSolvInstr += "Sabljarka vrijednosti " + String.valueOf(beginVal + 1) + " u æelijama";
+					}
+					if (chainLength == 4) {
+						lineSolvInstr += "Meduza vrijednosti " + String.valueOf(beginVal + 1) + " u æelijama";
+					}
+					int sizeOfSet = 0;
+					for (int cellInSet = 0; cellInSet < rows * cols; cellInSet++) {
+						if (cells.contains(cellInSet)) {
+		    				if (sizeOfSet > 0 && sizeOfSet != cells.size() - 1) {
+		    					lineSolvInstr += ",";
+		    				}
+		    				if (sizeOfSet == cells.size() - 1) {
+		    					lineSolvInstr += " i";
+		    				}
+							lineSolvInstr += " (" + String.valueOf(cellInSet / cols + 1) + ", " + String.valueOf(cellInSet % cols + 1) + ")";
+							sizeOfSet++;
+						}
+					}
+		    		if (!solvingInstructions.contains(lineSolvInstr)) {
+						if (chainLength == 2) {
+			    			if (xwg == 0) {
+			    				difficultyScore += 2800;
+			    				xwg = 1;
+			    			} else {
+			    				difficultyScore += 1600;
+			    			} 
+						} else {
+			    			if (sf4 == 0) {
+			    				difficultyScore += 8000;
+			    				sf4 = 1;
+			    			} else {
+			    				difficultyScore += 6000;
+			    			} 
+			    		}
+						solvingInstructions += lineSolvInstr + ".\n";
+		    		} else {
+		    			return 0;
+		    		}
+				}	
+				numRemoved++;
+				possibilities[cell][beginVal] = 0;
+				solvingInstructions += "Uklanjam moguænost " + String.valueOf(beginVal + 1) + " iz æelije (" + String.valueOf(cell / cols + 1) + ", " + String.valueOf(cell % cols + 1) + ").\n" ;
+				if (sequence() == 1) {
+					return 1;
+				}
+			}
+			return 0;
+		}
+	    if (cells.size() > 0) {
+			if (rowOrcols == 0) {
+				if (direction == 0) {
+					for (int col = 0; col < cells.peek() % cols; col++){ 
+			    		int numCell = cells.peek() / cols * cols + col;
+			    		startNextIterationOfClosedChains(cells, beginCell, direction, rowOrcols, beginVal, numCell);
+					}
+				} else {
+					for (int col = cells.peek() % cols + 1; col < cols; col++){ 
+			    		int numCell = cells.peek() / cols * cols + col;
+			    		startNextIterationOfClosedChains(cells, beginCell, direction, rowOrcols, beginVal, numCell);
+					}
+				}
+			}
+			if (rowOrcols == 1) {
+				if (direction == 0) {
+					for (int row = 0; row < cells.peek() / cols; row++){ 
+			    		int numCell = row * cols + cells.peek() % cols;
+			    		startNextIterationOfClosedChains(cells, beginCell, direction, rowOrcols, beginVal, numCell);
+					}
+				} else {
+					for (int row = cells.peek() / cols + 1; row < rows; row++){ 
+			    		int numCell = row * cols + cells.peek() % cols;
+			    		startNextIterationOfClosedChains(cells, beginCell, direction, rowOrcols, beginVal, numCell);
+					}
+				}
+			}
+	    } else {
+	    	for (int row = 0; row < rows; row++){ 
+	    		for (int col = 0; col < cols; col++) {
+		    		int numCell = row * cols + col;
+		    		startNextIterationOfClosedChains(cells, beginCell, direction, rowOrcols, beginVal, numCell);
+	    		} 
 	    	}
 	    }
-	    for (int row = 0; row < rows; row++){
-	    	for (int col = 0; col < cols; col++) {
-	    		if (temporary[row * cols + col] != 0) {
-	    			for (int v = 0; v < cols; v++) {
-	    				if (possibilities[row * cols + col][v] == 1) {
-	    					int[] t2 = new int[rows * cols];
-	    					int[][] v2 = new int[rows * cols][cols];
-	    					int u1 = unset;
-	    					int d1 = difficultyScore;
-	    					String s = solvingInstructions;
-	    				    for (int ix = 0; ix < rows; ix++){
-	    				    	for (int jx = 0; jx < cols; jx++) {
-	    				    		t2[ix * cols + jx] =  temporary[ix * cols + jx];
-	    				    		for (int vx = 0; vx < cols; vx++) {
-	    				    			v2[ix * cols + jx][vx] = possibilities[ix * cols + jx][vx];
-	    				    		}
-	    						}
-	    					}
-	    					temporary[row * cols + col] = v;
-	    					sequence();
-	    				    for (int i2 = 0; i2 < rows; i2++){
-	    				    	for (int j2 = 0; j2 < cols; j2++) {
-	    				    		if (temporary[i2 * cols + j2] != 0) {
-	    				    			pv[i2 * cols + j2][temporary[i2 * cols + j2] - 1] = 1;
-	    				    		}
-	    				    	}
-	    				    }
-	    				    for (int ix = 0; ix < rows; ix++){
-	    				    	for (int jx = 0; jx < cols; jx++) {
-	    				    		temporary[ix * cols + jx] = t2[ix * cols + jx];
-	    				    		for (int vx = 0; vx < cols; vx++) {
-	    				    			possibilities[ix * cols + jx][vx] = v2[ix * cols + jx][vx];
-	    				    		}
-	    	    				}
-	    	    			}
-	    				    difficultyScore = d1;
-	    				    solvingInstructions = s;
-	    				    unset = u1;
-	    				}
-	    			}
-				    for (int i2 = 0; i2 < rows; i2++){
-				    	for (int j2 = 0; j2 < cols; j2++) {
-				    		int opt = 0;
-				    		int z = 0;
-			    			for (int v = 0; v < cols; v++) {
-			    				if (pv[i2 * cols + j2][v] == 1) {
-			    					opt++;
-			    					z = v + 1;
-			    				}
-			    			}
-			    			if (opt == 1) {
-			    				solvingInstructions += "Cell (" + String.valueOf(row + 1) + ", " + String.valueOf(col + 1) + ") forces value in cell " + "(" + String.valueOf(i2 + 1) + ", " + String.valueOf(j2 + 1) + ") to be " + String.valueOf(z) + ".\n";
-			    			}
-				    	}
-				    }
-	    		}
-		    }
-		}
 		return 0;
 	}
 	
@@ -2023,6 +1979,11 @@ public abstract class Sudoku {
 		    		text = text.substring(0, text.length() - 1) + "</html>";
 		    	} else {
 		    		text = "0";
+		    	}
+		    	if (numberOptions > 1) {
+	    			field[numCell].setFont(new Font("Arial", Font.PLAIN, fontsize));
+		    	} else {
+	    			field[numCell].setFont(new Font("Arial", Font.PLAIN, numberFontsize));
 		    	}
 	    		field[numCell].setText(text);
 	    		if (userInput[numCell] != temporary[numCell] || temporary[numCell] == 0) {
@@ -2155,58 +2116,13 @@ public abstract class Sudoku {
 	}
 	
 	public Sudoku(int constructRows, int constructCols, int rowLimit, int colLimit) {
-		rows = constructRows;
-		cols = constructCols;
-		xLim = rowLimit;
-		yLim = colLimit;
-		field = new JButton[constructRows * constructCols];
-		solution = new int[constructRows * constructCols];
-		temporary = new int[constructRows * constructCols];
-		userInput = new int[constructRows * constructCols];
-		border = new int[constructRows * constructCols];
-		boxNumber = new int[constructRows * constructCols];
+		super(constructRows, constructCols, rowLimit, colLimit);
 	}
 	
-	public void fill() {
-	    boolean correct = checkIfCorrect();
-    	if (!correct) {
-    		return;
-    	}
-    	int numSols = isOnlyOneSolution();
-    	if (numSols == 1) {
-		    for (int row = 0; row < rows; row++){ 
-		    	for (int col = 0; col < cols; col++) {
-			    	int numCell = row * cols + col;
-		    		userInput[numCell] = temporary[numCell];
-		    		solution[numCell] = temporary[numCell];
-		    		field[numCell].setText(String.valueOf(userInput[numCell]));
-    	        	field[numCell].setForeground(Color.WHITE);
-		    	}
-		    }
-    		return;
-    	}
-	    int retVal = randomPuzzle();
-	    while (retVal == 1) {
-		    for (int row = 0; row < rows; row++){ 
-		    	for (int col = 0; col < cols; col++) {
-			    	int numCell = row * cols + col;
-			    	temporary[numCell] = userInput[numCell];
-		    	}
-		    }
-		    retVal = randomPuzzle();
-	    } 
-	    for (int row = 0; row < rows; row++){ 
-	    	for (int col = 0; col < cols; col++) {
-		    	int numCell = row * cols + col;
-	    		userInput[numCell] = temporary[numCell];
-	    		solution[numCell] = temporary[numCell];
-	    		field[numCell].setText(String.valueOf(userInput[numCell]));
-	        	field[numCell].setForeground(Color.WHITE);
-	    	}
-	    }
-	}
 
-	abstract public void draw();
+	abstract public void resetHighlight();
+	abstract public void highlightCell(int numCell);
+	abstract public void highlightDigit();
 	
 	int[] numUseDigit = new int[cols + 1];
 	
