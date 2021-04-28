@@ -16,6 +16,45 @@ import javax.swing.JTextArea;
 
 public class CreateSudoku extends Sudoku {
 
+	public void fill() {
+	    boolean correct = checkIfCorrect();
+    	if (!correct) {
+    		return;
+    	}
+    	int numSols = isOnlyOneSolution();
+    	if (numSols == 1) {
+		    for (int row = 0; row < rows; row++){ 
+		    	for (int col = 0; col < cols; col++) {
+			    	int numCell = row * cols + col;
+		    		userInput[numCell] = temporary[numCell];
+		    		solution[numCell] = temporary[numCell];
+		    		field[numCell].setText(String.valueOf(userInput[numCell]));
+    	        	field[numCell].setForeground(Color.WHITE);
+		    	}
+		    }
+    		return;
+    	}
+	    int retVal = randomPuzzle();
+	    while (retVal == 1) {
+		    for (int row = 0; row < rows; row++){ 
+		    	for (int col = 0; col < cols; col++) {
+			    	int numCell = row * cols + col;
+			    	temporary[numCell] = userInput[numCell];
+		    	}
+		    }
+		    retVal = randomPuzzle();
+	    } 
+	    for (int row = 0; row < rows; row++){ 
+	    	for (int col = 0; col < cols; col++) {
+		    	int numCell = row * cols + col;
+	    		userInput[numCell] = temporary[numCell];
+	    		solution[numCell] = temporary[numCell];
+	    		field[numCell].setText(String.valueOf(userInput[numCell]));
+	        	field[numCell].setForeground(Color.WHITE);
+	    	}
+	    }
+	}
+	
 	public void resetHighlight() {
 		for (int row = 0; row < rows; row++){
 	    	for (int col = 0; col < cols; col++) {
@@ -146,7 +185,8 @@ public class CreateSudoku extends Sudoku {
 	    frame.setVisible(true);
 	    frame.requestFocus();
 	}
-
+	
+    @Override
 	public boolean checkIfCorrect() {
 		String errortext = "";
 		boolean incorrect[] = new boolean[rows * cols];

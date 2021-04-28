@@ -15,7 +15,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 
-public class ChangeBoxBorder extends Sudoku {
+public class ChangeBoxBorder extends SudokuGrid {
 	int mode = 0;
 	public ChangeBoxBorder(int contructRows, int constructCols, int rowLimit, int colLimit) {
 		super(constructCols, contructRows, rowLimit, colLimit);
@@ -344,8 +344,8 @@ public class ChangeBoxBorder extends Sudoku {
 	    });
 
 	    y += h + space;
-		FileManipulator f = new FileManipulator();
-		f.setSudoku(this);
+		FileManipulator fileManipulator = new FileManipulator();
+		fileManipulator.setSudoku(this);
         
         JButton designContinueButton = new JButton("Nastavi dizajn");  
         designContinueButton.setMargin(new Insets(1,1,1,1));
@@ -354,7 +354,7 @@ public class ChangeBoxBorder extends Sudoku {
         designContinueButton.addActionListener(new ActionListener(){  
         public void actionPerformed(ActionEvent e) {  
 	        	try {
-	        		if (f.ReadFile() == 0) {
+	        		if (fileManipulator.ReadFile() == 0) {
 	        			@SuppressWarnings("unused")
 						CreateSudoku createSudoku = new CreateSudoku(rows, cols, xLim, yLim, border, boxNumber, userInput);
 	        		}
@@ -394,7 +394,7 @@ public class ChangeBoxBorder extends Sudoku {
         solveButton.addActionListener(new ActionListener(){  
         public void actionPerformed(ActionEvent e) {  
 	        	try {
-	        		if (f.ReadFile() == 0) {
+	        		if (fileManipulator.ReadFile() == 0) {
 	        			@SuppressWarnings("unused")
 						SolveSudoku solveSudoku = new SolveSudoku(rows, cols, xLim, yLim, border, boxNumber, userInput);
 	        		}
@@ -425,11 +425,4 @@ public class ChangeBoxBorder extends Sudoku {
 		@SuppressWarnings("unused")
 		ChangeBoxBorder changeBoxBorder = new ChangeBoxBorder(9, 9, 3, 3);
 	}
-
-	@Override
-	boolean checkIfCorrect() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
 }
