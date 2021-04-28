@@ -446,6 +446,7 @@ public class SolveSudoku extends Sudoku {
 	    		if (backup[numCell] != 0) {
 	    			continue;
 	    		}
+	    	    field[numCell].setFont(new Font("Arial", Font.PLAIN, numberFontsize));
 	    		if (userInput[numCell] != result[numCell]) {
 	    			if (userInput[numCell] == 0) {
 	    	        	field[numCell].setText(String.valueOf(result[numCell]));
