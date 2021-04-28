@@ -1,9 +1,7 @@
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Insets;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -307,19 +305,6 @@ public class CreateSudoku extends Sudoku {
 	public void draw () 
     {
 		frame = new JFrame("Stvori sudoku");  
-	    Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-	    double baselineWidth = 1920;
-	    double baselineHeight = 1080;
-	    double width = screenSize.getWidth();
-	    double height = screenSize.getHeight();
-	    double widthScaling = width / baselineWidth;
-	    double heightScaling = height / baselineHeight;
-	    int space = (int) (15 * widthScaling);
-	    int x = space;
-		int y = space;
-		int w = (int) (60 * widthScaling);
-		int h = (int) (60 * heightScaling);
-		int fontsize = (int) (12 * heightScaling);
 	    frame.setDefaultCloseOperation (JFrame.DISPOSE_ON_CLOSE);
 	    frame.addKeyListener(keyListener);
 	    for (int row = 0; row < rows; row++){ 
@@ -328,7 +313,7 @@ public class CreateSudoku extends Sudoku {
 	    		int numCell = row * cols + col;
 	    	    field[numCell] = new JButton(String.valueOf("0"));  
 			    field[numCell].setMargin(new Insets(1,1,1,1));
-			    field[numCell].setFont(new Font("Arial", Font.PLAIN, fontsize));
+			    field[numCell].setFont(new Font("Arial", Font.PLAIN, numberFontsize));
 			    field[numCell].setBounds(x, y, w, h);
 			    
 			    field[numCell].addActionListener(new ActionListener(){  
@@ -345,6 +330,7 @@ public class CreateSudoku extends Sudoku {
 			        			}
 			        		}
 			        		userInput[numCell] = selectedDigit;
+						    field[numCell].setFont(new Font("Arial", Font.PLAIN, numberFontsize));
 			        		field[numCell].setText(String.valueOf(selectedDigit));
 			        		highlightCell(numCell);
 							highlightDigit();
@@ -372,7 +358,7 @@ public class CreateSudoku extends Sudoku {
 				digitButtons[row].setBackground(Color.CYAN);
 			}
 			digitButtons[row].setBounds(x, y, w, h);
-			digitButtons[row].setFont(new Font("Arial", Font.PLAIN, fontsize));
+			digitButtons[row].setFont(new Font("Arial", Font.PLAIN, numberFontsize));
 	        if (row == 0) {
 	        	digitButtons[row].setForeground(Color.RED);
 	        }
@@ -396,7 +382,7 @@ public class CreateSudoku extends Sudoku {
 		}
 		int digitEnd = y + h + space;
 	    h = h / 2;
-	    w = (int) (135 * widthScaling);
+	    w = (int) (200 * widthScaling);
 	    y = space;
 	    x += space;
         JButton uniqueButton = new JButton("Jedinstvenost rješenja");  
@@ -579,7 +565,7 @@ public class CreateSudoku extends Sudoku {
 	    });
 		fileReadButton.addKeyListener(keyListener);
 		y += h + space;
-		w = (int) (200 * widthScaling);
+		w = (int) (250 * widthScaling);
         difficulty.setBounds(x, y, w, h);
         difficulty.setFont(new Font("Arial", Font.PLAIN, fontsize));
         frame.add(difficulty);

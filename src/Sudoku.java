@@ -1,4 +1,5 @@
 import java.awt.Color;
+import java.awt.Font;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Stack;
@@ -1978,6 +1979,11 @@ public abstract class Sudoku extends SudokuGrid {
 		    		text = text.substring(0, text.length() - 1) + "</html>";
 		    	} else {
 		    		text = "0";
+		    	}
+		    	if (numberOptions > 1) {
+	    			field[numCell].setFont(new Font("Arial", Font.PLAIN, fontsize));
+		    	} else {
+	    			field[numCell].setFont(new Font("Arial", Font.PLAIN, numberFontsize));
 		    	}
 	    		field[numCell].setText(text);
 	    		if (userInput[numCell] != temporary[numCell] || temporary[numCell] == 0) {
