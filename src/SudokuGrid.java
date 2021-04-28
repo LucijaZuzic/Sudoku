@@ -1,4 +1,7 @@
 import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Toolkit;
+
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -25,6 +28,21 @@ public abstract class SudokuGrid {
 	boolean showSteps = false;
 
 
+	Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+    double baselineWidth = 1920;
+    double baselineHeight = 1080;
+    double width = screenSize.getWidth();
+    double height = screenSize.getHeight();
+    double widthScaling = width / baselineWidth;
+    double heightScaling = height / baselineHeight;
+    int space = (int) (15 * widthScaling);
+    int x = space;
+	int y = space;
+	int w = (int) (60 * widthScaling);
+	int h = (int) (60 * heightScaling);
+	int numberFontsize = (int) (24 * heightScaling);
+	int fontsize = (int) (16 * heightScaling);
+	
 	boolean showBoxMsg = true;
 	public int floodFill(int row, int col, int val) {
 		int retVal = 1;

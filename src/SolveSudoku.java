@@ -1,9 +1,7 @@
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Insets;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -395,6 +393,7 @@ public class SolveSudoku extends Sudoku {
 		field[numCell].setEnabled(false);
 		field[numCell].setBackground(Color.BLUE);
     	field[numCell].setText(String.valueOf(userInput[numCell]));
+	    field[numCell].setFont(new Font("Arial", Font.PLAIN, numberFontsize));
     	hints.add(numCell);
     	numUseDigit[userInput[numCell]]++;
     	checkIfDigitMaxUsed(userInput[numCell]);
@@ -421,6 +420,7 @@ public class SolveSudoku extends Sudoku {
 		field[numCell].setEnabled(false);
 		field[numCell].setBackground(Color.BLUE);
     	field[numCell].setText(String.valueOf(userInput[numCell]));
+	    field[numCell].setFont(new Font("Arial", Font.PLAIN, numberFontsize));
     	hints.add(numCell);
     	numUseDigit[userInput[numCell]]++;
     	checkIfDigitMaxUsed(userInput[numCell]);
@@ -513,6 +513,7 @@ public class SolveSudoku extends Sudoku {
 			    	}
 			    }
 	    		String text = "<html><font color = yellow>";
+			    field[numCell].setFont(new Font("Arial", Font.PLAIN, fontsize));
 	    		int numberOptions = 0;
 		    	for (int val = 1; val <= cols; val++) {
 		    		if (!bannedValues.contains(val)) {
@@ -615,26 +616,12 @@ public class SolveSudoku extends Sudoku {
 	    }
 	}
 	
-	
 	@Override
 	public void draw () 
     {
 		frame = new JFrame("Riješi sudoku");  
 	    frame.setDefaultCloseOperation (JFrame.DISPOSE_ON_CLOSE);
 	    frame.addKeyListener(keyListener);
-	    Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-	    double baselineWidth = 1920;
-	    double baselineHeight = 1080;
-	    double width = screenSize.getWidth();
-	    double height = screenSize.getHeight();
-	    double widthScaling = width / baselineWidth;
-	    double heightScaling = height / baselineHeight;
-	    int space = (int) (15 * widthScaling);
-	    int x = space;
-		int y = space;
-		int w = (int) (60 * widthScaling);
-		int h = (int) (60 * heightScaling);
-		int fontsize = (int) (12 * heightScaling);
 
 	    for (int row = 0; row < rows; row++){ 
 	    	x = space;
@@ -647,7 +634,7 @@ public class SolveSudoku extends Sudoku {
     			    }
     			});
 			    field[numCell].setMargin(new Insets(1,1,1,1));
-			    field[numCell].setFont(new Font("Arial", Font.PLAIN, fontsize));
+			    field[numCell].setFont(new Font("Arial", Font.PLAIN, numberFontsize));
 			    field[numCell].setBounds(x, y, w, h);
 			    field[numCell].addActionListener(new ActionListener(){  
 			        public void actionPerformed(ActionEvent e) {  
@@ -656,6 +643,7 @@ public class SolveSudoku extends Sudoku {
 			        			return;
 			        		}
 			        		if (mode == 0)  {
+			    			    field[numCell].setFont(new Font("Arial", Font.PLAIN, numberFontsize));
 			        			if (selectedDigit == 0) {
 			        				return;
 			        			}
@@ -673,6 +661,7 @@ public class SolveSudoku extends Sudoku {
 				        				checkIfDigitMaxUsed(selectedDigit);
 				        			}
 				        		}
+							    field[numCell].setFont(new Font("Arial", Font.PLAIN, numberFontsize));
 				        		userInput[numCell] = selectedDigit;
 				        		field[numCell].setText(String.valueOf(selectedDigit));
 				        		highlightCell(numCell);
@@ -683,6 +672,7 @@ public class SolveSudoku extends Sudoku {
 				        		}
 			        		} 
 			        		if (mode == 1) {
+			    			    field[numCell].setFont(new Font("Arial", Font.PLAIN, fontsize));
 			        			if (selectedDigit == 0) {
 			        				return;
 			        			}
@@ -770,7 +760,7 @@ public class SolveSudoku extends Sudoku {
 				digitButtons[row].setBackground(Color.CYAN);
 			}
 	        digitButtons[row].setBounds(x, y, w, h);
-	        digitButtons[row].setFont(new Font("Arial", Font.PLAIN, fontsize));
+	        digitButtons[row].setFont(new Font("Arial", Font.PLAIN, numberFontsize));
 	        int digit = row;
 	        digitButtons[row].addActionListener(new ActionListener(){  
 	        public void actionPerformed(ActionEvent e) {  
@@ -793,7 +783,7 @@ public class SolveSudoku extends Sudoku {
 		}
 		int digitEnd = y + h + space;
 		h = 2 * space;
-		w = (int) (135 * widthScaling);
+		w = (int) (200 * widthScaling);
 		x += space;
 		y = space;
         JButton solvedButton = new JButton("Ispravnost rješenja");  
@@ -984,8 +974,7 @@ public class SolveSudoku extends Sudoku {
 	    });
         errorWarnButton.addKeyListener(keyListener);
 		y += h + space;
-		h = h / 2;
-		w = (int) (200 * widthScaling);
+		w = (int) (250 * widthScaling);
         difficulty.setBounds(x, y, w, h);
         difficulty.setFont(new Font("Arial", Font.PLAIN, fontsize));
         frame.add(difficulty);
