@@ -38,21 +38,56 @@ public class FileManipulator {
 	 public void WriteToFile() {
 		  try {
 	        FileWriter myWriter = new FileWriter(testFile());
-	        String line1 = "";
+	        String lineUserInput = "";
 	        for (int row = 0; row < sudoku.rows; row++) {
 	        	for (int col = 0; col < sudoku.cols; col++) {
-	        		line1 += String.valueOf(sudoku.userInput[row * sudoku.cols + col]);
+	        		lineUserInput += String.valueOf(sudoku.userInput[row * sudoku.cols + col]);
 	        	}
-	        	line1 += "\n";
+	        	lineUserInput += "\n";
 	        }
-	        String line2 = "";
-	        for (int i = 0; i < sudoku.rows; i++) {
-	        	for (int j = 0; j < sudoku.cols; j++) {
-	        		line2 += String.valueOf(sudoku.border[i * sudoku.cols + j]);
+	        String lineBorder = "";
+	        for (int row = 0; row < sudoku.rows; row++) {
+	        	for (int col = 0; col < sudoku.cols; col++) {
+	        		lineBorder += String.valueOf(sudoku.border[row * sudoku.cols + col]);
 	        	}
-	        	line2 += "\n";
+	        	lineBorder += "\n";
 	        }
-	        myWriter.write(line1 + line2);
+	        String lineDiagonal = "";
+	        if (sudoku.diagonalOn) {
+	        	lineDiagonal = "Yes\n";
+	        } else {
+	        	lineDiagonal = "No\n";
+	        }
+	        String lineRelationship = "";
+	        for (int row = 0; row < sudoku.rows; row++) {
+	        	for (int col = 0; col < sudoku.cols; col++) {
+	        		int largerCell = row * sudoku.cols + col;
+	        		int rightCell = largerCell + 1;
+					int leftCell = largerCell - 1;
+					int bottomCell = largerCell + sudoku.cols;
+					int topCell = largerCell - sudoku.cols;
+					String relationshipRightCell = String.valueOf(largerCell) + " " + String.valueOf(rightCell);
+					String relationshipLeftCell = String.valueOf(largerCell) + " " + String.valueOf(leftCell);
+					String relationshipBottomCell = String.valueOf(largerCell) + " " + String.valueOf(bottomCell);
+					String relationshipTopCell = String.valueOf(largerCell) + " " + String.valueOf(topCell);
+					if (sudoku.sizeRelationships.contains(relationshipTopCell)) {
+						lineRelationship += relationshipTopCell + "\n";
+					}
+					if (sudoku.sizeRelationships.contains(relationshipRightCell)) {
+						lineRelationship += relationshipRightCell + "\n";
+					}
+					if (sudoku.sizeRelationships.contains(relationshipLeftCell)) {
+						lineRelationship += relationshipLeftCell + "\n";
+					}
+					if (sudoku.sizeRelationships.contains(relationshipBottomCell)) {
+						lineRelationship += relationshipBottomCell + "\n";
+					}
+					if (sudoku.sizeRelationships.contains(relationshipTopCell)) {
+						lineRelationship += relationshipTopCell + "\n";
+					}
+	        	}
+	        }
+	        myWriter.write(lineUserInput + lineBorder + lineDiagonal + lineRelationship);
 	        myWriter.close();
 			InformationBox.infoBox("Zagonetka je uspješno spremljena.", "Spremanje datoteke");
 	      } catch (IOException e) {
@@ -70,25 +105,38 @@ public class FileManipulator {
 	          ArrayList<String> data = new ArrayList<String>();
 		      while (myReader.hasNextLine()) {
 		    	    data.add(myReader.nextLine());
-		    	    cols = data.get(lineNum).length();
 				    lineNum++;
 		      }
 		      myReader.close(); 
-		      if (lineNum != cols * 2 || lineNum == 0) {
+		      cols = data.get(0).length();
+		      if (lineNum < cols * 2 || lineNum == 0) {
 				  InformationBox.infoBox("Sadržaj datoteke je neispravan.", "Uèitavanje datoteke");
 		    	  return 1;
 		      }
 		      sudoku.rows = cols;
 		      sudoku.cols = cols;
+	          sudoku.diagonalOn = false;
+	          sudoku.sizeRelationships.clear();
 		      for (int row = 0; row < lineNum; row++) {
 		        	if (row < sudoku.rows) {
 			        	for (int col = 0; col < sudoku.cols; col++) {
 			        		sudoku.userInput[row * sudoku.cols + col] = Integer.parseInt(data.get(row).substring(col, col + 1));
 			        	}
-		        	} else {
+		        	} 
+		        	if (row >= sudoku.rows && row < sudoku.rows * 2) {
 		        		for (int col = 0; col < sudoku.cols; col++) {
 			        		sudoku.border[(row - sudoku.rows) * sudoku.cols + col] = Integer.parseInt(data.get(row).substring(col, col + 1));
 		        		}
+		        	}
+		        	if (row == sudoku.rows * 2) {
+		        		String reply = data.get(row).replace("\n", "");
+		        		if (reply.compareTo("Yes") == 0) {
+		        			sudoku.diagonalOn = true;
+		        		}
+		        	}
+		        	if (row > sudoku.rows * 2) {
+		        		String relationship = data.get(row).replace("\n", "");
+		        		sudoku.sizeRelationships.add(relationship);
 		        	}
 		      }
 		      return 0;

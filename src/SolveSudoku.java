@@ -6,6 +6,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.WindowEvent;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Timer;
@@ -41,31 +42,17 @@ public class SolveSudoku extends Sudoku {
 		for (int row = 0; row < rows; row++){
 	    	for (int col = 0; col < cols; col++) {
     			if (hints.contains(row * cols + col)) {
-	    			field[row * cols + col].setBackground(Color.BLUE);
+	    			setBackground(row, col, "blue");
 	    		} else {
-	    	        if (border[row * cols + col] == 3) {
-	    	    		field[row * cols + col].setBackground(Color.LIGHT_GRAY);
-	    	    	}
-	    	        if (border[row * cols + col] == 2) {
-	    	    		field[row * cols + col].setBackground(Color.DARK_GRAY);
-	    	    	}
-	    	    	if (border[row * cols + col] == 1) {
-	    	    		field[row * cols + col].setBackground(Color.BLACK);
-	    	    	}
-	    	        if (border[row * cols + col] == 0) {
-	    	    		field[row * cols + col].setBackground(Color.GRAY);
-	    	    	}
-	    	        if (border[row * cols + col] == -1) {
-	    	    		field[row * cols + col].setBackground(Color.RED);
-	    	    	}
+	    			setBackground(row, col, returnColour(row * cols + col));
 	    		}	
 	    		field[row * cols + col].setFont(field[row * cols + col].getFont().deriveFont(~Font.BOLD | ~Font.ITALIC));
 	    	}
 	    }
 	}
 	
-	public SolveSudoku(int constructRows, int constructCols, int rowLimit, int colLimit, int[] constructBorder, int[] constructBoxNumber, int constructMinDifficulty, int constructMaxDifficulty) {
-		super(constructRows, constructCols, rowLimit, colLimit);
+	public SolveSudoku(int constructRows, int constructCols, int rowLimit, int colLimit, int[] constructBorder, int[] constructBoxNumber, boolean setDiagonalOn, Set<String> setSizeRelationships, int constructMinDifficulty, int constructMaxDifficulty) {
+		super(constructRows, constructCols, rowLimit, colLimit, setDiagonalOn, setSizeRelationships);
 		JFrame newf = new JFrame();
 		int dialogResult = JOptionPane.showConfirmDialog (newf, "Želite li da se prikazuju greške?","Prikaži greške",0);
 		if(dialogResult == JOptionPane.YES_OPTION){
@@ -88,7 +75,16 @@ public class SolveSudoku extends Sudoku {
 		border = constructBorder;
 		boxNumber = constructBoxNumber;
 	    int retval = 1;
+	    long startGen = System.currentTimeMillis();
 	    while(retval == 1) {
+	    	if (System.currentTimeMillis() - startGen >= 10000) {
+    		    InformationBox.infoBox("Nije moguæe ispuniti zagonetku prema zadanim kriterijima.", "Pogrešno dizajnirana zagonetka");
+    		    frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
+    		    frame.removeAll();
+    		    frame.dispose();
+    		    frame.setVisible(false);
+    		    return;
+	    	}
 		    for (int row = 0; row < rows; row++){ 
 		    	for (int col = 0; col < cols; col++) {
 		    		temporary[row * cols + col] = 0;
@@ -112,7 +108,7 @@ public class SolveSudoku extends Sudoku {
 	    int numReturns = 0;
 	    mintargetDifficulty = constructMinDifficulty;
 	    maxtargetDifficulty = constructMaxDifficulty;
-	    long startGen = System.currentTimeMillis();
+	    startGen = System.currentTimeMillis();
 	    while (solvable == 0 || difficultyScore > maxtargetDifficulty || difficultyScore < mintargetDifficulty) {
 		    removeSymetricPair();
 		    solvable = isOnlyOneSolution();
@@ -170,8 +166,8 @@ public class SolveSudoku extends Sudoku {
 	    frame.requestFocus();
 	}
 	
-	public SolveSudoku(int constructRows, int constructCols, int rowLimit, int colLimit, int[] constructBorder, int[] constructBoxNumber, int[] constructUserInput) {
-		super(constructRows, constructCols, rowLimit, colLimit);
+	public SolveSudoku(int constructRows, int constructCols, int rowLimit, int colLimit, int[] constructBorder, int[] constructBoxNumber, boolean setDiagonalOn, Set<String> setSizeRelationships, int[] constructUserInput) {
+		super(constructRows, constructCols, rowLimit, colLimit, setDiagonalOn, setSizeRelationships);
 		JFrame newFrame = new JFrame();
 		int dialogResult = JOptionPane.showConfirmDialog (newFrame, "Želite li da se prikazuju greške?","Prikaži greške",0);
 		if(dialogResult == JOptionPane.YES_OPTION){
@@ -495,29 +491,39 @@ public class SolveSudoku extends Sudoku {
 	};
 	
 	public void assume() {
-		for (int row = 0; row < rows; row++){
+	    for (int row = 0; row < rows; row++){ 
 	    	for (int col = 0; col < cols; col++) {
-	    		int numCell = row * cols + col;
+		    	int numCell = row * cols + col;
+		    	temporary[numCell] = userInput[numCell];
+	    	}
+	    }
+		possibilities = new int[rows * cols][rows];
+	    for (int row = 0; row < rows; row++){
+	    	for (int col = 0; col < cols; col++) {
+	    		if (temporary[row * cols + col] != 0) {
+			    	for (int val = 0; val < cols; val++) {
+			    		possibilities[row * cols + col][val] = 0;
+				    }
+		    		possibilities[row * cols + col][temporary[row * cols + col] - 1] = 1;
+	    		} else {
+			    	for (int val = 0; val < cols; val++) {
+			    		possibilities[row * cols + col][val] = 1;
+				    }
+	    		}
+	    	}
+	    }
+		fixPencilmarks();
+	    for (int row = 0; row < rows; row++){ 
+	    	for (int col = 0; col < cols; col++) {
+		    	int numCell = row * cols + col;
 	    		if (userInput[numCell] != 0) {
 	    			continue;
 	    		}
-	    		Set<Integer> bannedValues = new HashSet<Integer>();
-        		for (int sameRow = 0; sameRow < rows; sameRow++){
-			    	for (int sameCol = 0; sameCol < cols; sameCol++) {
-			    		int cellThatClears = sameRow * cols + sameCol;
-			    		if (userInput[cellThatClears] == 0) {
-			    			continue;
-			    		}
-			    		if (boxNumber[cellThatClears] == boxNumber[numCell] || row == sameRow || col == sameCol) {
-			    			bannedValues.add(userInput[cellThatClears]);
-			    		}
-			    	}
-			    }
 	    		String text = "<html><font color = yellow>";
 			    field[numCell].setFont(new Font("Arial", Font.PLAIN, fontsize));
 	    		int numberOptions = 0;
 		    	for (int val = 1; val <= cols; val++) {
-		    		if (!bannedValues.contains(val)) {
+		    		if (possibilities[numCell][val - 1] == 1) {
 		    			numberOptions++;
 		    			text += String.valueOf(val);
 		    			options[numCell][val - 1] = 1;
@@ -544,26 +550,12 @@ public class SolveSudoku extends Sudoku {
 	    for (int row = 0; row < rows; row++){
 	    	for (int col = 0; col < cols; col++) {
 	    		if (col == numCell % cols || row == numCell / cols) {
-	    			field[row * cols + col].setBackground(new Color(119, 136, 153));
+	    			setBackground(row, col, "one_more_gray");
 	    		} else {
 	    			if (hints.contains(row * cols + col)) {
-		    			field[row * cols + col].setBackground(Color.BLUE);
+		    			setBackground(row, col, "blue");
 		    		} else {
-		    	        if (border[row * cols + col] == 3) {
-		    	    		field[row * cols + col].setBackground(Color.LIGHT_GRAY);
-		    	    	}
-		    	        if (border[row * cols + col] == 2) {
-		    	    		field[row * cols + col].setBackground(Color.DARK_GRAY);
-		    	    	}
-		    	    	if (border[row * cols + col] == 1) {
-		    	    		field[row * cols + col].setBackground(Color.BLACK);
-		    	    	}
-		    	        if (border[row * cols + col] == 0) {
-		    	    		field[row * cols + col].setBackground(Color.GRAY);
-		    	    	}
-		    	        if (border[row * cols + col] == -1) {
-		    	    		field[row * cols + col].setBackground(Color.RED);
-		    	    	}
+		    			setBackground(row, col, returnColour(row * cols + col));
 		    		}
 	    		}
 	    	}
@@ -710,6 +702,9 @@ public class SolveSudoku extends Sudoku {
 				        		field[numCell].setText(text);
 				        		highlightCell(numCell);
 				        		highlightDigit();
+				        		if (setAssumed) {
+				        			assume();
+				        		}
 			        		}
 			        		if (mode == 2) {
 			        			hint(numCell);
@@ -1042,7 +1037,7 @@ public class SolveSudoku extends Sudoku {
         frame.add(hintButton);
         frame.add(showStepButton);
         frame.add(errorWarnButton);
-	    frame.setSize(x, Math.max(digitEnd, buttonEnd) +  (int) (40 * widthScaling));  
+	    frame.setSize(x, Math.max(digitEnd, buttonEnd) +  (int) (40 * heightScaling));  
 	    frame.setLayout(null);  
     }
 	

@@ -83,37 +83,45 @@
     </display>  
   </class>  
   <generalization id="10">    
-    <end type="SOURCE" refId="4"/>    
+    <end type="SOURCE" refId="7"/>    
     <end type="TARGET" refId="8"/>  
   </generalization>  
   <association id="11">    
     <end type="SOURCE" refId="6" navigable="false">      
-      <attribute id="12" name="solveSudoku"/>      
-      <multiplicity id="13" minimum="0" maximum="1"/>    
+      <attribute id="12" name="solveSudoku">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </attribute>      
+      <multiplicity id="13" minimum="0" maximum="1">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </multiplicity>    
     </end>    
     <end type="TARGET" refId="7" navigable="true"/>    
     <display labels="true" multiplicity="true"/>  
   </association>  
   <generalization id="14">    
+    <end type="SOURCE" refId="4"/>    
+    <end type="TARGET" refId="8"/>  
+  </generalization>  
+  <generalization id="15">    
+    <end type="SOURCE" refId="8"/>    
+    <end type="TARGET" refId="9"/>  
+  </generalization>  
+  <generalization id="16">    
     <end type="SOURCE" refId="1"/>    
     <end type="TARGET" refId="9"/>  
   </generalization>  
-  <association id="15">    
+  <association id="17">    
     <end type="SOURCE" refId="3" navigable="false">      
-      <attribute id="16" name="sudoku"/>      
-      <multiplicity id="17" minimum="0" maximum="1"/>    
+      <attribute id="18" name="sudoku">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </attribute>      
+      <multiplicity id="19" minimum="0" maximum="1">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </multiplicity>    
     </end>    
     <end type="TARGET" refId="9" navigable="true"/>    
     <display labels="true" multiplicity="true"/>  
   </association>  
-  <generalization id="18">    
-    <end type="SOURCE" refId="7"/>    
-    <end type="TARGET" refId="8"/>  
-  </generalization>  
-  <generalization id="19">    
-    <end type="SOURCE" refId="8"/>    
-    <end type="TARGET" refId="9"/>  
-  </generalization>  
   <classifier-display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
     sort-features="false" accessors="true" visibility="true">    
     <attributes public="true" package="true" protected="true" private="true" static="true"/>    

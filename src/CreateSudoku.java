@@ -6,6 +6,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.Set;
+
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -32,8 +34,13 @@ public class CreateSudoku extends Sudoku {
 		    }
     		return;
     	}
+	    long startGen = System.currentTimeMillis();
 	    int retVal = randomPuzzle();
 	    while (retVal == 1) {
+	    	if (System.currentTimeMillis() - startGen >= 10000) {
+    		    InformationBox.infoBox("Nije moguæe ispuniti zagonetku prema zadanim kriterijima.", "Pogrešno dizajnirana zagonetka");
+	    		break;
+	    	}
 		    for (int row = 0; row < rows; row++){ 
 		    	for (int col = 0; col < cols; col++) {
 			    	int numCell = row * cols + col;
@@ -56,21 +63,7 @@ public class CreateSudoku extends Sudoku {
 	public void resetHighlight() {
 		for (int row = 0; row < rows; row++){
 	    	for (int col = 0; col < cols; col++) {
-    	        if (border[row * cols + col] == 3) {
-    	    		field[row * cols + col].setBackground(Color.LIGHT_GRAY);
-    	    	}
-    	        if (border[row * cols + col] == 2) {
-    	    		field[row * cols + col].setBackground(Color.DARK_GRAY);
-    	    	}
-    	    	if (border[row * cols + col] == 1) {
-    	    		field[row * cols + col].setBackground(Color.BLACK);
-    	    	}
-    	        if (border[row * cols + col] == 0) {
-    	    		field[row * cols + col].setBackground(Color.GRAY);
-    	    	}
-    	        if (border[row * cols + col] == -1) {
-    	    		field[row * cols + col].setBackground(Color.RED);
-    	    	}	    			
+    			setBackground(row, col, returnColour(row * cols + col));
 	    		field[row * cols + col].setFont(field[row * cols + col].getFont().deriveFont(~Font.BOLD | ~Font.ITALIC));
 	    	}
 	    }
@@ -80,23 +73,9 @@ public class CreateSudoku extends Sudoku {
 	    for (int row = 0; row < rows; row++){
 	    	for (int col = 0; col < cols; col++) {
 	    		if (col == numCell % cols || row == numCell / cols) {
-	    			field[row * cols + col].setBackground(new Color(119, 136, 153));
+	    			setBackground(row, col, "one_more_gray");
 	    		} else {
-	    	        if (border[row * cols + col] == 3) {
-	    	    		field[row * cols + col].setBackground(Color.LIGHT_GRAY);
-	    	    	}
-	    	        if (border[row * cols + col] == 2) {
-	    	    		field[row * cols + col].setBackground(Color.DARK_GRAY);
-	    	    	}
-	    	    	if (border[row * cols + col] == 1) {
-	    	    		field[row * cols + col].setBackground(Color.BLACK);
-	    	    	}
-	    	        if (border[row * cols + col] == 0) {
-	    	    		field[row * cols + col].setBackground(Color.GRAY);
-	    	    	}
-	    	        if (border[row * cols + col] == -1) {
-	    	    		field[row * cols + col].setBackground(Color.RED);
-	    	    	}
+	    			setBackground(row, col, returnColour(row * cols + col));
 	    		}
 	    	}
 	    }
@@ -118,12 +97,22 @@ public class CreateSudoku extends Sudoku {
 	    }
 	}
 	
-	public CreateSudoku(int constructRows, int constructCols, int rowLimit, int colLimit, int[] constructBorder, int[] constructBoxNumber) {
-		super(constructRows, constructCols, rowLimit, colLimit);
+	public CreateSudoku(int constructRows, int constructCols, int rowLimit, int colLimit, int[] constructBorder, int[] constructBoxNumber, boolean setDiagonalOn, Set<String> setSizeRelationships) {
+		super(constructRows, constructCols, rowLimit, colLimit, setDiagonalOn, setSizeRelationships);
 		border = constructBorder;
 		boxNumber = constructBoxNumber;
+	    long startGen = System.currentTimeMillis();
 	    int retval = 1;
 	    while(retval == 1) {
+	    	if (System.currentTimeMillis() - startGen >= 10000) {
+    		    InformationBox.infoBox("Nije moguæe ispuniti zagonetku prema zadanim kriterijima.", "Pogrešno dizajnirana zagonetka");
+    		    /*frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
+    		    frame.removeAll();
+    		    frame.dispose();
+    		    frame.setVisible(false);
+    		    return;*/
+	    		break;
+	    	}
 		    for (int row = 0; row < rows; row++){ 
 		    	for (int col = 0; col < cols; col++) {
 		    		temporary[row * cols + col] = 0;
@@ -156,8 +145,8 @@ public class CreateSudoku extends Sudoku {
 	}
 	
 
-	public CreateSudoku(int constructRows, int constructCols, int rowLimit, int colLimit, int[] constructBorder, int[] constructBoxNumber, int constructUserInput[]) {
-		super(constructRows, constructCols, rowLimit, colLimit);
+	public CreateSudoku(int constructRows, int constructCols, int rowLimit, int colLimit, int[] constructBorder, int[] constructBoxNumber, boolean setDiagonalOn, Set<String> setSizeRelationships, int constructUserInput[]) {
+		super(constructRows, constructCols, rowLimit, colLimit, setDiagonalOn, setSizeRelationships);
 		border = constructBorder;
 		boxNumber = constructBoxNumber;
 	    draw();
@@ -437,6 +426,7 @@ public class CreateSudoku extends Sudoku {
 	        	    		userInput[numCell] = 0;
 	        	    		field[numCell].setText("0");
 	        	    		field[numCell].setForeground(Color.RED);
+	        			    field[numCell].setFont(new Font("Arial", Font.PLAIN, numberFontsize));
 	        		    }
 	        	    }
 	        		for (int digit = 0; digit < cols + 1; digit++) {
@@ -445,6 +435,7 @@ public class CreateSudoku extends Sudoku {
 	        		for (int digit = 1; digit < cols + 1; digit++) {
 	        			checkIfDigitMaxUsed(digit);
 	        		}
+	        		resetHighlight();
 				} catch (Exception e1) {
 	
 	
@@ -611,7 +602,7 @@ public class CreateSudoku extends Sudoku {
         frame.add(fileSaveButton);
         frame.add(fileReadButton);
         frame.add(showStepButton);
-	    frame.setSize(x, Math.max(digitEnd, buttonEnd) + (int) (40 * widthScaling));  
+	    frame.setSize(x, Math.max(digitEnd, buttonEnd) + (int) (40 * heightScaling));  
 	    frame.setLayout(null);  
     }
 }
