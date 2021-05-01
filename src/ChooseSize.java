@@ -21,12 +21,12 @@ public class ChooseSize {
 	    double height = screenSize.getHeight();
 	    double widthScaling = width / baselineWidth;
 	    double heightScaling = height / baselineHeight;
-
-	    int x = (int) (15 * widthScaling);
-		int y = (int) (15 * heightScaling);
-		int w = (int) (130 * widthScaling);
+	    int space = (int) (15 * widthScaling);
+	    int x = space;
+		int y = space;
+		int w = (int) (150 * widthScaling);
 		int h = (int) (30 * heightScaling);
-		int fontsize = (int) (12 * heightScaling);
+		int fontsize = (int) (16 * heightScaling);
 		int r = 9, c = 9, xl = 3, yl = 3;
 	    JLabel rowLabel = new JLabel("Broj redaka mreže: ");
 	    rowLabel.setFont(new Font("Arial", Font.PLAIN, fontsize));
@@ -35,50 +35,54 @@ public class ChooseSize {
 	    
 	    JTextField row = new JTextField(String.valueOf(r));
 	    row.setFont(new Font("Arial", Font.PLAIN, fontsize));
-        row.setBounds(x + w, y, w / 4, h);
+        row.setBounds(x + w, y, h, h);
 	    frame.add(row);
-
+	    y += h;
 	    JLabel xLimLabel = new JLabel("Broj redaka kutije: ");
 	    xLimLabel.setFont(new Font("Arial", Font.PLAIN, fontsize));
-	    xLimLabel.setBounds(x, y + h, w, h);
+	    xLimLabel.setBounds(x, y, w, h);
 	    frame.add(xLimLabel);
-	    
+
 	    JTextField xLimVal = new JTextField(String.valueOf(xl));
 	    xLimVal.setFont(new Font("Arial", Font.PLAIN, fontsize));
-	    xLimVal.setBounds(x + w, y + h, w / 4, h);
+	    xLimVal.setBounds(x + w, y, h, h);
 	    frame.add(xLimVal);
 
+	    y += h;
 	    JLabel colLabel = new JLabel("Broj stupaca mreže: ");
 	    colLabel.setFont(new Font("Arial", Font.PLAIN, fontsize));
-	    colLabel.setBounds(x, y + h * 2, w, h);
+	    colLabel.setBounds(x, y, w, h);
 	    frame.add(colLabel);
 	    
 	    JTextField col = new JTextField(String.valueOf(c));
 	    col.setFont(new Font("Arial", Font.PLAIN, fontsize));
-	    col.setBounds(x + w, y + h * 2, w / 4, h);
+	    col.setBounds(x + w, y, h, h);
 	    frame.add(col);
 
+	    y += h;
 	    JLabel yLimLabel = new JLabel("Broj stupaca kutije: ");
 	    yLimLabel.setFont(new Font("Arial", Font.PLAIN, fontsize));
-	    yLimLabel.setBounds(x, y + h * 3, w, h);
+	    yLimLabel.setBounds(x, y, w, h);
 	    frame.add(yLimLabel);
 	    
 	    JTextField yLimVal = new JTextField(String.valueOf(yl));
 	    yLimVal.setFont(new Font("Arial", Font.PLAIN, fontsize));
-	    yLimVal.setBounds(x + w, y + h * 3, w / 4, h);
+	    yLimVal.setBounds(x + w, y, h, h);
 	    frame.add(yLimVal);
-	    
+
+	    y += h + space;
 	    JButton createButton = new JButton("Stvori sudoku");
 	    createButton.setFont(new Font("Arial", Font.PLAIN, fontsize));
-	    createButton.setBounds(x, y + h * 9 / 2, w * 5 / 4, h);
+	    createButton.setBounds(x, y, w + h, h);
 	    frame.add(createButton);
+	    y += h + space;
 
 	    createButton.addActionListener(new ActionListener(){  
 	        public void actionPerformed(ActionEvent e) {  
 	        	try {
 	        		if (Integer.parseInt(row.getText()) == Integer.parseInt(col.getText()) && Integer.parseInt(yLimVal.getText()) * Integer.parseInt(xLimVal.getText()) == Integer.parseInt(row.getText())) {
 		        		@SuppressWarnings("unused")
-						ChangeBoxBorder changeBoxBorder = new ChangeBoxBorder(Integer.parseInt(row.getText()), Integer.parseInt(col.getText()), Integer.parseInt(yLimVal.getText()), Integer.parseInt(xLimVal.getText()));
+						ChangeBoxBorder changeBoxBorder = new ChangeBoxBorder(Integer.parseInt(row.getText()), Integer.parseInt(col.getText()), Integer.parseInt(yLimVal.getText()), Integer.parseInt(xLimVal.getText()), true);
 	        		} else {
 	        			if (Integer.parseInt(row.getText()) != Integer.parseInt(col.getText())) {
 	        				InformationBox.infoBox("Zagonetka nije kvadratna.", "Stvaranje zagonetke");
@@ -98,7 +102,8 @@ public class ChooseSize {
 				}
 	        }  
 	    });
-	    frame.setSize(w * 5 / 3, h * 8);  
+	    x += w + h + space * 2;
+	    frame.setSize(x, y + (int) (40 * heightScaling));  
 	    frame.setLayout(null);  
 		frame.setVisible(true);
 	}

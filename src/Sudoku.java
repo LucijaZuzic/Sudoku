@@ -26,8 +26,7 @@ public abstract class Sudoku extends SudokuGrid {
 	Stack<Integer> lastRemovedPosSymetric = new Stack<Integer>();
 	Stack<Integer> lastRemovedValSymetric = new Stack<Integer>();
 
-	int numPossibilities[] = new int[rows * cols];
-	int[][] possibilities = new int[rows * cols][rows];
+
 	int unset = 0;
 	boolean showSteps = false;
 	
@@ -44,8 +43,6 @@ public abstract class Sudoku extends SudokuGrid {
 			    	for (int val = 0; val < cols; val++) {
 			    		possibilities[row * cols + col][val] = 0;
 				    }
-			    	// Jedina preostala moguænost je konaèna vrijednost
-		    		possibilities[row * cols + col][temporary[row * cols + col] - 1] = 1; 
 	    		} else {
 	    			// Ukloni moguænosti za vrijednosti koje veæ postoje u istom stupcu
 	    			for (int fullCol = 0; fullCol < cols; fullCol++) { 
@@ -71,12 +68,38 @@ public abstract class Sudoku extends SudokuGrid {
 				    		}
 				    	}
 				    }
+			    	// Ukloni moguænosti za vrijednosti koje veæ postoje u rastuæoj dijagonali (ako ukljuèujemo diajgonale i ako je broj na toj dijagonali)
+	    			if (row == col && diagonalOn) {
+					    for (int diagonally = 0; diagonally < cols; diagonally++){ 
+					    	if (temporary[diagonally * cols + diagonally] != 0) {
+			    				possibilities[row * cols + col][temporary[diagonally * cols + diagonally] - 1] = 0;
+			    				numChanged = 1;
+				    		}
+					    }
+	    			} 
+			    	// Ukloni moguænosti za vrijednosti koje veæ postoje u padajuæoj dijagonali (ako ukljuèujemo diajgonale i ako je broj na toj dijagonali)
+	    			if (row == cols - 1 - col && diagonalOn) {
+					    for (int diagonally = 0; diagonally < cols; diagonally++){ 
+					    	if (temporary[diagonally * cols + (cols - 1 - diagonally)] != 0) {
+			    				possibilities[row * cols + col][temporary[diagonally * cols + (cols - 1 - diagonally)] - 1] = 0;
+			    				numChanged = 1;
+				    		}
+					    }
+	    			}
+	    		}
+		    	// Ukloni moguænosti prema odnosima veæe-manje
+	    		if (setMaxPossibility(row * cols + col) == 1) {
+	    			numChanged = 1;
+	    		}
+		    	// Ukloni moguænosti prema odnosima manje-veæe
+	    		if (setMinPossibility(row * cols + col) == 1) {
+	    			numChanged = 1;
 	    		}
 	    	}
 		}
 	    return numChanged;
 	}
-	
+
 	public int singleCandidate() {
 		// Upisujemo konaène vrijednosti u æelije koje imaju samo jednu moguænost
 	    for (int row = 0; row < rows; row++){
@@ -118,7 +141,6 @@ public abstract class Sudoku extends SudokuGrid {
 						if (sequence() == 1) {
 			    			return 1;
 						}
-
 			    	}
 	    		}
 	    	}
@@ -396,6 +418,8 @@ public abstract class Sudoku extends SudokuGrid {
 			    	    			InformationBox.infoBox("Uklanjam moguænost " + String.valueOf(val + 1) + " iz æelije (" + String.valueOf(notInSet / cols + 1) + ", " + String.valueOf(notInSet % cols + 1) + ").", "Rješavaè");
 					    		}
 								possibilities[notInSet][val] = 0;
+								setMaxPossibility(notInSet);
+								setMinPossibility(notInSet);
 								if (sequence() == 1) {
 					    			return 1;
 								}
@@ -482,6 +506,8 @@ public abstract class Sudoku extends SudokuGrid {
 			    	    			InformationBox.infoBox("Uklanjam moguænost " + String.valueOf(val + 1) + " iz æelije (" + String.valueOf(notInSet / cols + 1) + ", " + String.valueOf(notInSet % cols + 1) + ").", "Rješavaè");
 					    		}
 			    				possibilities[notInSet][val] = 0;
+								setMaxPossibility(notInSet);
+								setMinPossibility(notInSet);
 								if (sequence() == 1) {
 					    			return 1;
 								}
@@ -577,6 +603,8 @@ public abstract class Sudoku extends SudokuGrid {
 			    	    			InformationBox.infoBox("Uklanjam moguænost " + String.valueOf(val + 1) + " iz æelije (" + String.valueOf(notInSet / cols + 1) + ", " + String.valueOf(notInSet % cols + 1) + ").", "Rješavaè");
 					    		}
 			    				possibilities[notInSet][val] = 0;
+								setMaxPossibility(notInSet);
+								setMinPossibility(notInSet);
 								if (sequence() == 1) {
 					    			return 1;
 								}
@@ -866,6 +894,8 @@ public abstract class Sudoku extends SudokuGrid {
 			    	    			InformationBox.infoBox("Uklanjam moguænost " + String.valueOf(val + 1) + " iz æelije (" + String.valueOf(firstRow + 1) + ", " + String.valueOf(col + 1) + ").", "Rješavaè");
 					    		}
 			    				possibilities[firstRow * cols + col][val] = 0;
+								setMaxPossibility(firstRow * cols + col);
+								setMinPossibility(firstRow * cols + col);
 								if (sequence() == 1) {
 									return 1;
 								}
@@ -944,6 +974,8 @@ public abstract class Sudoku extends SudokuGrid {
 			    	    			InformationBox.infoBox("Uklanjam moguænost " + String.valueOf(val + 1) + " iz æelije (" + String.valueOf(row + 1) + ", " + String.valueOf(firstCol + 1) + ").", "Rješavaè");
 					    		}
 								possibilities[row * cols + firstCol][val] = 0;
+								setMaxPossibility(row * cols + firstCol);
+								setMinPossibility(row * cols + firstCol);
 								if (sequence() == 1) {
 					    			return 1;
 								}
@@ -1028,6 +1060,8 @@ public abstract class Sudoku extends SudokuGrid {
 			    	    			InformationBox.infoBox("Uklanjam moguænost " + String.valueOf(notInSet + 1) + " iz æelije (" + String.valueOf(numCell / cols + 1) + ", " + String.valueOf(numCell % cols + 1) + ").", "Rješavaè");
 					    		}
 								possibilities[numCell][notInSet] = 0;
+								setMaxPossibility(numCell);
+								setMinPossibility(numCell);
 								if (sequence() == 1) {
 					    			return 1;
 								}
@@ -1181,6 +1215,8 @@ public abstract class Sudoku extends SudokuGrid {
 		    	    			InformationBox.infoBox("Uklanjam moguænost " + String.valueOf(val + 1) + " iz æelije (" + String.valueOf(valueRow[val] + 1) + ", " + String.valueOf(col + 1) + ").", "Rješavaè");
 				    		}
 		    				possibilities[valueRow[val] * cols + col][val] = 0;
+							setMaxPossibility(valueRow[val] * cols + col);
+							setMinPossibility(valueRow[val] * cols + col);
 				    		if (sequence() == 1) {
 		    	    			return 1;
 		    				}
@@ -1217,6 +1253,8 @@ public abstract class Sudoku extends SudokuGrid {
 		    	    			InformationBox.infoBox("Uklanjam moguænost " + String.valueOf(val + 1) + " iz æelije (" + String.valueOf(row + 1) + ", " + String.valueOf(valueCol[val] + 1) + ").", "Rješavaè");
 				    		}
 		    				possibilities[row * cols + valueCol[val]][val] = 0;
+							setMaxPossibility(row * cols + valueCol[val]);
+							setMinPossibility(row * cols + valueCol[val]);
 				    		if (sequence() == 1) {
 		    	    			return 1;
 		    				}
@@ -1377,6 +1415,8 @@ public abstract class Sudoku extends SudokuGrid {
 				    	    			InformationBox.infoBox("Uklanjam moguænost " + String.valueOf(val + 1) + " iz æelije (" + String.valueOf(row + 1) + ", " + String.valueOf(col + 1) + ").", "Rješavaè");
 						    		}
 									possibilities[row * cols + col][val] = 0;
+									setMaxPossibility(row * cols + col);
+									setMinPossibility(row * cols + col);
 						    		numChanges++;
 				    				if (sequence() == 1) {
 				    	    			return 1;
@@ -1459,6 +1499,8 @@ public abstract class Sudoku extends SudokuGrid {
 				    	    			InformationBox.infoBox("Uklanjam moguænost " + String.valueOf(val + 1) + " iz æelije (" + String.valueOf(row + 1) + ", " + String.valueOf(col + 1) + ").", "Rješavaè");
 						    		}
 									possibilities[row * cols + col][val] = 0;
+									setMaxPossibility(row * cols + col);
+									setMinPossibility(row * cols + col);
 						    		numChanges++;
 				    				if (sequence() == 1) {
 				    	    			return 1;
@@ -1480,6 +1522,8 @@ public abstract class Sudoku extends SudokuGrid {
 			int[] usedRows = new int[rows];
 			int[] usedCols = new int[cols];
 			int[] usedBoxes = new int[rows * cols];
+			boolean usedFirstDiagonal = false;
+			boolean usedSecondDiagonal = false;
 		    for (int row = 0; row < rows; row++){
 		    	for (int col = 0; col < cols; col++) {
 		    		usedRows[row] = 0;
@@ -1493,6 +1537,12 @@ public abstract class Sudoku extends SudokuGrid {
 			    		usedRows[row]++;
 			    		usedCols[col]++;
 			    		usedBoxes[boxNumber[row * cols + col]]++;
+			    		if (row == col && diagonalOn) {
+			    			usedFirstDiagonal = true;
+			    		}
+			    		if (row == cols - 1 - col && diagonalOn) {
+			    			usedSecondDiagonal = true;
+			    		}
 		    		}
 			    }
 		    }
@@ -1503,6 +1553,12 @@ public abstract class Sudoku extends SudokuGrid {
 		    	int possible = 0;
 		    	int colToClear = 0;
 		    	for (int col = 0; col < cols; col++) {
+		    		if (row == col && diagonalOn && usedFirstDiagonal) {
+		    			continue;
+		    		}
+		    		if (row == cols - 1 - col && diagonalOn && usedSecondDiagonal) {
+		    			continue;
+		    		}
 		    		int box = boxNumber[row * cols + col];
 		    		if (usedRows[row] == 0 && usedCols[col] == 0 && usedBoxes[box] == 0 && possibilities[row * cols + col][val - 1] != 0 && temporary[row * cols + col] == 0) {
 		    			possible++;
@@ -1520,6 +1576,12 @@ public abstract class Sudoku extends SudokuGrid {
 			    	usedCols[colToClear] = 1;
 			    	int b = boxNumber[row * cols + colToClear];
 			    	usedBoxes[b] = 1;
+		    		if (row == colToClear && diagonalOn) {
+		    			usedFirstDiagonal = true;
+		    		}
+		    		if (row == cols - 1 - colToClear && diagonalOn) {
+		    			usedSecondDiagonal = true;
+		    		}
 	    			solvingInstructions += "Za red " + String.valueOf(row + 1) + ", broj " + String.valueOf(val) + " je jedino moguæ u æeliji (" + String.valueOf(row + 1) + ", " + String.valueOf(colToClear + 1) + ").\n";
 		    		if (showSteps == true) {
 		    		    instructionArea.setText(solvingInstructions);
@@ -1527,7 +1589,6 @@ public abstract class Sudoku extends SudokuGrid {
     	    			InformationBox.infoBox("Za red " + String.valueOf(row + 1) + ", broj " + String.valueOf(val) + " je jedino moguæ u æeliji (" + String.valueOf(row + 1) + ", " + String.valueOf(colToClear + 1) + ").", "Rješavaè");
 		    		}
 			    	temporary[row * cols + colToClear] = val;
-    		    	field[row * cols + colToClear].setForeground(Color.BLACK);
 		    		field[row * cols + colToClear].setText(String.valueOf(val));
 		    		fixPencilmarks();
 		    		if (unset == 0) {
@@ -1545,6 +1606,12 @@ public abstract class Sudoku extends SudokuGrid {
 		    	int possible = 0;
 		    	int rowToClear = 0;
 		    	for (int row = 0; row < rows; row++) {
+		    		if (row == col && diagonalOn && usedFirstDiagonal) {
+		    			continue;
+		    		}
+		    		if (row == cols - 1 - col && diagonalOn && usedSecondDiagonal) {
+		    			continue;
+		    		}
 		    		int box = boxNumber[row * cols + col];
 		    		if (usedRows[row] == 0 && usedCols[col] == 0 && usedBoxes[box] == 0 && possibilities[row * cols + col][val - 1] != 0 && temporary[row * cols + col] == 0) {
 		    			possible++;
@@ -1562,6 +1629,12 @@ public abstract class Sudoku extends SudokuGrid {
 			    	usedCols[col] = 1;
 			    	int boxToClear = boxNumber[rowToClear * cols + col];
 			    	usedBoxes[boxToClear] = 1;
+		    		if (rowToClear == col && diagonalOn) {
+		    			usedFirstDiagonal = true;
+		    		}
+		    		if (rowToClear == cols - 1 - col && diagonalOn) {
+		    			usedSecondDiagonal = true;
+		    		}
 	    			solvingInstructions += "Za stupac " + String.valueOf(col + 1) + ", broj " + String.valueOf(val) + " je jedino moguæ u æeliji (" + String.valueOf(rowToClear + 1) + ", " + String.valueOf(col + 1) + ").\n";
 	    			if (showSteps == true) {
 		    		    instructionArea.setText(solvingInstructions);
@@ -1569,7 +1642,6 @@ public abstract class Sudoku extends SudokuGrid {
     	    			InformationBox.infoBox("Za stupac " + String.valueOf(col + 1) + ", broj " + String.valueOf(val) + " je jedino moguæ u æeliji (" + String.valueOf(rowToClear + 1) + ", " + String.valueOf(col + 1) + ").", "Rješavaè");
 		    		}
 	    			temporary[rowToClear * cols + col] = val;
-    		    	field[rowToClear * cols + col].setForeground(Color.BLACK);
 		    		field[rowToClear * cols + col].setText(String.valueOf(val));
 			    	fixPencilmarks();
 		    		if (unset == 0) {
@@ -1587,6 +1659,12 @@ public abstract class Sudoku extends SudokuGrid {
 		    	int possible = 0;
 		    	int cellToClear = 0;
 		    	for (int numCell = 0; numCell < rows * cols; numCell++) {
+		    		if (numCell / cols == numCell % cols && diagonalOn && usedFirstDiagonal) {
+		    			continue;
+		    		}
+		    		if (numCell / cols == cols - 1 - numCell % cols && diagonalOn && usedSecondDiagonal) {
+		    			continue;
+		    		}
 		    		int newBox = boxNumber[numCell];
 		    		if (newBox != box) {
 		    			continue;
@@ -1605,6 +1683,12 @@ public abstract class Sudoku extends SudokuGrid {
 			    	possibilities[cellToClear][val - 1] = 1;
 			    	usedRows[cellToClear / cols] = 1;
 			    	usedCols[cellToClear % cols] = 1;
+		    		if (cellToClear / cols == cellToClear % cols && diagonalOn) {
+		    			usedFirstDiagonal = true;
+		    		}
+		    		if (cellToClear / cols == cols - 1 - cellToClear % cols && diagonalOn) {
+		    			usedSecondDiagonal = true;
+		    		}
 			    	usedBoxes[boxNumber[cellToClear]] = 1;
 	    			solvingInstructions += "Za kutiju " + String.valueOf(boxNumber[cellToClear] + 1) + ", broj " + String.valueOf(val) + " je jedino moguæ u æeliji (" + String.valueOf(cellToClear / cols + 1) + ", " + String.valueOf(cellToClear % cols + 1) + ").\n";
 	    			if (showSteps == true) {
@@ -1613,7 +1697,6 @@ public abstract class Sudoku extends SudokuGrid {
     	    			InformationBox.infoBox("Za kutiju " + String.valueOf(boxNumber[cellToClear] + 1) + ", broj " + String.valueOf(val) + " je jedino moguæ u æeliji (" + String.valueOf(cellToClear / cols + 1) + ", " + String.valueOf(cellToClear % cols + 1) + ").", "Rješavaè");
 		    		}
 	    			temporary[cellToClear] = val;
-    		    	field[cellToClear].setForeground(Color.BLACK);
 		    		field[cellToClear].setText(String.valueOf(val));
 			    	fixPencilmarks();
 		    		if (unset == 0) {
@@ -1624,15 +1707,118 @@ public abstract class Sudoku extends SudokuGrid {
 					}
 		    	} 
 		    }
+		    if (diagonalOn) {
+		    	if (!usedFirstDiagonal) {
+		    		int possible = 0;
+		    		int cellToClear = 0;
+		    		for (int diagonally = 0; diagonally < cols; diagonally++) {
+		    			int numCell = diagonally * cols + diagonally;
+			    		if (numCell / cols == numCell % cols && diagonalOn && usedFirstDiagonal) {
+			    			continue;
+			    		}
+			    		if (numCell / cols == cols - 1 - numCell % cols && diagonalOn && usedSecondDiagonal) {
+			    			continue;
+			    		}
+			    		int newBox = boxNumber[numCell];
+			    		if (usedRows[numCell / cols] == 0 && usedCols[numCell % cols] == 0 && usedBoxes[newBox] == 0 && possibilities[numCell][val - 1] != 0 && temporary[numCell] == 0) {
+			    			possible++;
+			    			cellToClear = numCell;
+			    		}
+		    		}
+			    	if (possible == 1) {
+			    		difficultyScore += 100;
+			    		unset--;
+				    	for (int valPossible = 0; valPossible < cols; valPossible++) {
+				    		possibilities[cellToClear][valPossible] = 0;
+					    }
+				    	possibilities[cellToClear][val - 1] = 1;
+				    	usedRows[cellToClear / cols] = 1;
+				    	usedCols[cellToClear % cols] = 1;
+			    		if (cellToClear / cols == cellToClear % cols && diagonalOn) {
+			    			usedFirstDiagonal = true;
+			    		}
+			    		if (cellToClear / cols == cols - 1 - cellToClear % cols && diagonalOn) {
+			    			usedSecondDiagonal = true;
+			    		}
+				    	usedBoxes[boxNumber[cellToClear]] = 1;
+		    			solvingInstructions += "Za rastuæu dijagonalu broj " + String.valueOf(val) + " je jedino moguæ u æeliji (" + String.valueOf(cellToClear / cols + 1) + ", " + String.valueOf(cellToClear % cols + 1) + ").\n";
+		    			if (showSteps == true) {
+			    		    instructionArea.setText(solvingInstructions);
+	    		    		print();
+	    	    			InformationBox.infoBox("Za rastuæu dijagonalu broj " + String.valueOf(val) + " je jedino moguæ u æeliji (" + String.valueOf(cellToClear / cols + 1) + ", " + String.valueOf(cellToClear % cols + 1) + ").", "Rješavaè");
+			    		}
+		    			temporary[cellToClear] = val;
+			    		field[cellToClear].setText(String.valueOf(val));
+				    	fixPencilmarks();
+			    		if (unset == 0) {
+			    			return 1;
+			    		}
+						if (sequence() == 1) {
+			    			return 1;
+						}
+			    	}
+		    	}
+		    	if (!usedSecondDiagonal) {
+		    		int possible = 0;
+		    		int cellToClear = 0;
+		    		for (int diagonally = 0; diagonally < cols; diagonally++) {
+		    			int numCell = diagonally * cols + cols - 1 - diagonally;
+			    		if (numCell / cols == numCell % cols && diagonalOn && usedFirstDiagonal) {
+			    			continue;
+			    		}
+			    		if (numCell / cols == cols - 1 - numCell % cols && diagonalOn && usedSecondDiagonal) {
+			    			continue;
+			    		}
+			    		int newBox = boxNumber[numCell];
+			    		if (usedRows[numCell / cols] == 0 && usedCols[numCell % cols] == 0 && usedBoxes[newBox] == 0 && possibilities[numCell][val - 1] != 0 && temporary[numCell] == 0) {
+			    			possible++;
+			    			cellToClear = numCell;
+			    		}
+		    		}
+			    	if (possible == 1) {
+			    		difficultyScore += 100;
+			    		unset--;
+				    	for (int valPossible = 0; valPossible < cols; valPossible++) {
+				    		possibilities[cellToClear][valPossible] = 0;
+					    }
+				    	possibilities[cellToClear][val - 1] = 1;
+				    	usedRows[cellToClear / cols] = 1;
+				    	usedCols[cellToClear % cols] = 1;
+			    		if (cellToClear / cols == cellToClear % cols && diagonalOn) {
+			    			usedFirstDiagonal = true;
+			    		}
+			    		if (cellToClear / cols == cols - 1 - cellToClear % cols && diagonalOn) {
+			    			usedSecondDiagonal = true;
+			    		}
+				    	usedBoxes[boxNumber[cellToClear]] = 1;
+		    			solvingInstructions += "Za padajuæu dijagonalu broj " + String.valueOf(val) + " je jedino moguæ u æeliji (" + String.valueOf(cellToClear / cols + 1) + ", " + String.valueOf(cellToClear % cols + 1) + ").\n";
+		    			if (showSteps == true) {
+			    		    instructionArea.setText(solvingInstructions);
+	    		    		print();
+	    	    			InformationBox.infoBox("Za padajuæu dijagonalu broj " + String.valueOf(val) + " je jedino moguæ u æeliji (" + String.valueOf(cellToClear / cols + 1) + ", " + String.valueOf(cellToClear % cols + 1) + ").", "Rješavaè");
+			    		}
+		    			temporary[cellToClear] = val;
+			    		field[cellToClear].setText(String.valueOf(val));
+				    	fixPencilmarks();
+			    		if (unset == 0) {
+			    			return 1;
+			    		}
+						if (sequence() == 1) {
+			    			return 1;
+						}
+			    	}
+		    	}
+		    }
 		}
 		return 0;
 	}
 	
 	int maxDepth = 4;
-	int involvesGuesses;
-
+	
 	public int sequence() {
-		involvesGuesses = 0;
+    	if (System.currentTimeMillis() - startSolving >= 10000) {
+    		 return 0;
+    	}
 		if (singlePosition() == 1 || unset == 0) {
 			return 1;
 		}
@@ -1706,14 +1892,16 @@ public abstract class Sudoku extends SudokuGrid {
 				return 1;
 			}
 		}
-		involvesGuesses = 1;
 		if (guessing() == 1 || unset == 0) {
 			return 1;
 		}
 		return 0;
 	}
 	
+	long startSolving;
+	
 	public int isOnlyOneSolution() {
+		startSolving = System.currentTimeMillis();
 		clt = 0;
 		dpt = 0;
 		mlt = 0;
@@ -1744,15 +1932,6 @@ public abstract class Sudoku extends SudokuGrid {
 	    		}
 	    	}
 	    }
-	    if (cols == 9 && rows * cols - unset < 17) {
-			print();
-			if (0 != unset) {
-				sequence();
-				print();
-				difficulty.setText(String.valueOf(unset) + " Zadano je premalo polja");
-				return 0;
-			} 
-	    }
 		possibilities = new int[rows * cols][rows];
 	    for (int row = 0; row < rows; row++){
 	    	for (int col = 0; col < cols; col++) {
@@ -1765,30 +1944,18 @@ public abstract class Sudoku extends SudokuGrid {
 			    	for (int val = 0; val < cols; val++) {
 			    		possibilities[row * cols + col][val] = 1;
 				    }
-			    	for (int fullCol = 0; fullCol < cols; fullCol++) {
-			    		if (temporary[row * cols + fullCol] != 0) {
-				    		possibilities[row * cols + col][temporary[row * cols + fullCol] - 1] = 0;
-			    		}
-				    }
-			    	for (int fullRow = 0; fullRow < rows; fullRow++) {
-			    		if (temporary[fullRow * cols + col] != 0) {
-				    		possibilities[row * cols + col][temporary[fullRow * cols + col] - 1] = 0;
-			    		}
-				    }
-			    	int box = boxNumber[row * cols + col];
-				    for (int fullBoxRow = 0; fullBoxRow < rows; fullBoxRow++){
-					    for (int fullBoxCol = 0; fullBoxCol < cols; fullBoxCol++){
-				    		if (temporary[fullBoxRow * cols + fullBoxCol] != 0 && boxNumber[fullBoxRow * cols + fullBoxCol] == box) {
-					    		possibilities[row * cols + col][temporary[fullBoxRow * cols + fullBoxCol] - 1] = 0;
-				    		}
-				    	}
-				    }
 	    		}
 	    	}
 	    }
+		fixPencilmarks();
+	    if (cols == 9 && rows * cols - unset < 17 && 0 != unset) {
+			print();
+			difficulty.setText(String.valueOf(unset) + " Zadano je premalo polja");
+			return 0;
+	    }
 		if (sequence() == 1 || unset == 0) {
 			solvingInstructions += "Sva polja rješena.\n";
-			if (involvesGuesses == 1) {
+			if (solvingInstructions.contains("pogaðati")) {
 				difficulty.setText(String.valueOf(difficultyScore) + " Postoji verzija rješenja");	
 			} else {
 				difficulty.setText(String.valueOf(difficultyScore) + " Postoji jedinstveno rješenje");
@@ -1796,18 +1963,32 @@ public abstract class Sudoku extends SudokuGrid {
 			print();
 			return 1;
 		}
+		int impossible = 0;
+	    for (int row = 0; row < rows; row++){
+	    	for (int col = 0; col < cols; col++) {
+	    		if (temporary[row * cols + col] != 0) {
+	    			continue;
+	    		}
+	    		int possibleVals = 0;
+	    		for (int val = 0; val < cols; val++) {
+	    			if (possibilities[row * cols + col][val] == 1) {
+	    				possibleVals = 1;
+	    				break;
+	    			}
+	    		}
+	    		if (possibleVals == 0) {
+	    			impossible++;
+	    		}
+	    	}
+	    }
+	    if (impossible > 0) {
+			difficulty.setText(String.valueOf(impossible) + " Ne postoji rješenje");
+			print();
+			return 0;
+	    }
 		difficulty.setText(String.valueOf(unset) + " Ne postoji jedinstveno rješenje");
 		print();
 		return 0;
-	}
-	
-	public void fullPrint () {
-	    for (int row = 0; row < rows; row++){
-	    	for (int col = 0; col < cols; col++) {
-	    		System.out.print(temporary[row * cols + col]);
-	    	}
-	    	System.out.println("");
-	    }
 	}
 	
 	int fct	= 0;
@@ -1929,10 +2110,8 @@ public abstract class Sudoku extends SudokuGrid {
 		    			possibilities[row * cols + col][val] = 1;
 				    	unset--;
 						if (sequence() == 1) {
-							fullPrint();
 							return 1;
 						} else {
-							fullPrint();
 						    for (int rowRestore = 0; rowRestore < rows; rowRestore++){
 						    	for (int colRestore = 0; colRestore < cols; colRestore++) {
 						    		temporary[rowRestore * cols + colRestore] = backupTemporary[rowRestore * cols + colRestore];
@@ -2070,6 +2249,8 @@ public abstract class Sudoku extends SudokuGrid {
 				}	
 				numRemoved++;
 				possibilities[cell][beginVal] = 0;
+				setMaxPossibility(cell);
+				setMinPossibility(cell);
 				solvingInstructions += "Uklanjam moguænost " + String.valueOf(beginVal + 1) + " iz æelije (" + String.valueOf(cell / cols + 1) + ", " + String.valueOf(cell % cols + 1) + ").\n" ;
 				if (sequence() == 1) {
 					return 1;
@@ -2200,9 +2381,7 @@ public abstract class Sudoku extends SudokuGrid {
 			return false;
 		}
 	    field[lastRemovedPosOriginal.peek()].setText(String.valueOf(lastRemovedValOriginal.peek()));
-    	field[lastRemovedPosOriginal.peek()].setForeground(Color.BLACK);
 	    field[lastRemovedPosSymetric.peek()].setText(String.valueOf(lastRemovedValSymetric.peek()));
-    	field[lastRemovedPosSymetric.peek()].setForeground(Color.BLACK);
 		userInput[lastRemovedPosOriginal.peek()] = lastRemovedValOriginal.peek();
     	numUseDigit[lastRemovedValOriginal.peek()]++;
     	checkIfDigitMaxUsed(lastRemovedValOriginal.peek());
@@ -2223,57 +2402,272 @@ public abstract class Sudoku extends SudokuGrid {
 	}
 	
 	
+
+	
 	public int randomPuzzle() {
-		for (int val = 1; val <= rows; val++) {
-			int[] usedRows = new int[rows];
-			int[] usedCols = new int[cols];
-			int[] usedBoxes = new int[rows * cols];
-		    for (int row = 0; row < rows; row++){
-		    	for (int col = 0; col < cols; col++) {
-		    		usedRows[row] = 0;
-		    		usedCols[col] = 0;
-		    		usedBoxes[row] = 0;
-			    }
+		unset = 0;
+		possibilities = new int[rows * cols][rows];
+	    int[][] usedRow = new int[cols][rows];
+	    for (int row = 0; row < rows; row++){
+	    	for (int col = 0; col < cols; col++) {
+	    		usedRow[row][col] = 0;
+	    		if (temporary[row * cols + col] != 0) {
+			    	for (int val = 0; val < cols; val++) {
+			    		possibilities[row * cols + col][val] = 0;
+				    }
+		    		possibilities[row * cols + col][temporary[row * cols + col] - 1] = 1;
+		    		
+	    		} else {
+			    	for (int val = 0; val < cols; val++) {
+			    		possibilities[row * cols + col][val] = 1;
+				    }
+			    	unset++;
+	    		}
+	    	}
+	    }
+	    fixPencilmarks();
+	    for (int row = 0; row < rows; row++){ 
+	    	for (int col = 0; col < cols; col++) {
+	    		int numCell = row * cols + col;
+	    		if (temporary[numCell] != 0) {
+	    			continue;
+	    		}
+	    		if (isInTree(numCell) > 0) {
+		    	    int possible = 0;
+		    	    int firstPossible = 0;
+		    		int lastPossible = 0;
+		    		Set<Integer> possibleVals = new HashSet<Integer>();
+		    		for (int val = 1; val <= cols; val++) {
+			    		if (possibilities[numCell][val - 1] == 1 && temporary[numCell] == 0) {
+			    			if (possible == 0) {
+			    				firstPossible = val;
+			    			}
+			    			possible++;
+			    			possibleVals.add(val);
+			    			lastPossible = val;
+			    		}
+				    }
+			    	if (possible == 0) {
+			    		
+				    	return 1;
+			    	}
+			    	if (possible == 1) {
+				    	temporary[row * cols + col] = lastPossible;
+				    	usedRow[lastPossible - 1][row] = 1;
+				    	fixPencilmarks();
+			    		unset--;
+			    		if (unset == 0) {
+			    			return 0;
+			    		}
+				    	continue;
+			    	}
+			    	int randomVal = ThreadLocalRandom.current().nextInt(firstPossible, lastPossible + 1);
+			    	while (!possibleVals.contains(randomVal)) {
+			    		randomVal = ThreadLocalRandom.current().nextInt(firstPossible, lastPossible + 1);
+			    	}
+			    	temporary[row * cols + col] = randomVal;
+			    	usedRow[randomVal - 1][row] = 1;
+			    	fixPencilmarks();
+		    		unset--;
+		    		if (unset == 0) {
+		    			return 0;
+		    		}
+	    		}
+	    	}
+	    }
+	    if (diagonalOn) {
+		    int[] rowOrder = new int[rows];
+		    int rowIndex = 0;
+		    for (int rowOffset = 0; rowOffset < rows / 2 + rows % 2; rowOffset++){
+		    	if (rows % 2 == 0) {
+		    		rowOrder[rowIndex] = rows / 2 - 1 - rowOffset;
+		    		rowIndex++;
+		    		rowOrder[rowIndex] = rows / 2 - rowOffset;
+		    		rowIndex++;
+		    	} else {
+		    		if (rowOffset == 0) {
+			    		rowOrder[rowIndex] = rows / 2 - rowOffset;
+			    		rowIndex++;
+		    		} else {
+			    		rowOrder[rowIndex] = rows / 2 - rowOffset;
+			    		rowIndex++;
+			    		rowOrder[rowIndex] = rows / 2 + rowOffset;
+			    		rowIndex++;
+		    		}
+		    	}
 		    }
-		    for (int row = 0; row < rows; row++){
-		    	for (int col = 0; col < cols; col++) {
-		    		if (temporary[row * cols + col] == val) {
-			    		usedRows[row]++;
-			    		usedCols[col]++;
-			    		usedBoxes[boxNumber[row * cols + col]]++;
+		    for (int rowOffset = 0; rowOffset < rows; rowOffset++) {
+		    	int row = rowOrder[rowOffset];
+	    	    for (int col = 0; col < cols; col++) {
+	    	    	if (row != col && row != cols - 1 - col) {
+	    	    		continue;
+	    	    	}
+		    	    int possible = 0;
+		    	    int firstPossible = 0;
+		    		int lastPossible = 0;
+		    		Set<Integer> possibleVals = new HashSet<Integer>();
+		    		for (int val = 1; val <= cols; val++) {
+			    		int numCell = row * cols + col;
+			    		if (possibilities[numCell][val - 1] == 1 && temporary[numCell] == 0) {
+			    			if (possible == 0) {
+			    				firstPossible = val;
+			    			}
+			    			possible++;
+			    			possibleVals.add(val);
+			    			lastPossible = val;
+			    		}
+				    }
+			    	if (possible == 0) {
+			    		
+				    	return 1;
+			    	}
+			    	if (possible == 1) {
+				    	temporary[row * cols + col] = lastPossible;
+				    	usedRow[lastPossible - 1][row] = 1;
+				    	fixPencilmarks();
+			    		unset--;
+			    		if (unset == 0) {
+			    			return 0;
+			    		}
+				    	continue;
+			    	}
+			    	int randomVal = ThreadLocalRandom.current().nextInt(firstPossible, lastPossible + 1);
+			    	while (!possibleVals.contains(randomVal)) {
+			    		randomVal = ThreadLocalRandom.current().nextInt(firstPossible, lastPossible + 1);
+			    	}
+			    	temporary[row * cols + col] = randomVal;
+			    	usedRow[randomVal - 1][row] = 1;
+			    	fixPencilmarks();
+		    		unset--;
+		    		if (unset == 0) {
+		    			return 0;
 		    		}
 			    }
-		    }
-		    for (int row = 0; row < rows; row++){ 
-		    	if (usedRows[row] == 1) {
-		    		continue;
-		    	}
-		    	int possible = 0;
-		    	for (int col = 0; col < cols; col++) {
-		    		int box = boxNumber[row * cols + col];
-		    		if (usedBoxes[box] == 0 && usedCols[col] == 0 && temporary[row * cols + col] == 0) {
+			}
+
+		    for (int rowOffset = 0; rowOffset < rows; rowOffset++) {
+		    	int row = rowOrder[rowOffset];
+	    	    for (int col = 0; col < cols; col++) {
+	    	    	if (row == col || row == cols - 1 - col) {
+	    	    		continue;
+	    	    	}
+	    	    	int boxLeft = boxNumber[row * cols + row];
+	    	    	int boxRight = boxNumber[row * cols + cols - 1 - row];
+	    	    	int box= boxNumber[row * cols + col];
+	    	    	if (box != boxLeft && box != boxRight) {
+	    	    		continue;
+	    	    	}
+		    	    int possible = 0;
+		    	    int firstPossible = 0;
+		    		int lastPossible = 0;
+		    		Set<Integer> possibleVals = new HashSet<Integer>();
+		    		for (int val = 1; val <= cols; val++) {
+			    		int numCell = row * cols + col;
+			    		if (possibilities[numCell][val - 1] == 1 && temporary[numCell] == 0) {
+			    			if (possible == 0) {
+			    				firstPossible = val;
+			    			}
+			    			possible++;
+			    			possibleVals.add(val);
+			    			lastPossible = val;
+			    		}
+				    }
+			    	if (possible == 0) {
+			    		
+				    	return 1;
+			    	}
+			    	if (possible == 1) {
+				    	temporary[row * cols + col] = lastPossible;
+				    	usedRow[lastPossible - 1][row] = 1;
+				    	fixPencilmarks();
+			    		unset--;
+			    		if (unset == 0) {
+			    			return 0;
+			    		}
+				    	continue;
+			    	}
+			    	int randomVal = ThreadLocalRandom.current().nextInt(firstPossible, lastPossible + 1);
+			    	while (!possibleVals.contains(randomVal)) {
+			    		randomVal = ThreadLocalRandom.current().nextInt(firstPossible, lastPossible + 1);
+			    	}
+			    	temporary[row * cols + col] = randomVal;
+			    	usedRow[randomVal - 1][row] = 1;
+			    	fixPencilmarks();
+		    		unset--;
+		    		if (unset == 0) {
+		    			return 0;
+		    		}
+			    }
+
+			}
+
+	    	/*int randomCol = ThreadLocalRandom.current().nextInt(0, cols);
+	    	int randomRow = ThreadLocalRandom.current().nextInt(0, rows);
+    	    int possible = 0;
+    		int lastPossible = 0;
+    		Set<Integer> possibleVals = new HashSet<Integer>();
+    		for (int val = 1; val <= cols; val++) {
+	    		int numCell = randomRow * cols + randomCol;
+	    		if (possibilities[numCell][val - 1] == 1 && temporary[numCell] == 0) {
+	    			possible++;
+	    			possibleVals.add(val);
+	    			lastPossible = val;
+	    		}
+		    }*/
+    		
+	    }
+	    for (int row = 0; row < rows; row++) {
+			for (int val = 1; val <= cols; val++) {
+				if (usedRow[val - 1][row] == 1) {
+					continue;
+				}
+	    	    int possible = 0;
+	    	    int firstPossible = 0;
+	    		int lastPossible = 0;
+	    		Set<Integer> possibleCols = new HashSet<Integer>();
+	    	    for (int col = 0; col < cols; col++) {
+		    		int numCell = row * cols + col;
+		    		if (possibilities[numCell][val - 1] == 1 && temporary[numCell] == 0) {
+		    			if (possible == 0) {
+		    				firstPossible = col;
+		    			}
 		    			possible++;
+		    			possibleCols.add(col);
+		    			lastPossible = col;
 		    		}
 			    }
 		    	if (possible == 0) {
-		    		return 1;
+		    		
+			    	return 1;
 		    	}
-		    	int randomCol = ThreadLocalRandom.current().nextInt(0, cols);
-		    	int box = boxNumber[row * cols + randomCol];
-		    	while (usedBoxes[box] == 1 || usedCols[randomCol] == 1 || temporary[row * cols + randomCol] != 0) {
-			    	randomCol = ThreadLocalRandom.current().nextInt(0, cols);
-			    	box = boxNumber[row * cols + randomCol];
+		    	if (possible == 1) {
+			    	temporary[row * cols + lastPossible] = val;
+			    	fixPencilmarks();
+		    		unset--;
+		    		if (unset == 0) {
+		    			return 0;
+		    		}
+			    	continue;
 		    	}
-		    	usedCols[randomCol] = 1;
-		    	usedBoxes[box] = 1;
+		    	int randomCol = ThreadLocalRandom.current().nextInt(firstPossible, lastPossible + 1);
+		    	while (!possibleCols.contains(randomCol)) {
+		    		randomCol = ThreadLocalRandom.current().nextInt(firstPossible, lastPossible + 1);
+		    	}
 		    	temporary[row * cols + randomCol] = val;
+		    	fixPencilmarks();
+	    		unset--;
+	    		if (unset == 0) {
+	    			return 0;
+	    		}
 		    }
 		}
 		return 0;
 	}
 	
-	public Sudoku(int constructRows, int constructCols, int rowLimit, int colLimit) {
+	public Sudoku(int constructRows, int constructCols, int rowLimit, int colLimit, boolean setDiagonalOn, Set<String> setSizeRelationships) {
 		super(constructRows, constructCols, rowLimit, colLimit);
+		diagonalOn = setDiagonalOn;
+		setSizeRelationships.forEach( relationship -> sizeRelationships.add(relationship));
 	}
 	
 
