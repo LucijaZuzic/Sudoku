@@ -315,7 +315,7 @@ public abstract class SudokuGrid {
 	    return retVal;
 	}
 
-	public int breakingRelationship(int numCell, int val) {
+	/*public int breakingRelationship(int numCell, int val) {
 		int rightCell = numCell + 1;
 		if (rightCell < rows * cols) {
 			String relationshipRightCell = String.valueOf(numCell) + " " + String.valueOf(rightCell);
@@ -361,10 +361,10 @@ public abstract class SudokuGrid {
 			} 
 		}
 		return 0;
-	}
+	}*/
 	
 	
-	public boolean isTreeSource(int numCell) {
+	/*public boolean isTreeSource(int numCell) {
 		boolean isSource = false;
 		int rightCell = numCell + 1;
 		if (rightCell < rows * cols) {
@@ -411,7 +411,7 @@ public abstract class SudokuGrid {
 			} 
 		}
 		return isSource;
-	}
+	}*/
 
 	public int isInTree(int numCell) {
 		int rightCell = numCell + 1;
@@ -650,7 +650,7 @@ public abstract class SudokuGrid {
 	}
 	
 	
-	public int getLargerTrees() {
+	/*public int getLargerTrees() {
 	    for (int row = 0; row < rows; row++){ 
 	    	for (int col = 0; col < cols; col++) {
 	    		int numCell = row * cols + col;
@@ -663,7 +663,7 @@ public abstract class SudokuGrid {
 	    	}
 	    }
 	    return 0;
-	}
+	}*/
 
 
 	abstract public void draw();
