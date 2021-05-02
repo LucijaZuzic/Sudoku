@@ -38,6 +38,9 @@ public class SolveSudoku extends Sudoku {
 	JLabel helpLabel;
 	boolean setAssumed = true;
 
+	// Oznaka za prikaz kaznene vrijednosti
+	JLabel penaltyLabel = new JLabel("");
+	
 	public void resetHighlight() {
 		for (int row = 0; row < rows; row++){
 	    	for (int col = 0; col < cols; col++) {
