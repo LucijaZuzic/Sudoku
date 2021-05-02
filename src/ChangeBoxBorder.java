@@ -513,7 +513,7 @@ public class ChangeBoxBorder extends SudokuGrid {
 	    	diagonalButton.setText("Dijagonala nije jedinstvena");
 	    }
         diagonalButton.setMargin(new Insets(1,1,1,1));
-        diagonalButton.setBounds(x, y, w + h * 2, h);
+        diagonalButton.setBounds(x, y, w + h * 4, h);
         diagonalButton.setFont(new Font("Arial", Font.PLAIN, fontsize));
         diagonalButton.addActionListener(new ActionListener(){  
         public void actionPerformed(ActionEvent e) {  
