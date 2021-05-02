@@ -562,7 +562,7 @@ public class CreateSudoku extends Sudoku {
         frame.add(difficulty);
 		int buttonEnd = y + h + space;
         x += w + space;
-        w = (int) (250 * widthScaling);
+        w = (int) (270 * widthScaling);
         y = space;
         errorArea = new JTextArea(0, 0);
         errorArea.setFont(new Font("Arial", Font.PLAIN, fontsize));
