@@ -233,8 +233,8 @@ public class ChangeBoxBorder extends SudokuGrid {
 
 	    y += h + space;
 	   
-	    JButton createButton = new JButton("Izmjeni dimenzije");
-	    createButton.setBounds(x, y, w + h, h);
+	    JButton createButton = new JButton("Nove dimenzije");
+	    createButton.setBounds(x, y, w, h);
 	    createButton.setFont(new Font("Arial", Font.PLAIN, fontsize));
 	    createButton.addActionListener(new ActionListener(){  
 	        public void actionPerformed(ActionEvent e) {  
@@ -356,6 +356,9 @@ public class ChangeBoxBorder extends SudokuGrid {
         public void actionPerformed(ActionEvent e) {  
 	        	try {
 	        		mode = 0;
+        	    	relationshipStatus = 0;
+        	    	relationshipRemoveButton.setText("Pokreni uklanjanje para veæe-manje");
+        	    	relationshipAddButton.setText("Pokreni odabir para veæe-manje");
 				} catch (Exception e1) {
 					
 				}
@@ -371,6 +374,9 @@ public class ChangeBoxBorder extends SudokuGrid {
         public void actionPerformed(ActionEvent e) {  
 	        	try {
 	        		mode = 1;
+        	    	relationshipStatus = 0;
+        	    	relationshipRemoveButton.setText("Pokreni uklanjanje para veæe-manje");
+        	    	relationshipAddButton.setText("Pokreni odabir para veæe-manje");
 				} catch (Exception e1) {
 					
 				}
@@ -386,6 +392,9 @@ public class ChangeBoxBorder extends SudokuGrid {
         public void actionPerformed(ActionEvent e) {  
 	        	try {
 	        		mode = 2;
+        	    	relationshipStatus = 0;
+        	    	relationshipRemoveButton.setText("Pokreni uklanjanje para veæe-manje");
+        	    	relationshipAddButton.setText("Pokreni odabir para veæe-manje");
 				} catch (Exception e1) {
 					
 				}
@@ -401,6 +410,9 @@ public class ChangeBoxBorder extends SudokuGrid {
         public void actionPerformed(ActionEvent e) {  
 	        	try {
 	        		mode = 3;
+        	    	relationshipStatus = 0;
+        	    	relationshipRemoveButton.setText("Pokreni uklanjanje para veæe-manje");
+        	    	relationshipAddButton.setText("Pokreni odabir para veæe-manje");
 				} catch (Exception e1) {
 					
 				}
@@ -538,16 +550,10 @@ public class ChangeBoxBorder extends SudokuGrid {
         relationshipAddButton.addActionListener(new ActionListener(){  
         public void actionPerformed(ActionEvent e) {  
 	        	try {
-	        	    if (relationshipStatus > 0) {
-	        	    	relationshipStatus = 0;
-	        	    	relationshipRemoveButton.setText("Pokreni uklanjanje para veæe-manje");
-	        	    	relationshipAddButton.setText("Pokreni odabir para veæe-manje");
-	        	    } else {
-	        	    	relationshipStatus = 1;
-	        	    	relationshipAddButton.setText("Odaberi veæu æeliju");
-	        	    	relationshipRemoveButton.setText("Pokreni uklanjanje para veæe-manje");
-	        	    	mode = 4;
-	        	    }
+        	    	relationshipStatus = 1;
+        	    	relationshipAddButton.setText("Odaberi veæu æeliju");
+        	    	relationshipRemoveButton.setText("Pokreni uklanjanje para veæe-manje");
+        	    	mode = 4;
 	        	    checkBoxes();
 				} catch (Exception e1) {
 	
@@ -573,16 +579,10 @@ public class ChangeBoxBorder extends SudokuGrid {
 	    relationshipRemoveButton.addActionListener(new ActionListener(){  
         public void actionPerformed(ActionEvent e) {  
 	        	try {
-	        	    if (relationshipStatus > 0) {
-	        	    	relationshipStatus = 0;
-	        	    	relationshipAddButton.setText("Pokreni odabir para veæe-manje");
-	        	    	relationshipRemoveButton.setText("Pokreni uklanjanje para veæe-manje");
-	        	    } else {
-	        	    	relationshipStatus = 1;
-	        	    	relationshipRemoveButton.setText("Odaberi veæu æeliju");
-	        	    	relationshipAddButton.setText("Pokreni odabir para veæe-manje");
-	        	    	mode = 5;
-	        	    }
+        	    	relationshipStatus = 1;
+        	    	relationshipRemoveButton.setText("Odaberi veæu æeliju");
+        	    	relationshipAddButton.setText("Pokreni odabir para veæe-manje");
+        	    	mode = 5;
 	        	    checkBoxes();
 				} catch (Exception e1) {
 	
