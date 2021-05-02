@@ -617,11 +617,11 @@ public class SolveSudoku extends Sudoku {
 				    		if (options[row * cols + col][val] == 1) {
 				    			numberOptions++;
 				    			if (val == selectedDigit - 1) {
-				    				text += "<row><b>";
+				    				text += "<row><b><i>";
 				    			}
 				    			text += String.valueOf(val + 1);
 				    			if (val == selectedDigit - 1) {
-				    				text += "</row></b>";
+				    				text += "</row></b></i>";
 				    			}
 				    			if (numberOptions % 3 == 0) {
 				    				text += "<br />";
@@ -692,12 +692,12 @@ public class SolveSudoku extends Sudoku {
 							    field[numCell].setFont(new Font("Arial", Font.PLAIN, numberFontsize));
 				        		userInput[numCell] = selectedDigit;
 				        		field[numCell].setText(String.valueOf(selectedDigit));
-				        		highlightCell(numCell);
-				        		highlightDigit();
-					        	checkIfCorrect();
 				        		if (setAssumed) {
 				        			assume();
 				        		}
+				        		highlightCell(numCell);
+				        		highlightDigit();
+					        	checkIfCorrect();
 			        		} 
 			        		if (mode == 1) {
 			    			    field[numCell].setFont(new Font("Arial", Font.PLAIN, fontsize));
@@ -709,6 +709,11 @@ public class SolveSudoku extends Sudoku {
 				        		} else {
 					        		options[numCell][selectedDigit - 1] = 1;
 				        		}
+				        		if (userInput[numCell] != 0) {
+				        			numUseDigit[userInput[numCell]]--;
+				        			numUseDigit[0]++;
+				        			checkIfDigitMaxUsed(userInput[numCell]);
+			        			}
 				        		userInput[numCell] = 0;
 					    		String text = "<html><font color = yellow>";
 					    		int numberOptions = 0;
@@ -716,11 +721,11 @@ public class SolveSudoku extends Sudoku {
 						    		if (options[numCell][val] == 1) {
 						    			numberOptions++;
 						    			if (val == selectedDigit - 1) {
-						    				text += "<row><b>";
+						    				text += "<row><b><i>";
 						    			}
 						    			text += String.valueOf(val + 1);
 						    			if (val == selectedDigit - 1) {
-						    				text += "</row></b>";
+						    				text += "</row></b></i>";
 						    			}
 						    			if (numberOptions % 3 == 0) {
 						    				text += "<br />";
@@ -735,11 +740,11 @@ public class SolveSudoku extends Sudoku {
 						    		text = "";
 						    	}
 				        		field[numCell].setText(text);
-				        		highlightCell(numCell);
-				        		highlightDigit();
 				        		if (setAssumed) {
 				        			assume();
 				        		}
+				        		highlightCell(numCell);
+				        		highlightDigit();
 			        		}
 			        		if (mode == 2) {
 			        			hint(numCell);
