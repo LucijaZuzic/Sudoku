@@ -27,7 +27,7 @@ public abstract class SudokuGrid {
 	int[] temporary;
 	Set<String> sizeRelationships;
 
-    int mintargetDifficulty = 0;
+    int mintargetDifficulty = 200;
     int maxtargetDifficulty = 160000;
 
 	int numPossibilities[] = new int[rows * cols];
