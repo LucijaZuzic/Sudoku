@@ -8,9 +8,11 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 
 import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 
 public class ChangeBoxBorder extends SudokuGrid {
@@ -276,6 +278,7 @@ public class ChangeBoxBorder extends SudokuGrid {
 
 	    y += h + space;
 
+	    int yreset = y;
 	    JLabel miniLabel = new JLabel("Minimalna težina: ");
 	    miniLabel.setFont(new Font("Arial", Font.PLAIN, fontsize));
 	    miniLabel.setBounds(x, y, w, h);
@@ -285,21 +288,134 @@ public class ChangeBoxBorder extends SudokuGrid {
 	    mini.setFont(new Font("Arial", Font.PLAIN, fontsize));
         mini.setBounds(x + w, y, 2 * h, h);
 	    frame.add(mini);
+	    JTextField maksi = new JTextField(String.valueOf(maxtargetDifficulty));
 
-	    y += h + space;
+
+	    int widthDifficulty = (int) (300 * widthScaling);
+	    JRadioButton beginner = new JRadioButton("Poèetnièka (avg. 4000, 3600-4500)");
+	    beginner.setFont(new Font("Arial", Font.PLAIN, fontsize));
+	    beginner.setBounds(x + w + 2 * h + space, y, widthDifficulty, h);
+	    beginner.addActionListener(new ActionListener(){  
+        public void actionPerformed(ActionEvent e) {  
+	        	try {
+	        		if (checkBoxes()) {
+	        			mini.setText("3600");
+	        			maksi.setText("4500");
+	        		}
+				} catch (Exception e1) {
+	
+				}
+	        }  
+	    });
+	    frame.add(beginner);
+	    y += h / 2 + space;
+	    JRadioButton easy = new JRadioButton("Lagano (avg. 4900, 4300-5500)");
+	    easy.setFont(new Font("Arial", Font.PLAIN, fontsize));
+	    easy.setBounds(x + w + 2 * h + space, y, widthDifficulty, h);
+	    easy.addActionListener(new ActionListener(){  
+	        public void actionPerformed(ActionEvent e) {  
+		        	try {
+		        		if (checkBoxes()) {
+		        			mini.setText("4300");
+		        			maksi.setText("5500");
+		        		}
+					} catch (Exception e1) {
+		
+					}
+		        }  
+		    });
+	    frame.add(easy);
+	    y += h / 2 + space;
+	    JRadioButton medium = new JRadioButton("Srednje (avg. 6000, 5300-6900)");
+	    medium.setFont(new Font("Arial", Font.PLAIN, fontsize));
+	    medium.setBounds(x + w + 2 * h + space, y, widthDifficulty, h);
+	    medium.addActionListener(new ActionListener(){  
+	        public void actionPerformed(ActionEvent e) {  
+		        	try {
+		        		if (checkBoxes()) {
+		        			mini.setText("5300");
+		        			maksi.setText("6900");
+		        		}
+					} catch (Exception e1) {
+		
+					}
+		        }  
+		    });
+	    frame.add(medium);
+	    y += h / 2 + space;
+	    JRadioButton tricky = new JRadioButton("Zahtjevno (avg. 7600, 6500-9300)");
+	    tricky.setFont(new Font("Arial", Font.PLAIN, fontsize));
+	    tricky.setBounds(x + w + 2 * h + space, y, widthDifficulty, h);
+	    tricky.addActionListener(new ActionListener(){  
+	        public void actionPerformed(ActionEvent e) {  
+		        	try {
+		        		if (checkBoxes()) {
+		        			mini.setText("6500");
+		        			maksi.setText("9300");
+		        		}
+					} catch (Exception e1) {
+		
+					}
+		        }  
+		    });
+	    frame.add(tricky);
+	    y += h / 2 + space;
+	    JRadioButton fiendish = new JRadioButton("Izazovno (avg. 10000, 8300-14000)");
+	    fiendish.setFont(new Font("Arial", Font.PLAIN, fontsize));
+	    fiendish.setBounds(x + w + 2 * h + space, y, widthDifficulty, h);
+	    fiendish.addActionListener(new ActionListener(){  
+	        public void actionPerformed(ActionEvent e) {  
+		        	try {
+		        		if (checkBoxes()) {
+		        			mini.setText("8300");
+		        			maksi.setText("14000");
+		        		}
+					} catch (Exception e1) {
+		
+					}
+		        }  
+		    });
+	    frame.add(fiendish);
+	    y += h / 2 + space;
+	    JRadioButton diabolical = new JRadioButton("Pakleno (avg. 18000, 11000-25000)");
+	    diabolical.setFont(new Font("Arial", Font.PLAIN, fontsize));
+	    diabolical.setBounds(x + w + 2 * h + space, y, widthDifficulty, h);
+	    diabolical.addActionListener(new ActionListener(){  
+	        public void actionPerformed(ActionEvent e) {  
+		        	try {
+		        		if (checkBoxes()) {
+		        			mini.setText("11000");
+		        			maksi.setText("25000");
+		        		}
+					} catch (Exception e1) {
+		
+					}
+		        }  
+		    });
+	    frame.add(diabolical);
+	    ButtonGroup group = new ButtonGroup();
+	    group.add(beginner);
+	    group.add(easy);
+	    group.add(medium);
+	    group.add(tricky);
+	    group.add(fiendish);
+	    group.add(diabolical);
+	    int widthTwo = x + w + 2 * h + space * 2 + widthDifficulty + space;
+	    y = yreset;
+	    y += h / 2 + space;
+
 
 	    JLabel maksiLabel = new JLabel("Maksimalna težina: ");
 	    maksiLabel.setFont(new Font("Arial", Font.PLAIN, fontsize));
 	    maksiLabel.setBounds(x, y, w, h);
 	    frame.add(maksiLabel);
 	    
-	    JTextField maksi = new JTextField(String.valueOf(maxtargetDifficulty));
 	    maksi.setFont(new Font("Arial", Font.PLAIN, fontsize));
 	    maksi.setBounds(x + w, y, 2 * h, h);
 	    frame.add(maksi);
 
 	    y += h + space;
-
+	    
         JButton solveRandomButton = new JButton("Riješi nasumièno");  
         solveRandomButton.setMargin(new Insets(1,1,1,1));
         solveRandomButton.setFont(new Font("Arial", Font.PLAIN, fontsize));
@@ -308,6 +424,14 @@ public class ChangeBoxBorder extends SudokuGrid {
         public void actionPerformed(ActionEvent e) {  
 	        	try {
 	        		if (checkBoxes()) {
+	        			if (Integer.parseInt(mini.getText()) < 200) {
+	        				InformationBox.infoBox("Težina ne može biti manja od 200 (dva uklonjena polja).", "Neispravan raspon težine");
+	        				return;
+	        			}
+	        			if (Integer.parseInt(mini.getText()) > Integer.parseInt(maksi.getText())) {
+	        				InformationBox.infoBox("Maksimalna težina ne može biti manja od minimalne težine.", "Neispravan raspon težine");
+	        				return;
+	        			}
 	        			@SuppressWarnings("unused")
 						SolveSudoku solveSudoku = new SolveSudoku(rows, cols, xLim, yLim, border, boxNumber, diagonalOn, sizeRelationships, Integer.parseInt(mini.getText()), Integer.parseInt(maksi.getText()));
 	        		}
@@ -594,7 +718,7 @@ public class ChangeBoxBorder extends SudokuGrid {
 
         x += w + h * 4 + space * 2;
 
-	    frame.setSize(Math.max(widthOne, x), Math.max(digitEnd, buttonEnd) + (int) (40 * heightScaling));  
+	    frame.setSize(Math.max(Math.max(widthOne, widthTwo), x), Math.max(digitEnd, buttonEnd) + (int) (40 * heightScaling));  
 	    
         frame.add(modeButton1);
         frame.add(modeButton2);
