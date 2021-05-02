@@ -113,6 +113,10 @@ public class FileManipulator {
 				  InformationBox.infoBox("Sadržaj datoteke je neispravan.", "Uèitavanje datoteke");
 		    	  return 1;
 		      }
+		      if (cols != sudoku.cols) {
+				  InformationBox.infoBox("Dimenzije zagonetke u datoteci ne odgovaraju vašem dizajnu.", "Uèitavanje datoteke");
+				  return 1;
+		      }
 		      sudoku.rows = cols;
 		      sudoku.cols = cols;
 	          sudoku.diagonalOn = false;

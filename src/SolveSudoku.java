@@ -1003,7 +1003,7 @@ public class SolveSudoku extends Sudoku {
 	    int buttonEnd = y + h + space;
         x += w + space;
         y = space;
-        w = (int) (250 * widthScaling);
+        w = (int) (270 * widthScaling);
         errorArea = new JTextArea(0, 0);
         errorArea.setFont(new Font("Arial", Font.PLAIN, fontsize));
         errorArea.setEditable (false);
