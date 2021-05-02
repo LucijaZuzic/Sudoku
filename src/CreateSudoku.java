@@ -575,7 +575,7 @@ public class CreateSudoku extends Sudoku {
 	    errorScroll.setBounds(x, y, w, Math.max(digitEnd, buttonEnd) - 2 * space);
 	    frame.add(errorScroll);
         x += w + space;
-        w = (int) (500 * widthScaling);
+        w = (int) (550 * widthScaling);
 	    errorPanel.setVisible(true);  
 	    errorPanel.setBackground(Color.WHITE);
 	    errorScroll.setVisible(true);  

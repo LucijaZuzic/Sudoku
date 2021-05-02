@@ -56,20 +56,36 @@ public class SolveSudoku extends Sudoku {
 	
 	public SolveSudoku(int constructRows, int constructCols, int rowLimit, int colLimit, int[] constructBorder, int[] constructBoxNumber, boolean setDiagonalOn, Set<String> setSizeRelationships, int constructMinDifficulty, int constructMaxDifficulty) {
 		super(constructRows, constructCols, rowLimit, colLimit, setDiagonalOn, setSizeRelationships);
-		JFrame newf = new JFrame();
-		int dialogResult = JOptionPane.showConfirmDialog (newf, "Želite li da se prikazuju greške?","Prikaži greške",0);
+		JFrame newFrame = new JFrame();
+		Object[] optionsForDialog = {"Da", "Ne"};
+		int dialogResult = JOptionPane.showOptionDialog (newFrame, "Želite li da se prikazuju greške?","Prikaži greške",
+				JOptionPane.YES_NO_OPTION,
+				JOptionPane.QUESTION_MESSAGE,
+				null,     //do not use a custom Icon
+				optionsForDialog,  //the titles of buttons
+				optionsForDialog[0]); //default button title
 		if(dialogResult == JOptionPane.YES_OPTION){
 			errorWarn = true;
 		} else {
 			errorWarn = false;
 		}
-		dialogResult = JOptionPane.showConfirmDialog (newf, "Želite li da se automatski postave bilješke?","Postavi bilješke",0);
+		dialogResult = JOptionPane.showOptionDialog (newFrame, "Želite li da se automatski postave bilješke?","Postavi bilješke",
+				JOptionPane.YES_NO_OPTION,
+				JOptionPane.QUESTION_MESSAGE,
+				null,     //do not use a custom Icon
+				optionsForDialog,  //the titles of buttons
+				optionsForDialog[0]); //default button title
 		if(dialogResult == JOptionPane.YES_OPTION){
 			setAssumed = true;
 		} else {
 			setAssumed = false;
 		}
-		dialogResult = JOptionPane.showConfirmDialog (newf, "Želite li da se ukljuèi pisanje bilješki?","Ukljuèi bilješke",0);
+		dialogResult = JOptionPane.showOptionDialog (newFrame, "Želite li da se ukljuèi pisanje bilješki?","Ukljuèi bilješke",
+				JOptionPane.YES_NO_OPTION,
+				JOptionPane.QUESTION_MESSAGE,
+				null,     //do not use a custom Icon
+				optionsForDialog,  //the titles of buttons
+				optionsForDialog[0]); //default button title
 		if(dialogResult == JOptionPane.YES_OPTION){
 			mode = 1;
 		} else {
@@ -172,19 +188,35 @@ public class SolveSudoku extends Sudoku {
 	public SolveSudoku(int constructRows, int constructCols, int rowLimit, int colLimit, int[] constructBorder, int[] constructBoxNumber, boolean setDiagonalOn, Set<String> setSizeRelationships, int[] constructUserInput) {
 		super(constructRows, constructCols, rowLimit, colLimit, setDiagonalOn, setSizeRelationships);
 		JFrame newFrame = new JFrame();
-		int dialogResult = JOptionPane.showConfirmDialog (newFrame, "Želite li da se prikazuju greške?","Prikaži greške",0);
+		Object[] optionsForDialog = {"Da", "Ne"};
+		int dialogResult = JOptionPane.showOptionDialog (newFrame, "Želite li da se prikazuju greške?","Prikaži greške",
+				JOptionPane.YES_NO_OPTION,
+				JOptionPane.QUESTION_MESSAGE,
+				null,     //do not use a custom Icon
+				optionsForDialog,  //the titles of buttons
+				optionsForDialog[0]); //default button title
 		if(dialogResult == JOptionPane.YES_OPTION){
 			errorWarn = true;
 		} else {
 			errorWarn = false;
 		}
-		dialogResult = JOptionPane.showConfirmDialog (newFrame, "Želite li da se automatski postave bilješke?","Postavi bilješke",0);
+		dialogResult = JOptionPane.showOptionDialog (newFrame, "Želite li da se automatski postave bilješke?","Postavi bilješke",
+				JOptionPane.YES_NO_OPTION,
+				JOptionPane.QUESTION_MESSAGE,
+				null,     //do not use a custom Icon
+				optionsForDialog,  //the titles of buttons
+				optionsForDialog[0]); //default button title
 		if(dialogResult == JOptionPane.YES_OPTION){
 			setAssumed = true;
 		} else {
 			setAssumed = false;
 		}
-		dialogResult = JOptionPane.showConfirmDialog (newFrame, "Želite li da se ukljuèi pisanje bilješki?","Ukljuèi bilješke",0);
+		dialogResult = JOptionPane.showOptionDialog (newFrame, "Želite li da se ukljuèi pisanje bilješki?","Ukljuèi bilješke",
+				JOptionPane.YES_NO_OPTION,
+				JOptionPane.QUESTION_MESSAGE,
+				null,     //do not use a custom Icon
+				optionsForDialog,  //the titles of buttons
+				optionsForDialog[0]); //default button title
 		if(dialogResult == JOptionPane.YES_OPTION){
 			mode = 1;
 		} else {
@@ -1015,7 +1047,7 @@ public class SolveSudoku extends Sudoku {
 	    errorScroll.setBounds(x, y, w, Math.max(digitEnd, buttonEnd) - 2 * space);
 	    frame.add(errorScroll);
         x += w + space;
-        w = (int) (500 * widthScaling);
+        w = (int) (550 * widthScaling);
 	    errorPanel.setVisible(true);  
 	    errorPanel.setBackground(Color.WHITE);
 	    errorScroll.setVisible(true);  
