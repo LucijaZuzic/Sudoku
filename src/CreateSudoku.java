@@ -253,11 +253,13 @@ public class CreateSudoku extends Sudoku {
     			int numCell = row * cols + col;
 	    		if (incorrect[numCell] && temporary[numCell] != 0) {
     				field[numCell].setForeground(Color.ORANGE);
+    			    field[numCell].setFont(new Font("Arial", Font.PLAIN, numberFontsize));
 	    		} else {
 	    			if (temporary[numCell] == 0) {
 	    				field[numCell].setForeground(Color.RED);
 		    		} else {
-	    				field[numCell].setForeground(Color.GREEN);	
+	    				field[numCell].setForeground(Color.GREEN);
+        			    field[numCell].setFont(new Font("Arial", Font.PLAIN, numberFontsize));	
 		    		}
 	    		}
 		    }
@@ -404,6 +406,7 @@ public class CreateSudoku extends Sudoku {
 	        		checkIfCorrect();
 	        	    instructionArea.setText(solvingInstructions);
 	        		showSteps = false;
+	        		checkIfCorrect();
 				} catch (Exception e1) {
 	
 				}

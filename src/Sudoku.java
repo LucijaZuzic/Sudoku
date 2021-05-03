@@ -129,7 +129,9 @@ public abstract class Sudoku extends SudokuGrid {
 				    			if (showSteps == true) {
 		    		    		    instructionArea.setText(solvingInstructions);
 			    		    		print();
-			    	    			InformationBox.infoBox("Broj " + String.valueOf(val + 1) + " je jedina moguæa vrijednost æelije (" + String.valueOf(row + 1) + ", " + String.valueOf(col + 1) + ")", "Rješavaè");
+			    	    			if (!InformationBox.stepBox("Broj " + String.valueOf(val + 1) + " je jedina moguæa vrijednost æelije (" + String.valueOf(row + 1) + ", " + String.valueOf(col + 1) + ")", "Rješavaè")) {
+			    	    				showSteps = false;
+			    	    			}
 		    		    		}
 			    		    	temporary[row * cols + col] = val + 1;
 		    		    		field[row * cols + col].setText(String.valueOf(val + 1));
@@ -348,7 +350,9 @@ public abstract class Sudoku extends SudokuGrid {
     	if (showSteps == true) {
 		    instructionArea.setText(solvingInstructions);
 		    print();
-			InformationBox.infoBox(lineSolvInstr, "Rješavaè");
+			if (!InformationBox.stepBox(lineSolvInstr, "Rješavaè")) {
+				showSteps = false;
+			}
 		}
 	}
 	// Tražimo ogoljeni skup u retcima
@@ -436,7 +440,9 @@ public abstract class Sudoku extends SudokuGrid {
 			    				if (showSteps == true) {
 					    		    instructionArea.setText(solvingInstructions);
 			    		    		print();
-			    	    			InformationBox.infoBox("Uklanjam moguænost " + String.valueOf(val + 1) + " iz æelije (" + String.valueOf(notInSet / cols + 1) + ", " + String.valueOf(notInSet % cols + 1) + ").", "Rješavaè");
+			    	    			if (!InformationBox.stepBox("Uklanjam moguænost " + String.valueOf(val + 1) + " iz æelije (" + String.valueOf(notInSet / cols + 1) + ", " + String.valueOf(notInSet % cols + 1) + ").", "Rješavaè")) {
+			    	    				showSteps = false;
+			    	    			}
 					    		}
 								possibilities[notInSet][val] = 0;
 						    	// Ukloni moguænosti prema odnosima veæe-manje
@@ -544,8 +550,10 @@ public abstract class Sudoku extends SudokuGrid {
 			    				if (showSteps == true) {
 					    		    instructionArea.setText(solvingInstructions);
 			    		    		print();
-			    	    			InformationBox.infoBox("Uklanjam moguænost " + String.valueOf(val + 1) + " iz æelije (" + String.valueOf(notInSet / cols + 1) + ", " + String.valueOf(notInSet % cols + 1) + ").", "Rješavaè");
-					    		}
+			    	    			if (!InformationBox.stepBox("Uklanjam moguænost " + String.valueOf(val + 1) + " iz æelije (" + String.valueOf(notInSet / cols + 1) + ", " + String.valueOf(notInSet % cols + 1) + ").", "Rješavaè")) {
+			    	    				showSteps = false;
+			    					}
+			    				}
 			    				possibilities[notInSet][val] = 0;
 						    	// Ukloni moguænosti prema odnosima veæe-manje
 								setMaxPossibility(notInSet);
@@ -661,7 +669,9 @@ public abstract class Sudoku extends SudokuGrid {
 			    				if (showSteps == true) {
 					    		    instructionArea.setText(solvingInstructions);
 			    		    		print();
-			    	    			InformationBox.infoBox("Uklanjam moguænost " + String.valueOf(val + 1) + " iz æelije (" + String.valueOf(notInSet / cols + 1) + ", " + String.valueOf(notInSet % cols + 1) + ").", "Rješavaè");
+			    	    			if (!InformationBox.stepBox("Uklanjam moguænost " + String.valueOf(val + 1) + " iz æelije (" + String.valueOf(notInSet / cols + 1) + ", " + String.valueOf(notInSet % cols + 1) + ").", "Rješavaè")) {
+			    	    				showSteps = false;
+			    	    			}
 					    		}
 			    				possibilities[notInSet][val] = 0;
 						    	// Ukloni moguænosti prema odnosima veæe-manje
@@ -919,7 +929,9 @@ public abstract class Sudoku extends SudokuGrid {
     	if (showSteps == true) {
 		    instructionArea.setText(solvingInstructions);
 		    print();
-			InformationBox.infoBox(lineSolvInstr, "Rješavaè");
+			if (!InformationBox.stepBox(lineSolvInstr, "Rješavaè")) {
+				showSteps = false;
+			}
 		}
 	}
 	// Tražimo skriveni skup u retcima
@@ -999,7 +1011,9 @@ public abstract class Sudoku extends SudokuGrid {
 								if (showSteps == true) {
 					    		    instructionArea.setText(solvingInstructions);
 			    		    		print();
-			    	    			InformationBox.infoBox("Uklanjam moguænost " + String.valueOf(val + 1) + " iz æelije (" + String.valueOf(firstRow + 1) + ", " + String.valueOf(col + 1) + ").", "Rješavaè");
+			    	    			if (!InformationBox.stepBox("Uklanjam moguænost " + String.valueOf(val + 1) + " iz æelije (" + String.valueOf(firstRow + 1) + ", " + String.valueOf(col + 1) + ").", "Rješavaè")) {
+			    	    				showSteps = false;
+			    	    			}
 					    		}
 			    				possibilities[firstRow * cols + col][val] = 0;
 						    	// Ukloni moguænosti prema odnosima veæe-manje
@@ -1099,7 +1113,9 @@ public abstract class Sudoku extends SudokuGrid {
 								if (showSteps == true) {
 					    		    instructionArea.setText(solvingInstructions);
 			    		    		print();
-			    	    			InformationBox.infoBox("Uklanjam moguænost " + String.valueOf(val + 1) + " iz æelije (" + String.valueOf(row + 1) + ", " + String.valueOf(firstCol + 1) + ").", "Rješavaè");
+			    	    			if (!InformationBox.stepBox("Uklanjam moguænost " + String.valueOf(val + 1) + " iz æelije (" + String.valueOf(row + 1) + ", " + String.valueOf(firstCol + 1) + ").", "Rješavaè")) {
+			    	    				showSteps = false;
+			    	    			}
 					    		}
 								possibilities[row * cols + firstCol][val] = 0;
 						    	// Ukloni moguænosti prema odnosima veæe-manje
@@ -1205,7 +1221,9 @@ public abstract class Sudoku extends SudokuGrid {
 								if (showSteps == true) {
 					    		    instructionArea.setText(solvingInstructions);
 			    		    		print();
-			    	    			InformationBox.infoBox("Uklanjam moguænost " + String.valueOf(notInSet + 1) + " iz æelije (" + String.valueOf(numCell / cols + 1) + ", " + String.valueOf(numCell % cols + 1) + ").", "Rješavaè");
+			    	    			if (!InformationBox.stepBox("Uklanjam moguænost " + String.valueOf(notInSet + 1) + " iz æelije (" + String.valueOf(numCell / cols + 1) + ", " + String.valueOf(numCell % cols + 1) + ").", "Rješavaè")) {
+			    	    				showSteps = false;
+			    	    			}
 					    		}
 								possibilities[numCell][notInSet] = 0;
 						    	// Ukloni moguænosti prema odnosima veæe-manje
@@ -1374,7 +1392,9 @@ public abstract class Sudoku extends SudokuGrid {
 							    	if (showSteps == true) {
 						    		    instructionArea.setText(solvingInstructions);
 						    		    print();
-				    	    			InformationBox.infoBox(lineSolvInstr, "Rješavaè");
+				    	    			if (!InformationBox.stepBox(lineSolvInstr, "Rješavaè")) {
+				    	    				showSteps = false;
+				    	    			}
 						    		}
     				    		}
 	    					}		
@@ -1384,7 +1404,9 @@ public abstract class Sudoku extends SudokuGrid {
 	    					if (showSteps == true) {
 				    		    instructionArea.setText(solvingInstructions);
 		    		    		print();
-		    	    			InformationBox.infoBox("Uklanjam moguænost " + String.valueOf(val + 1) + " iz æelije (" + String.valueOf(valueRow[val] + 1) + ", " + String.valueOf(col + 1) + ").", "Rješavaè");
+		    	    			if (!InformationBox.stepBox("Uklanjam moguænost " + String.valueOf(val + 1) + " iz æelije (" + String.valueOf(valueRow[val] + 1) + ", " + String.valueOf(col + 1) + ").", "Rješavaè")) {
+		    	    				showSteps = false;
+		    	    			}
 				    		}
 		    				possibilities[valueRow[val] * cols + col][val] = 0;
 					    	// Ukloni moguænosti prema odnosima veæe-manje
@@ -1424,7 +1446,9 @@ public abstract class Sudoku extends SudokuGrid {
 							    	if (showSteps == true) {
 						    		    instructionArea.setText(solvingInstructions);
 						    		    print();
-				    	    			InformationBox.infoBox(lineSolvInstr, "Rješavaè");
+				    	    			if (!InformationBox.stepBox(lineSolvInstr, "Rješavaè")) {
+				    	    				showSteps = false;
+				    	    			}
 						    		}
     				    		}
     	    				}		
@@ -1434,7 +1458,9 @@ public abstract class Sudoku extends SudokuGrid {
 	    					if (showSteps == true) {
 				    		    instructionArea.setText(solvingInstructions);
 		    		    		print();
-		    	    			InformationBox.infoBox("Uklanjam moguænost " + String.valueOf(val + 1) + " iz æelije (" + String.valueOf(row + 1) + ", " + String.valueOf(valueCol[val] + 1) + ").", "Rješavaè");
+		    	    			if (!InformationBox.stepBox("Uklanjam moguænost " + String.valueOf(val + 1) + " iz æelije (" + String.valueOf(row + 1) + ", " + String.valueOf(valueCol[val] + 1) + ").", "Rješavaè")) {
+		    	    				showSteps = false;
+		    	    			}
 				    		}
 		    				possibilities[row * cols + valueCol[val]][val] = 0;
 		    		    	// Ukloni moguænosti prema odnosima veæe-manje
@@ -1624,7 +1650,9 @@ public abstract class Sudoku extends SudokuGrid {
 									    	if (showSteps == true) {
 								    		    instructionArea.setText(solvingInstructions);
 								    		    print();
-						    	    			InformationBox.infoBox(lineSolvInstr, "Rješavaè");
+								    		    if (!InformationBox.stepBox(lineSolvInstr, "Rješavaè")) {
+								    				showSteps = false;
+								    			}
 								    		}
 		    				    		}
 									}
@@ -1634,7 +1662,9 @@ public abstract class Sudoku extends SudokuGrid {
 			    					if (showSteps == true) {
 						    		    instructionArea.setText(solvingInstructions);
 				    		    		print();
-				    	    			InformationBox.infoBox("Uklanjam moguænost " + String.valueOf(val + 1) + " iz æelije (" + String.valueOf(row + 1) + ", " + String.valueOf(col + 1) + ").", "Rješavaè");
+				    	    			if (!InformationBox.stepBox("Uklanjam moguænost " + String.valueOf(val + 1) + " iz æelije (" + String.valueOf(row + 1) + ", " + String.valueOf(col + 1) + ").", "Rješavaè")) {
+				    	    				showSteps = false;
+				    	    			}
 						    		}
 									possibilities[row * cols + col][val] = 0;
 							    	// Ukloni moguænosti prema odnosima veæe-manje
@@ -1728,7 +1758,9 @@ public abstract class Sudoku extends SudokuGrid {
 									    	if (showSteps == true) {
 								    		    instructionArea.setText(solvingInstructions);
 								    		    print();
-						    	    			InformationBox.infoBox(lineSolvInstr, "Rješavaè");
+								    		    if (!InformationBox.stepBox(lineSolvInstr, "Rješavaè")) {
+								    				showSteps = false;
+								    			}
 								    		}
 		    				    		}
 						    		}
@@ -1738,8 +1770,10 @@ public abstract class Sudoku extends SudokuGrid {
 			    					if (showSteps == true) {
 						    		    instructionArea.setText(solvingInstructions);
 				    		    		print();
-				    	    			InformationBox.infoBox("Uklanjam moguænost " + String.valueOf(val + 1) + " iz æelije (" + String.valueOf(row + 1) + ", " + String.valueOf(col + 1) + ").", "Rješavaè");
-						    		}
+				    	    			if (!InformationBox.stepBox("Uklanjam moguænost " + String.valueOf(val + 1) + " iz æelije (" + String.valueOf(row + 1) + ", " + String.valueOf(col + 1) + ").", "Rješavaè")) {
+				    	    				showSteps = false;
+				    	    			}
+			    					}
 									possibilities[row * cols + col][val] = 0;
 							    	// Ukloni moguænosti prema odnosima veæe-manje
 									setMaxPossibility(row * cols + col);
@@ -1844,8 +1878,11 @@ public abstract class Sudoku extends SudokuGrid {
 	    			if (showSteps == true) {
 		    		    instructionArea.setText(solvingInstructions);
     		    		print();
-    	    			InformationBox.infoBox("Za red " + String.valueOf(row + 1) + ", broj " + String.valueOf(val) + " je jedino moguæ u æeliji (" + String.valueOf(row + 1) + ", " + String.valueOf(colToClear + 1) + ").", "Rješavaè");
-		    		}
+    	    			if (!InformationBox.stepBox("Za red " + String.valueOf(row + 1) + ", broj " + String.valueOf(val) + " je jedino moguæ u æeliji (" + String.valueOf(row + 1) + ", " + String.valueOf(colToClear + 1) + ").", "Rješavaè")) {
+    	    				showSteps = false;
+    	    			}
+		    		
+	    			}
 			    	temporary[row * cols + colToClear] = val;
 		    		field[row * cols + colToClear].setText(String.valueOf(val));
 		    		// Ažuriramo moguæe vrijednosti ostalih æelija
@@ -1909,7 +1946,9 @@ public abstract class Sudoku extends SudokuGrid {
 	    			if (showSteps == true) {
 		    		    instructionArea.setText(solvingInstructions);
     		    		print();
-    	    			InformationBox.infoBox("Za stupac " + String.valueOf(col + 1) + ", broj " + String.valueOf(val) + " je jedino moguæ u æeliji (" + String.valueOf(rowToClear + 1) + ", " + String.valueOf(col + 1) + ").", "Rješavaè");
+    	    			if (!InformationBox.stepBox("Za stupac " + String.valueOf(col + 1) + ", broj " + String.valueOf(val) + " je jedino moguæ u æeliji (" + String.valueOf(rowToClear + 1) + ", " + String.valueOf(col + 1) + ").", "Rješavaè")) {
+    	    				showSteps = false;
+    	    			}
 		    		}
 	    			temporary[rowToClear * cols + col] = val;
 		    		field[rowToClear * cols + col].setText(String.valueOf(val));
@@ -1976,7 +2015,9 @@ public abstract class Sudoku extends SudokuGrid {
 	    			if (showSteps == true) {
 		    		    instructionArea.setText(solvingInstructions);
     		    		print();
-    	    			InformationBox.infoBox("Za kutiju " + String.valueOf(boxNumber[cellToClear] + 1) + ", broj " + String.valueOf(val) + " je jedino moguæ u æeliji (" + String.valueOf(cellToClear / cols + 1) + ", " + String.valueOf(cellToClear % cols + 1) + ").", "Rješavaè");
+    	    			if (!InformationBox.stepBox("Za kutiju " + String.valueOf(boxNumber[cellToClear] + 1) + ", broj " + String.valueOf(val) + " je jedino moguæ u æeliji (" + String.valueOf(cellToClear / cols + 1) + ", " + String.valueOf(cellToClear % cols + 1) + ").", "Rješavaè")) {
+    	    				showSteps = false;
+    	    			}
 		    		}
 	    			temporary[cellToClear] = val;
 		    		field[cellToClear].setText(String.valueOf(val));
@@ -2040,7 +2081,9 @@ public abstract class Sudoku extends SudokuGrid {
 		    			if (showSteps == true) {
 			    		    instructionArea.setText(solvingInstructions);
 	    		    		print();
-	    	    			InformationBox.infoBox("Za rastuæu dijagonalu broj " + String.valueOf(val) + " je jedino moguæ u æeliji (" + String.valueOf(cellToClear / cols + 1) + ", " + String.valueOf(cellToClear % cols + 1) + ").", "Rješavaè");
+	    	    			if (!InformationBox.stepBox("Za rastuæu dijagonalu broj " + String.valueOf(val) + " je jedino moguæ u æeliji (" + String.valueOf(cellToClear / cols + 1) + ", " + String.valueOf(cellToClear % cols + 1) + ").", "Rješavaè")) {
+	    	    				showSteps = false;
+	    	    			}
 			    		}
 		    			temporary[cellToClear] = val;
 			    		field[cellToClear].setText(String.valueOf(val));
@@ -2102,7 +2145,9 @@ public abstract class Sudoku extends SudokuGrid {
 		    			if (showSteps == true) {
 			    		    instructionArea.setText(solvingInstructions);
 	    		    		print();
-	    	    			InformationBox.infoBox("Za padajuæu dijagonalu broj " + String.valueOf(val) + " je jedino moguæ u æeliji (" + String.valueOf(cellToClear / cols + 1) + ", " + String.valueOf(cellToClear % cols + 1) + ").", "Rješavaè");
+	    	    			if (!InformationBox.stepBox("Za padajuæu dijagonalu broj " + String.valueOf(val) + " je jedino moguæ u æeliji (" + String.valueOf(cellToClear / cols + 1) + ", " + String.valueOf(cellToClear % cols + 1) + ").", "Rješavaè")) {
+	    	    				showSteps = false;
+	    	    			}
 			    		}
 		    			temporary[cellToClear] = val;
 			    		field[cellToClear].setText(String.valueOf(val));
@@ -2412,7 +2457,9 @@ public abstract class Sudoku extends SudokuGrid {
 		    				if (showSteps == true) {
 	    		    		    instructionArea.setText(solvingInstructions);
 		    		    		print();
-		    	    			InformationBox.infoBox("Æelija (" + String.valueOf(row + 1) + ", " + String.valueOf(col + 1) + ") forsira vrijednost " + String.valueOf(forcedValues[rowForce * rows + colForce]) + " u æeliji (" + String.valueOf(rowForce + 1) + ", " + String.valueOf(colForce + 1) + ").", "Rješavaè");
+		    	    			if (!InformationBox.stepBox("Æelija (" + String.valueOf(row + 1) + ", " + String.valueOf(col + 1) + ") forsira vrijednost " + String.valueOf(forcedValues[rowForce * rows + colForce]) + " u æeliji (" + String.valueOf(rowForce + 1) + ", " + String.valueOf(colForce + 1) + ").", "Rješavaè")) {
+		    	    				showSteps = false;
+		    	    			}
 	    		    		}
 			    			for (int val = 0; val < cols; val++) {
 			    				possibilities[rowForce * rows + colForce][val] = 0;
@@ -2731,14 +2778,16 @@ public abstract class Sudoku extends SudokuGrid {
 		    		// Ako æelija sadrži više moguænosti, moramo smanjiti velièinu fonta
 	    			field[numCell].setFont(new Font("Arial", Font.PLAIN, fontsize));
 		    	} else {
-		    		// Ako je definirana konaèna vrijedonst æelije, moramo možemo poveæati veèininu fonta
+		    		// Ako postoji samo jedna moguænost u æeliji, moramo možemo poveæati velièinu fonta
 	    			field[numCell].setFont(new Font("Arial", Font.PLAIN, numberFontsize));
 		    	}
 	    		field[numCell].setText(text);
 	    		if (userInput[numCell] != temporary[numCell] || temporary[numCell] == 0) {
+		    		// Ako æelija , moramo smanjiti velièinu fonta
 	    			field[numCell].setForeground(Color.RED);
 	    		} else {
-	    			field[numCell].setForeground(Color.WHITE);
+		    		// Ako je definirana konaèna vrijedonst æelije, moramo možemo poveæati veèininu fonta
+	    			field[numCell].setForeground(Color.GREEN);
 	    		}
 	    	}
 	    }
