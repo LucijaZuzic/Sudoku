@@ -1,3 +1,4 @@
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Toolkit;
@@ -8,10 +9,17 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.plaf.ColorUIResource;
 
 public class ChooseSize {
-
+	
+	
 	public static void main(String args[]) {
+	    UIManager.put("TextField.inactiveBackground", new ColorUIResource(Color.WHITE));
 		JFrame frame = new JFrame("Odaberi velièinu za sudoku");  
 	    frame.setDefaultCloseOperation (JFrame.EXIT_ON_CLOSE);
 	    Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -27,16 +35,16 @@ public class ChooseSize {
 		int w = (int) (150 * widthScaling);
 		int h = (int) (30 * heightScaling);
 		int fontsize = (int) (16 * heightScaling);
-		int r = 9, c = 9, xl = 3, yl = 3;
 	    JLabel rowLabel = new JLabel("Broj redaka mreže: ");
 	    rowLabel.setFont(new Font("Arial", Font.PLAIN, fontsize));
 	    rowLabel.setBounds(x, y, w, h);
 	    frame.add(rowLabel);
-	    
+	    int r = 9, c = 9, xl = 3, yl = 3;
 	    JTextField row = new JTextField(String.valueOf(r));
 	    row.setFont(new Font("Arial", Font.PLAIN, fontsize));
         row.setBounds(x + w, y, h, h);
 	    frame.add(row);
+	    
 	    y += h;
 	    JLabel xLimLabel = new JLabel("Broj redaka kutije: ");
 	    xLimLabel.setFont(new Font("Arial", Font.PLAIN, fontsize));
@@ -56,6 +64,7 @@ public class ChooseSize {
 	    
 	    JTextField col = new JTextField(String.valueOf(c));
 	    col.setFont(new Font("Arial", Font.PLAIN, fontsize));
+	    col.setEditable(false);
 	    col.setBounds(x + w, y, h, h);
 	    frame.add(col);
 
@@ -67,6 +76,7 @@ public class ChooseSize {
 	    
 	    JTextField yLimVal = new JTextField(String.valueOf(yl));
 	    yLimVal.setFont(new Font("Arial", Font.PLAIN, fontsize));
+	    yLimVal.setEditable(false);
 	    yLimVal.setBounds(x + w, y, h, h);
 	    frame.add(yLimVal);
 
@@ -76,32 +86,83 @@ public class ChooseSize {
 	    createButton.setBounds(x, y, w + h, h);
 	    frame.add(createButton);
 	    y += h + space;
-
+	    
 	    createButton.addActionListener(new ActionListener(){  
 	        public void actionPerformed(ActionEvent e) {  
 	        	try {
-	        		if (Integer.parseInt(row.getText()) == Integer.parseInt(col.getText()) && Integer.parseInt(yLimVal.getText()) * Integer.parseInt(xLimVal.getText()) == Integer.parseInt(row.getText())) {
-		        		@SuppressWarnings("unused")
-						ChangeBoxBorder changeBoxBorder = new ChangeBoxBorder(Integer.parseInt(row.getText()), Integer.parseInt(col.getText()), Integer.parseInt(yLimVal.getText()), Integer.parseInt(xLimVal.getText()), true);
-	        		} else {
-	        			if (Integer.parseInt(row.getText()) != Integer.parseInt(col.getText())) {
-	        				InformationBox.infoBox("Zagonetka nije kvadratna.", "Stvaranje zagonetke");
-	        				return;
-	        			}
-	        			if (Integer.parseInt(yLimVal.getText()) * Integer.parseInt(xLimVal.getText()) > Integer.parseInt(row.getText())) {
-	        				InformationBox.infoBox("Kutije imaju previše znamenki.", "Stvaranje zagonetke");
-	        				return;
-	        			}
-	        			if (Integer.parseInt(yLimVal.getText()) * Integer.parseInt(xLimVal.getText()) < Integer.parseInt(row.getText())) {
-	        				InformationBox.infoBox("Kutije imaju premalo znamenki.", "Stvaranje zagonetke");
-	        				return;
-	        			}
-	        		}
+					@SuppressWarnings("unused")
+					ChangeBoxBorder changeBoxBorder = new ChangeBoxBorder(Integer.parseInt(row.getText()), Integer.parseInt(col.getText()), Integer.parseInt(yLimVal.getText()), Integer.parseInt(xLimVal.getText()), true);
 				} catch (Exception e1) {
 
 				}
 	        }  
 	    });
+	    
+	    row.getDocument().addDocumentListener(new DocumentListener() {
+	      	  public void changedUpdate(DocumentEvent e) {
+	      	    SwingUtilities.invokeLater(matchRowsAndCols);
+	      	  }
+	      	  public void removeUpdate(DocumentEvent e) {
+	      		SwingUtilities.invokeLater(matchRowsAndCols);
+	      	  }
+	      	  public void insertUpdate(DocumentEvent e) {
+	      		SwingUtilities.invokeLater(matchRowsAndCols);
+	      	  }
+	      	  Runnable matchRowsAndCols = new Runnable() {public void run() {
+	      		if (Integer.parseInt(row.getText()) < 4) {
+	  				InformationBox.infoBox("Najmanji broj redova u zagonetki je 4.", "Stvaranje zagonetke");
+    				row.setText("4");
+    				col.setText("4");
+    				xLimVal.setText("2");
+    				yLimVal.setText("2");
+    				return;
+    			}
+	      		col.setText(row.getText());
+	      		if (Integer.parseInt(row.getText()) % Integer.parseInt(xLimVal.getText()) != 0) {
+	      			InformationBox.infoBox("Broj redaka mreže mora biti djeljiv brojem redaka kutije.", "Stvaranje zagonetke");
+	      			int xLimitNew = 1;
+  					for (int xLimitPossible = 2; xLimitPossible <= Integer.parseInt(row.getText()); xLimitPossible++) {
+  						double differenceCurrent = Math.abs(Math.sqrt(Integer.parseInt(row.getText())) - xLimitNew);
+  						double differenceNew = Math.abs(Math.sqrt(Integer.parseInt(row.getText())) - xLimitPossible);
+  						if (Integer.parseInt(row.getText()) % xLimitPossible == 0 && differenceCurrent > differenceNew) {
+  							xLimitNew = xLimitPossible;
+  						}
+  					}
+  					xLimVal.setText(String.valueOf(xLimitNew));
+	  				return;
+	  			}
+				yLimVal.setText(String.valueOf(Integer.parseInt(row.getText()) / Integer.parseInt(xLimVal.getText())));
+	      	  }};
+	    });
+	    
+	    xLimVal.getDocument().addDocumentListener(new DocumentListener() {
+	      	  public void changedUpdate(DocumentEvent e) {
+	      	    SwingUtilities.invokeLater(matchRowsAndCols);
+	      	  }
+	      	  public void removeUpdate(DocumentEvent e) {
+	      		SwingUtilities.invokeLater(matchRowsAndCols);
+	      	  }
+	      	  public void insertUpdate(DocumentEvent e) {
+	      		SwingUtilities.invokeLater(matchRowsAndCols);
+	      	  }
+	      	  Runnable matchRowsAndCols = new Runnable() {public void run() {
+	      		if (Integer.parseInt(row.getText()) % Integer.parseInt(xLimVal.getText()) != 0) {
+  				InformationBox.infoBox("Broj redaka mreže mora biti djeljiv brojem redaka kutije.", "Stvaranje zagonetke");
+  					int xLimitNew = 1;
+					for (int xLimitPossible = 2; xLimitPossible <= Integer.parseInt(row.getText()); xLimitPossible++) {
+						double differenceCurrent = Math.abs(Math.sqrt(Integer.parseInt(row.getText())) - xLimitNew);
+						double differenceNew = Math.abs(Math.sqrt(Integer.parseInt(row.getText())) - xLimitPossible);
+						if (Integer.parseInt(row.getText()) % xLimitPossible == 0 && differenceCurrent > differenceNew) {
+							xLimitNew = xLimitPossible;
+						}
+					}
+					xLimVal.setText(String.valueOf(xLimitNew));
+	  				return;
+	  			}
+				yLimVal.setText(String.valueOf(Integer.parseInt(row.getText()) / Integer.parseInt(xLimVal.getText())));
+	      	  }};
+	    });
+
 	    x += w + h + space * 2;
 	    frame.setSize(x, y + (int) (40 * heightScaling));  
 	    frame.setLayout(null);  

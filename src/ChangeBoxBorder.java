@@ -14,6 +14,11 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.plaf.ColorUIResource;
 
 public class ChangeBoxBorder extends SudokuGrid {
 	int mode = -1;
@@ -40,6 +45,7 @@ public class ChangeBoxBorder extends SudokuGrid {
 
 	@Override
 	public void draw() {
+	    UIManager.put("TextField.inactiveBackground", new ColorUIResource(Color.WHITE));
 		frame = new JFrame("Promjeni kutiju za sudoku");  
 	    frame.setDefaultCloseOperation (JFrame.DISPOSE_ON_CLOSE);
 
@@ -97,6 +103,9 @@ public class ChangeBoxBorder extends SudokuGrid {
 			    field[numCell].addActionListener(new ActionListener(){  
 			        public void actionPerformed(ActionEvent e) {  
 			        	try {
+			        		if (mode < 0) {
+			        			return;
+			        		}
 			        		showBoxMsg = false;
 			        		if (mode == 0)  {
 					    		field[numCell].setBackground(Color.GRAY);
@@ -218,6 +227,7 @@ public class ChangeBoxBorder extends SudokuGrid {
 	    
 	    JTextField col = new JTextField(String.valueOf(cols));
 	    col.setFont(new Font("Arial", Font.PLAIN, fontsize));
+	    col.setEditable(false);
 	    col.setBounds(x + w, y, h, h);
 	    frame.add(col);
 
@@ -230,11 +240,77 @@ public class ChangeBoxBorder extends SudokuGrid {
 	    
 	    JTextField yLimVal = new JTextField(String.valueOf(xLim));
 	    yLimVal.setFont(new Font("Arial", Font.PLAIN, fontsize));
+	    yLimVal.setEditable(false);
 	    yLimVal.setBounds(x + w, y, h, h);
 	    frame.add(yLimVal);
 
 	    y += h + space;
 	   
+	    row.getDocument().addDocumentListener(new DocumentListener() {
+	      	  public void changedUpdate(DocumentEvent e) {
+	      	    SwingUtilities.invokeLater(matchRowsAndCols);
+	      	  }
+	      	  public void removeUpdate(DocumentEvent e) {
+	      		SwingUtilities.invokeLater(matchRowsAndCols);
+	      	  }
+	      	  public void insertUpdate(DocumentEvent e) {
+	      		SwingUtilities.invokeLater(matchRowsAndCols);
+	      	  }
+	      	  Runnable matchRowsAndCols = new Runnable() {public void run() {
+	      		if (Integer.parseInt(row.getText()) < 4) {
+	  				InformationBox.infoBox("Najmanji broj redova u zagonetki je 4.", "Stvaranje zagonetke");
+	  				row.setText("4");
+	  				col.setText("4");
+	  				xLimVal.setText("2");
+	  				yLimVal.setText("2");
+	  				return;
+	  			}
+	      		col.setText(row.getText());
+	      		if (Integer.parseInt(row.getText()) % Integer.parseInt(xLimVal.getText()) != 0) {
+	      			InformationBox.infoBox("Broj redaka mreže mora biti djeljiv brojem redaka kutije.", "Stvaranje zagonetke");
+	      			int xLimitNew = 1;
+  					for (int xLimitPossible = 2; xLimitPossible <= Integer.parseInt(row.getText()); xLimitPossible++) {
+  						double differenceCurrent = Math.abs(Math.sqrt(Integer.parseInt(row.getText())) - xLimitNew);
+  						double differenceNew = Math.abs(Math.sqrt(Integer.parseInt(row.getText())) - xLimitPossible);
+  						if (Integer.parseInt(row.getText()) % xLimitPossible == 0 && differenceCurrent > differenceNew) {
+  							xLimitNew = xLimitPossible;
+  						}
+  					}
+  					xLimVal.setText(String.valueOf(xLimitNew));
+	  				return;
+	  			}
+				yLimVal.setText(String.valueOf(Integer.parseInt(row.getText()) / Integer.parseInt(xLimVal.getText())));
+	      	  }};
+	    });
+	    
+	    xLimVal.getDocument().addDocumentListener(new DocumentListener() {
+	      	  public void changedUpdate(DocumentEvent e) {
+	      	    SwingUtilities.invokeLater(matchRowsAndCols);
+	      	  }
+	      	  public void removeUpdate(DocumentEvent e) {
+	      		SwingUtilities.invokeLater(matchRowsAndCols);
+	      	  }
+	      	  public void insertUpdate(DocumentEvent e) {
+	      		SwingUtilities.invokeLater(matchRowsAndCols);
+	      	  }
+	      	  Runnable matchRowsAndCols = new Runnable() {public void run() {
+	      		if (Integer.parseInt(row.getText()) % Integer.parseInt(xLimVal.getText()) != 0) {
+	      			InformationBox.infoBox("Broj redaka mreže mora biti djeljiv brojem redaka kutije.", "Stvaranje zagonetke");
+	      			int xLimitNew = 1;
+  					for (int xLimitPossible = 2; xLimitPossible <= Integer.parseInt(row.getText()); xLimitPossible++) {
+  						double differenceCurrent = Math.abs(Math.sqrt(Integer.parseInt(row.getText())) - xLimitNew);
+  						double differenceNew = Math.abs(Math.sqrt(Integer.parseInt(row.getText())) - xLimitPossible);
+  						if (Integer.parseInt(row.getText()) % xLimitPossible == 0 && differenceCurrent > differenceNew) {
+  							xLimitNew = xLimitPossible;
+  						}
+  					}
+  					xLimVal.setText(String.valueOf(xLimitNew));
+	  				return;
+	  			}
+				yLimVal.setText(String.valueOf(Integer.parseInt(row.getText()) / Integer.parseInt(xLimVal.getText())));
+	      	  }};
+	    });
+	    
 	    JButton createButton = new JButton("Nove dimenzije");
 	    createButton.setBounds(x, y, w, h);
 	    createButton.setFont(new Font("Arial", Font.PLAIN, fontsize));
@@ -245,18 +321,6 @@ public class ChangeBoxBorder extends SudokuGrid {
 	        		int pc = Integer.parseInt(col.getText());
 	        		int yl = Integer.parseInt(yLimVal.getText());
 	        		int xl = Integer.parseInt(xLimVal.getText());
-        			if (pr != pc) {
-        				InformationBox.infoBox("Zagonetka nije kvadratna.", "Stvaranje zagonetke");
-        				return;
-        			}
-        			if (yl * xl > pr) {
-        				InformationBox.infoBox("Kutije imaju previše znamenki.", "Stvaranje zagonetke");
-        				return;
-        			}
-        			if (yl * xl < pr) {
-        				InformationBox.infoBox("Kutije imaju premalo znamenki.", "Stvaranje zagonetke");
-        				return;
-        			}
 
         			rows = pr;
         			cols = pc;
@@ -416,6 +480,55 @@ public class ChangeBoxBorder extends SudokuGrid {
 
 	    y += h + space;
 	    
+	    mini.getDocument().addDocumentListener(new DocumentListener() {
+	      	  public void changedUpdate(DocumentEvent e) {
+	      	    SwingUtilities.invokeLater(checkIfDifficultyCorrect);
+	      	  }
+	      	  public void removeUpdate(DocumentEvent e) {
+	      		SwingUtilities.invokeLater(checkIfDifficultyCorrect);
+	      	  }
+	      	  public void insertUpdate(DocumentEvent e) {
+	      		SwingUtilities.invokeLater(checkIfDifficultyCorrect);
+	      	  }
+	      	  Runnable checkIfDifficultyCorrect = new Runnable() {public void run() {
+	      		if (Integer.parseInt(mini.getText()) < 200) {
+    				InformationBox.infoBox("Težina ne može biti manja od 200 (dva uklonjena polja).", "Neispravan raspon težine");
+    				mini.setText("200");
+    				return;
+    			}
+    			if (Integer.parseInt(mini.getText()) > Integer.parseInt(maksi.getText())) {
+    				InformationBox.infoBox("Maksimalna težina ne može biti manja od minimalne težine.", "Neispravan raspon težine");
+    				mini.setText(maksi.getText());
+    				return;
+    			}
+	      	  }};
+	    });
+	    
+	    maksi.getDocument().addDocumentListener(new DocumentListener() {
+	      	  public void changedUpdate(DocumentEvent e) {
+	      	    SwingUtilities.invokeLater(checkIfDifficultyCorrect);
+	      	  }
+	      	  public void removeUpdate(DocumentEvent e) {
+	      		SwingUtilities.invokeLater(checkIfDifficultyCorrect);
+	      	  }
+	      	  public void insertUpdate(DocumentEvent e) {
+	      		SwingUtilities.invokeLater(checkIfDifficultyCorrect);
+	      	  }
+	      	  Runnable checkIfDifficultyCorrect = new Runnable() {public void run() {
+	      		if (Integer.parseInt(maksi.getText()) < 200) {
+	  				InformationBox.infoBox("Težina ne može biti manja od 200 (dva uklonjena polja).", "Neispravan raspon težine");
+	  				maksi.setText("200");
+	  				return;
+	  			}
+	  			if (Integer.parseInt(mini.getText()) > Integer.parseInt(maksi.getText())) {
+	  				InformationBox.infoBox("Maksimalna težina ne može biti manja od minimalne težine.", "Neispravan raspon težine");
+	  				maksi.setText(mini.getText());
+	  				return;
+	  			}
+	      	  }};
+	    });
+	    
+	    
         JButton solveRandomButton = new JButton("Riješi nasumièno");  
         solveRandomButton.setMargin(new Insets(1,1,1,1));
         solveRandomButton.setFont(new Font("Arial", Font.PLAIN, fontsize));
@@ -424,14 +537,6 @@ public class ChangeBoxBorder extends SudokuGrid {
         public void actionPerformed(ActionEvent e) {  
 	        	try {
 	        		if (checkBoxes()) {
-	        			if (Integer.parseInt(mini.getText()) < 200) {
-	        				InformationBox.infoBox("Težina ne može biti manja od 200 (dva uklonjena polja).", "Neispravan raspon težine");
-	        				return;
-	        			}
-	        			if (Integer.parseInt(mini.getText()) > Integer.parseInt(maksi.getText())) {
-	        				InformationBox.infoBox("Maksimalna težina ne može biti manja od minimalne težine.", "Neispravan raspon težine");
-	        				return;
-	        			}
 	        			@SuppressWarnings("unused")
 						SolveSudoku solveSudoku = new SolveSudoku(rows, cols, xLim, yLim, border, boxNumber, diagonalOn, sizeRelationships, Integer.parseInt(mini.getText()), Integer.parseInt(maksi.getText()));
 	        		}

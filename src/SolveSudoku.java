@@ -80,14 +80,18 @@ public class SolveSudoku extends Sudoku {
 		} else {
 			setAssumed = false;
 		}
-		dialogResult = JOptionPane.showOptionDialog (newFrame, "Želite li da se ukljuèi pisanje bilješki?","Ukljuèi bilješke",
-				JOptionPane.YES_NO_OPTION,
-				JOptionPane.QUESTION_MESSAGE,
-				null,     //do not use a custom Icon
-				optionsForDialog,  //the titles of buttons
-				optionsForDialog[0]); //default button title
-		if(dialogResult == JOptionPane.YES_OPTION){
-			mode = 1;
+		if (setAssumed == false) {
+			dialogResult = JOptionPane.showOptionDialog (newFrame, "Želite li da se ukljuèi pisanje bilješki?","Ukljuèi bilješke",
+					JOptionPane.YES_NO_OPTION,
+					JOptionPane.QUESTION_MESSAGE,
+					null,     //do not use a custom Icon
+					optionsForDialog,  //the titles of buttons
+					optionsForDialog[0]); //default button title
+			if(dialogResult == JOptionPane.YES_OPTION){
+				mode = 1;
+			} else {
+				mode = 0;
+			}
 		} else {
 			mode = 0;
 		}
@@ -211,14 +215,18 @@ public class SolveSudoku extends Sudoku {
 		} else {
 			setAssumed = false;
 		}
-		dialogResult = JOptionPane.showOptionDialog (newFrame, "Želite li da se ukljuèi pisanje bilješki?","Ukljuèi bilješke",
-				JOptionPane.YES_NO_OPTION,
-				JOptionPane.QUESTION_MESSAGE,
-				null,     //do not use a custom Icon
-				optionsForDialog,  //the titles of buttons
-				optionsForDialog[0]); //default button title
-		if(dialogResult == JOptionPane.YES_OPTION){
-			mode = 1;
+		if (setAssumed == false) {
+			dialogResult = JOptionPane.showOptionDialog (newFrame, "Želite li da se ukljuèi pisanje bilješki?","Ukljuèi bilješke",
+					JOptionPane.YES_NO_OPTION,
+					JOptionPane.QUESTION_MESSAGE,
+					null,     //do not use a custom Icon
+					optionsForDialog,  //the titles of buttons
+					optionsForDialog[0]); //default button title
+			if(dialogResult == JOptionPane.YES_OPTION){
+				mode = 1;
+			} else {
+				mode = 0;
+			}
 		} else {
 			mode = 0;
 		}
@@ -465,12 +473,34 @@ public class SolveSudoku extends Sudoku {
 	int errorNum = 0;
 	int emptyNum = 0;
 	int correctNum = 0;
-
-	public boolean showError() {
+	public boolean countError() {
 		boolean hasErrors = false;
 		errorNum = 0;
 		emptyNum = 0;
 		correctNum = 0;
+	    for (int row = 0; row < rows; row++){ 
+	    	for (int col = 0; col < cols; col++) {
+		    	int numCell = row * cols + col;
+	    		if (backup[numCell] != 0) {
+	    			continue;
+	    		}
+	    		if (userInput[numCell] != result[numCell]) {
+	    			if (userInput[numCell] == 0) {
+	    	        	emptyNum++;
+	    			} else {
+	    	        	errorNum++;
+	    			}
+	    	        hasErrors = true;
+	    		} else {
+    	        	correctNum++;
+	    		}
+	    	}	
+	    }
+	    InformationBox.infoBox("Pomoæ: " + String.valueOf(hints.size()) + "\nGreške: " + String.valueOf(errorNum) + "\nPrazno: " + String.valueOf(emptyNum) + "\nIspravno: " + String.valueOf(correctNum), "Rezultat");
+		return hasErrors;
+	}
+	public void showError() {
+		countError();
 	    for (int row = 0; row < rows; row++){ 
 	    	for (int col = 0; col < cols; col++) {
 		    	int numCell = row * cols + col;
@@ -482,23 +512,16 @@ public class SolveSudoku extends Sudoku {
 	    			if (userInput[numCell] == 0) {
 	    	        	field[numCell].setText(String.valueOf(result[numCell]));
 	    	        	field[numCell].setForeground(Color.MAGENTA);
-	    	        	emptyNum++;
 	    			} else {
 	    	        	field[numCell].setForeground(Color.RED);
-	    	        	errorNum++;
 	    			}
-	    	        hasErrors = true;
 	    		} else {
     	        	field[numCell].setForeground(Color.GREEN);
-    	        	correctNum++;
 	    		}
 	    	}	
 	    }
 	    instructionArea.setText(solvingInstructions);
 	    timerStopped = true;
-	    resetHighlight();
-	    InformationBox.infoBox("Greške: " + String.valueOf(errorNum) + "\nPrazno: " + String.valueOf(emptyNum) + "\nIspravno: " + String.valueOf(correctNum), "Rezultat");
-		return hasErrors;
 	}
 
 	public void changeTime () {
@@ -832,10 +855,9 @@ public class SolveSudoku extends Sudoku {
 	        		if (timerStopped) {
 	        			return;
 	        		}
-					resetHighlight();
 	        	    errorWarn = true;
-	        	    checkIfCorrect();
 	        		showError();
+	        	    resetHighlight();
 				} catch (Exception e1) {
 	
 	
@@ -852,14 +874,26 @@ public class SolveSudoku extends Sudoku {
         public void actionPerformed(ActionEvent e) {  
 	        	try {
 	        		showSteps = true;
-	        	    timerStopped = true;
 	        	    errorWarn = true;
 					resetHighlight();
+	        	    if (!timerStopped) {
+	        	    	showError();
+	        	    	InformationBox.infoBox("Jeste li spremni za prikaz koraka?", "Korak po korak");
+	        	    }
+	        	    timerStopped = true;
 	        	    for (int row = 0; row < rows; row++){ 
 	        	    	for (int col = 0; col < cols; col++) {
-	        	    		userInput[row * cols + col] = backup[row * cols + col];
+	        	    		int numCell = row * cols + col;
+	        	    		userInput[numCell] = backup[numCell];
+	        	    		if (hints.contains(numCell)) {
+	        	    			hints.remove(numCell);
+	        	    			userInput[numCell] = 0;
+	        	    			backup[numCell] = 0;
+	        	    			field[numCell].setEnabled(true);
+	        	    		}
 	        	    	}	
 	        	    }
+					resetHighlight();
 	        		isOnlyOneSolution();
 	        		checkIfCorrect();
 	        	    instructionArea.setText(solvingInstructions);
@@ -924,6 +958,11 @@ public class SolveSudoku extends Sudoku {
 	        		if (timerStopped) {
 	        			return;
 	        		}
+	        		if (setAssumed) {
+	        			modeButton.setText("Bilješke ISKLJUÈENE");
+	        			mode = 0;
+	        			return;
+	        		}
 	        		if (mode == 1) {
 	        			modeButton.setText("Bilješke ISKLJUÈENE");
 	        			mode = 0;
@@ -969,6 +1008,8 @@ public class SolveSudoku extends Sudoku {
 	        		} else {
 	        			setAssumed = !setAssumed;
 	        			pencilButton.setText("Postavljene bilješke");
+	        			modeButton.setText("Bilješke ISKLJUÈENE");
+	        			mode = 0;
 	        			assume();
 	        		}
 	        		checkIfCorrect();
