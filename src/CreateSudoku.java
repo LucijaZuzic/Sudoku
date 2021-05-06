@@ -16,6 +16,7 @@ import javax.swing.JTextArea;
 
 public class CreateSudoku extends Sudoku {
 
+	FileManipulator fileManipulator = new FileManipulator();
 	public void fill() {
 	    boolean correct = checkIfCorrect();
     	if (!correct) {
@@ -101,25 +102,33 @@ public class CreateSudoku extends Sudoku {
 		super(constructRows, constructCols, rowLimit, colLimit, setDiagonalOn, setSizeRelationships);
 		border = constructBorder;
 		boxNumber = constructBoxNumber;
-	    long startGen = System.currentTimeMillis();
-	    int retval = 1;
-	    while(retval == 1) {
-	    	if (System.currentTimeMillis() - startGen >= 10000) {
-    		    InformationBox.infoBox("Nije moguæe ispuniti zagonetku prema zadanim kriterijima.", "Pogrešno dizajnirana zagonetka");
-    		    /*frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
-    		    frame.removeAll();
-    		    frame.dispose();
-    		    frame.setVisible(false);
-    		    return;*/
-	    		break;
-	    	}
+		if (InformationBox.yesNoBox("Želite li da se mreža automatski ispuni?", "Ukljuèi bilješke")) {
+		    long startGen = System.currentTimeMillis();
+		    int retval = 1;
+		    while(retval == 1) {
+		    	if (System.currentTimeMillis() - startGen >= 10000) {
+	    		    InformationBox.infoBox("Nije moguæe ispuniti zagonetku prema zadanim kriterijima.", "Pogrešno dizajnirana zagonetka");
+	    		    /*frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
+	    		    frame.removeAll();
+	    		    frame.dispose();
+	    		    frame.setVisible(false);
+	    		    return;*/
+		    		break;
+		    	}
+			    for (int row = 0; row < rows; row++){ 
+			    	for (int col = 0; col < cols; col++) {
+			    		temporary[row * cols + col] = 0;
+				    }
+			    }
+			    retval = randomPuzzle();
+		    }
+		} else {
 		    for (int row = 0; row < rows; row++){ 
 		    	for (int col = 0; col < cols; col++) {
 		    		temporary[row * cols + col] = 0;
 			    }
 		    }
-		    retval = randomPuzzle();
-	    }
+		}
 	    draw();
 	    for (int row = 0; row < rows; row++){ 
 	    	for (int col = 0; col < cols; col++) {
@@ -145,8 +154,9 @@ public class CreateSudoku extends Sudoku {
 	}
 	
 
-	public CreateSudoku(int constructRows, int constructCols, int rowLimit, int colLimit, int[] constructBorder, int[] constructBoxNumber, boolean setDiagonalOn, Set<String> setSizeRelationships, int constructUserInput[]) {
+	public CreateSudoku(int constructRows, int constructCols, int rowLimit, int colLimit, int[] constructBorder, int[] constructBoxNumber, boolean setDiagonalOn, Set<String> setSizeRelationships, int constructUserInput[], FileManipulator oldFileManipulator) {
 		super(constructRows, constructCols, rowLimit, colLimit, setDiagonalOn, setSizeRelationships);
+		fileManipulator = oldFileManipulator;
 		border = constructBorder;
 		boxNumber = constructBoxNumber;
 	    draw();
@@ -507,7 +517,6 @@ public class CreateSudoku extends Sudoku {
 	    });
 		restoreButton.addKeyListener(keyListener);
 		y += h + space;
-		FileManipulator fileManipulator = new FileManipulator();
 		fileManipulator.setSudoku(this);
         JButton fileSaveButton = new JButton("Spremi zagonetku");  
         fileSaveButton.setMargin(new Insets(1,1,1,1));
@@ -525,7 +534,6 @@ public class CreateSudoku extends Sudoku {
 		fileSaveButton.addKeyListener(keyListener);
 		y += h + space;
         JButton fileReadButton = new JButton("Uèitaj zagonetku");  
-        fileReadButton.setMargin(new Insets(1,1,1,1));
         fileReadButton.setBounds(x, y, w, h);
         fileReadButton.setFont(new Font("Arial", Font.PLAIN, fontsize));
         fileReadButton.addActionListener(new ActionListener(){  
@@ -558,6 +566,23 @@ public class CreateSudoku extends Sudoku {
 	        }  
 	    });
 		fileReadButton.addKeyListener(keyListener);
+		y += h + space;
+	    JButton solveButton = new JButton("Riješi zagonetku");  
+	 	solveButton.setMargin(new Insets(1,1,1,1));
+	 	solveButton.setBounds(x, y, w, h);
+	 	solveButton.setFont(new Font("Arial", Font.PLAIN, fontsize));
+	 	solveButton.addActionListener(new ActionListener(){  
+        public void actionPerformed(ActionEvent e) {  
+	        	try {
+        			@SuppressWarnings("unused")
+					SolveSudoku SolveSudoku = new SolveSudoku(rows, cols, xLim, yLim, border, boxNumber, diagonalOn, sizeRelationships, userInput);
+				} catch (Exception e1) {
+	
+	
+				}
+	        }  
+	    });
+	 	solveButton.addKeyListener(keyListener);
 		y += h + space;
 		w = (int) (250 * widthScaling);
         difficulty.setBounds(x, y, w, h);
@@ -605,6 +630,7 @@ public class CreateSudoku extends Sudoku {
         frame.add(fileSaveButton);
         frame.add(fileReadButton);
         frame.add(showStepButton);
+        frame.add(solveButton);
 	    frame.setSize(x, Math.max(digitEnd, buttonEnd) + (int) (40 * heightScaling));  
 	    frame.setLayout(null);  
     }

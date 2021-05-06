@@ -15,7 +15,7 @@ import javax.swing.UnsupportedLookAndFeelException;
 public class FileManipulator {
 
 	SudokuGrid sudoku;
-
+	String lastUsedPath = "";
 	
 	public void setSudoku(SudokuGrid s1) {
 		sudoku = s1;
@@ -152,6 +152,13 @@ public class FileManipulator {
 	}
 	 
 	 public String testFile () {
+		if (lastUsedPath != "") {
+			if (InformationBox.yesNoBox("Želite li pristupiti zadnjoj korištenoj datoteci?", "Uèitavanje")) {
+				return lastUsedPath;
+			}
+		} else {
+			
+		}
 		JFrame frame = new JFrame();
 		int x = 15;
 		int y = 15;
@@ -196,6 +203,7 @@ public class FileManipulator {
 		frame.add(createb);
 		frame.setSize(300, 300);  
 		frame.setLayout(null);  
+		lastUsedPath = newFile;
 		return newFile;
 	 }
 	

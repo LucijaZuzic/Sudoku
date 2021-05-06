@@ -2325,7 +2325,7 @@ public abstract class Sudoku extends SudokuGrid {
 	    // Ažuriramo moguænosti svih æelija prema pravilima zagonetke
 		fixPencilmarks();
 		// Sudoku zagonetka 9 * 9 nema jedinstveno rješenje ako je zadano manje od 17 polja
-	    if (cols == 9 && rows * cols - unset < 17 && 0 != unset) {
+	    if (cols == 9 && rows * cols - unset < 17 && 0 != unset && diagonalOn == false && sizeRelationships.size() == 0) {
 			print();
 			difficulty.setText(String.valueOf(unset) + " Zadano je premalo polja");
 			return 0;

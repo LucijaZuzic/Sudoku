@@ -90,6 +90,29 @@ public class ChooseSize {
 	    createButton.addActionListener(new ActionListener(){  
 	        public void actionPerformed(ActionEvent e) {  
 	        	try {
+		      		if (Integer.parseInt(row.getText()) < 4) {
+		  				InformationBox.infoBox("Najmanji broj redova u zagonetki je 4.", "Stvaranje zagonetke");
+	    				row.setText("4");
+	    				col.setText("4");
+	    				xLimVal.setText("2");
+	    				yLimVal.setText("2");
+	    				return;
+	    			}
+		      		col.setText(row.getText());
+		      		if (Integer.parseInt(row.getText()) % Integer.parseInt(xLimVal.getText()) != 0) {
+		      			InformationBox.infoBox("Broj redaka mreže mora biti djeljiv brojem redaka kutije.", "Stvaranje zagonetke");
+		      			int xLimitNew = 1;
+	  					for (int xLimitPossible = 2; xLimitPossible <= Integer.parseInt(row.getText()); xLimitPossible++) {
+	  						double differenceCurrent = Math.abs(Math.sqrt(Integer.parseInt(row.getText())) - xLimitNew);
+	  						double differenceNew = Math.abs(Math.sqrt(Integer.parseInt(row.getText())) - xLimitPossible);
+	  						if (Integer.parseInt(row.getText()) % xLimitPossible == 0 && differenceCurrent > differenceNew) {
+	  							xLimitNew = xLimitPossible;
+	  						}
+	  					}
+	  					xLimVal.setText(String.valueOf(xLimitNew));
+		  				return;
+		  			}
+					yLimVal.setText(String.valueOf(Integer.parseInt(row.getText()) / Integer.parseInt(xLimVal.getText())));
 					@SuppressWarnings("unused")
 					ChangeBoxBorder changeBoxBorder = new ChangeBoxBorder(Integer.parseInt(row.getText()), Integer.parseInt(col.getText()), Integer.parseInt(yLimVal.getText()), Integer.parseInt(xLimVal.getText()), true);
 				} catch (Exception e1) {
@@ -109,28 +132,7 @@ public class ChooseSize {
 	      		SwingUtilities.invokeLater(matchRowsAndCols);
 	      	  }
 	      	  Runnable matchRowsAndCols = new Runnable() {public void run() {
-	      		if (Integer.parseInt(row.getText()) < 4) {
-	  				InformationBox.infoBox("Najmanji broj redova u zagonetki je 4.", "Stvaranje zagonetke");
-    				row.setText("4");
-    				col.setText("4");
-    				xLimVal.setText("2");
-    				yLimVal.setText("2");
-    				return;
-    			}
 	      		col.setText(row.getText());
-	      		if (Integer.parseInt(row.getText()) % Integer.parseInt(xLimVal.getText()) != 0) {
-	      			InformationBox.infoBox("Broj redaka mreže mora biti djeljiv brojem redaka kutije.", "Stvaranje zagonetke");
-	      			int xLimitNew = 1;
-  					for (int xLimitPossible = 2; xLimitPossible <= Integer.parseInt(row.getText()); xLimitPossible++) {
-  						double differenceCurrent = Math.abs(Math.sqrt(Integer.parseInt(row.getText())) - xLimitNew);
-  						double differenceNew = Math.abs(Math.sqrt(Integer.parseInt(row.getText())) - xLimitPossible);
-  						if (Integer.parseInt(row.getText()) % xLimitPossible == 0 && differenceCurrent > differenceNew) {
-  							xLimitNew = xLimitPossible;
-  						}
-  					}
-  					xLimVal.setText(String.valueOf(xLimitNew));
-	  				return;
-	  			}
 				yLimVal.setText(String.valueOf(Integer.parseInt(row.getText()) / Integer.parseInt(xLimVal.getText())));
 	      	  }};
 	    });
@@ -146,19 +148,6 @@ public class ChooseSize {
 	      		SwingUtilities.invokeLater(matchRowsAndCols);
 	      	  }
 	      	  Runnable matchRowsAndCols = new Runnable() {public void run() {
-	      		if (Integer.parseInt(row.getText()) % Integer.parseInt(xLimVal.getText()) != 0) {
-  				InformationBox.infoBox("Broj redaka mreže mora biti djeljiv brojem redaka kutije.", "Stvaranje zagonetke");
-  					int xLimitNew = 1;
-					for (int xLimitPossible = 2; xLimitPossible <= Integer.parseInt(row.getText()); xLimitPossible++) {
-						double differenceCurrent = Math.abs(Math.sqrt(Integer.parseInt(row.getText())) - xLimitNew);
-						double differenceNew = Math.abs(Math.sqrt(Integer.parseInt(row.getText())) - xLimitPossible);
-						if (Integer.parseInt(row.getText()) % xLimitPossible == 0 && differenceCurrent > differenceNew) {
-							xLimitNew = xLimitPossible;
-						}
-					}
-					xLimVal.setText(String.valueOf(xLimitNew));
-	  				return;
-	  			}
 				yLimVal.setText(String.valueOf(Integer.parseInt(row.getText()) / Integer.parseInt(xLimVal.getText())));
 	      	  }};
 	    });
