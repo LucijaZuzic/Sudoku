@@ -257,28 +257,7 @@ public class ChangeBoxBorder extends SudokuGrid {
 	      		SwingUtilities.invokeLater(matchRowsAndCols);
 	      	  }
 	      	  Runnable matchRowsAndCols = new Runnable() {public void run() {
-	      		if (Integer.parseInt(row.getText()) < 4) {
-	  				InformationBox.infoBox("Najmanji broj redova u zagonetki je 4.", "Stvaranje zagonetke");
-	  				row.setText("4");
-	  				col.setText("4");
-	  				xLimVal.setText("2");
-	  				yLimVal.setText("2");
-	  				return;
-	  			}
 	      		col.setText(row.getText());
-	      		if (Integer.parseInt(row.getText()) % Integer.parseInt(xLimVal.getText()) != 0) {
-	      			InformationBox.infoBox("Broj redaka mreže mora biti djeljiv brojem redaka kutije.", "Stvaranje zagonetke");
-	      			int xLimitNew = 1;
-  					for (int xLimitPossible = 2; xLimitPossible <= Integer.parseInt(row.getText()); xLimitPossible++) {
-  						double differenceCurrent = Math.abs(Math.sqrt(Integer.parseInt(row.getText())) - xLimitNew);
-  						double differenceNew = Math.abs(Math.sqrt(Integer.parseInt(row.getText())) - xLimitPossible);
-  						if (Integer.parseInt(row.getText()) % xLimitPossible == 0 && differenceCurrent > differenceNew) {
-  							xLimitNew = xLimitPossible;
-  						}
-  					}
-  					xLimVal.setText(String.valueOf(xLimitNew));
-	  				return;
-	  			}
 				yLimVal.setText(String.valueOf(Integer.parseInt(row.getText()) / Integer.parseInt(xLimVal.getText())));
 	      	  }};
 	    });
@@ -294,19 +273,6 @@ public class ChangeBoxBorder extends SudokuGrid {
 	      		SwingUtilities.invokeLater(matchRowsAndCols);
 	      	  }
 	      	  Runnable matchRowsAndCols = new Runnable() {public void run() {
-	      		if (Integer.parseInt(row.getText()) % Integer.parseInt(xLimVal.getText()) != 0) {
-	      			InformationBox.infoBox("Broj redaka mreže mora biti djeljiv brojem redaka kutije.", "Stvaranje zagonetke");
-	      			int xLimitNew = 1;
-  					for (int xLimitPossible = 2; xLimitPossible <= Integer.parseInt(row.getText()); xLimitPossible++) {
-  						double differenceCurrent = Math.abs(Math.sqrt(Integer.parseInt(row.getText())) - xLimitNew);
-  						double differenceNew = Math.abs(Math.sqrt(Integer.parseInt(row.getText())) - xLimitPossible);
-  						if (Integer.parseInt(row.getText()) % xLimitPossible == 0 && differenceCurrent > differenceNew) {
-  							xLimitNew = xLimitPossible;
-  						}
-  					}
-  					xLimVal.setText(String.valueOf(xLimitNew));
-	  				return;
-	  			}
 				yLimVal.setText(String.valueOf(Integer.parseInt(row.getText()) / Integer.parseInt(xLimVal.getText())));
 	      	  }};
 	    });
@@ -317,6 +283,30 @@ public class ChangeBoxBorder extends SudokuGrid {
 	    createButton.addActionListener(new ActionListener(){  
 	        public void actionPerformed(ActionEvent e) {  
 	        	try {
+		      		if (Integer.parseInt(row.getText()) < 4) {
+		  				InformationBox.infoBox("Najmanji broj redova u zagonetki je 4.", "Stvaranje zagonetke");
+	    				row.setText("4");
+	    				col.setText("4");
+	    				xLimVal.setText("2");
+	    				yLimVal.setText("2");
+	    				return;
+	    			}
+		      		col.setText(row.getText());
+		      		if (Integer.parseInt(row.getText()) % Integer.parseInt(xLimVal.getText()) != 0) {
+		      			InformationBox.infoBox("Broj redaka mreže mora biti djeljiv brojem redaka kutije.", "Stvaranje zagonetke");
+		      			int xLimitNew = 1;
+	  					for (int xLimitPossible = 2; xLimitPossible <= Integer.parseInt(row.getText()); xLimitPossible++) {
+	  						double differenceCurrent = Math.abs(Math.sqrt(Integer.parseInt(row.getText())) - xLimitNew);
+	  						double differenceNew = Math.abs(Math.sqrt(Integer.parseInt(row.getText())) - xLimitPossible);
+	  						if (Integer.parseInt(row.getText()) % xLimitPossible == 0 && differenceCurrent > differenceNew) {
+	  							xLimitNew = xLimitPossible;
+	  						}
+	  					}
+	  					xLimVal.setText(String.valueOf(xLimitNew));
+		  				return;
+		  			}
+					yLimVal.setText(String.valueOf(Integer.parseInt(row.getText()) / Integer.parseInt(xLimVal.getText())));
+
 	        		int pr = Integer.parseInt(row.getText());
 	        		int pc = Integer.parseInt(col.getText());
 	        		int yl = Integer.parseInt(yLimVal.getText());
@@ -480,55 +470,6 @@ public class ChangeBoxBorder extends SudokuGrid {
 
 	    y += h + space;
 	    
-	    mini.getDocument().addDocumentListener(new DocumentListener() {
-	      	  public void changedUpdate(DocumentEvent e) {
-	      	    SwingUtilities.invokeLater(checkIfDifficultyCorrect);
-	      	  }
-	      	  public void removeUpdate(DocumentEvent e) {
-	      		SwingUtilities.invokeLater(checkIfDifficultyCorrect);
-	      	  }
-	      	  public void insertUpdate(DocumentEvent e) {
-	      		SwingUtilities.invokeLater(checkIfDifficultyCorrect);
-	      	  }
-	      	  Runnable checkIfDifficultyCorrect = new Runnable() {public void run() {
-	      		if (Integer.parseInt(mini.getText()) < 200) {
-    				InformationBox.infoBox("Težina ne može biti manja od 200 (dva uklonjena polja).", "Neispravan raspon težine");
-    				mini.setText("200");
-    				return;
-    			}
-    			if (Integer.parseInt(mini.getText()) > Integer.parseInt(maksi.getText())) {
-    				InformationBox.infoBox("Maksimalna težina ne može biti manja od minimalne težine.", "Neispravan raspon težine");
-    				mini.setText(maksi.getText());
-    				return;
-    			}
-	      	  }};
-	    });
-	    
-	    maksi.getDocument().addDocumentListener(new DocumentListener() {
-	      	  public void changedUpdate(DocumentEvent e) {
-	      	    SwingUtilities.invokeLater(checkIfDifficultyCorrect);
-	      	  }
-	      	  public void removeUpdate(DocumentEvent e) {
-	      		SwingUtilities.invokeLater(checkIfDifficultyCorrect);
-	      	  }
-	      	  public void insertUpdate(DocumentEvent e) {
-	      		SwingUtilities.invokeLater(checkIfDifficultyCorrect);
-	      	  }
-	      	  Runnable checkIfDifficultyCorrect = new Runnable() {public void run() {
-	      		if (Integer.parseInt(maksi.getText()) < 200) {
-	  				InformationBox.infoBox("Težina ne može biti manja od 200 (dva uklonjena polja).", "Neispravan raspon težine");
-	  				maksi.setText("200");
-	  				return;
-	  			}
-	  			if (Integer.parseInt(mini.getText()) > Integer.parseInt(maksi.getText())) {
-	  				InformationBox.infoBox("Maksimalna težina ne može biti manja od minimalne težine.", "Neispravan raspon težine");
-	  				maksi.setText(mini.getText());
-	  				return;
-	  			}
-	      	  }};
-	    });
-	    
-	    
         JButton solveRandomButton = new JButton("Riješi nasumièno");  
         solveRandomButton.setMargin(new Insets(1,1,1,1));
         solveRandomButton.setFont(new Font("Arial", Font.PLAIN, fontsize));
@@ -537,6 +478,21 @@ public class ChangeBoxBorder extends SudokuGrid {
         public void actionPerformed(ActionEvent e) {  
 	        	try {
 	        		if (checkBoxes()) {
+	    	      		if (Integer.parseInt(mini.getText()) < 200) {
+	        				InformationBox.infoBox("Težina ne može biti manja od 200 (dva uklonjena polja).", "Neispravan raspon težine");
+	        				mini.setText("200");
+	        				return;
+	        			}
+	    	      		if (Integer.parseInt(maksi.getText()) < 200) {
+	    	  				InformationBox.infoBox("Težina ne može biti manja od 200 (dva uklonjena polja).", "Neispravan raspon težine");
+	    	  				maksi.setText("200");
+	    	  				return;
+	    	  			}
+	    	  			if (Integer.parseInt(mini.getText()) > Integer.parseInt(maksi.getText())) {
+	    	  				InformationBox.infoBox("Maksimalna težina ne može biti manja od minimalne težine.", "Neispravan raspon težine");
+	    	  				maksi.setText(mini.getText());
+	    	  				return;
+	    	  			}
 	        			@SuppressWarnings("unused")
 						SolveSudoku solveSudoku = new SolveSudoku(rows, cols, xLim, yLim, border, boxNumber, diagonalOn, sizeRelationships, Integer.parseInt(mini.getText()), Integer.parseInt(maksi.getText()));
 	        		}
@@ -549,6 +505,7 @@ public class ChangeBoxBorder extends SudokuGrid {
 
 	    y += h + space;
 
+		FileManipulator fileManipulator = new FileManipulator();
         JButton solveButton = new JButton("Riješi spremljeno");  
         solveButton.setMargin(new Insets(1,1,1,1));
         solveButton.setBounds(x, y, w, h);
@@ -557,7 +514,6 @@ public class ChangeBoxBorder extends SudokuGrid {
         public void actionPerformed(ActionEvent e) {  
 	        	try {
 					ChangeBoxBorder changeBoxBorder = new ChangeBoxBorder(rows, cols, xLim, yLim, false);
-					FileManipulator fileManipulator = new FileManipulator();
 					fileManipulator.setSudoku(changeBoxBorder);
 	        		if (fileManipulator.ReadFile() == 0) {
 	        			@SuppressWarnings("unused")
@@ -657,7 +613,6 @@ public class ChangeBoxBorder extends SudokuGrid {
         designContinueButton.addActionListener(new ActionListener(){  
         public void actionPerformed(ActionEvent e) {  
 	        	try {
-					FileManipulator fileManipulator = new FileManipulator();
 					fileManipulator.setSudoku(currentChangeBoxBorder);
 					fileManipulator.ReadFile();
 	        		currentChangeBoxBorder.checkBoxes();
@@ -676,7 +631,6 @@ public class ChangeBoxBorder extends SudokuGrid {
         designSaveButton.addActionListener(new ActionListener(){  
         public void actionPerformed(ActionEvent e) {  
 	        	try {
-					FileManipulator fileManipulator = new FileManipulator();
 					fileManipulator.setSudoku(currentChangeBoxBorder);
 					fileManipulator.WriteToFile();
 				} catch (Exception e1) {
@@ -695,11 +649,10 @@ public class ChangeBoxBorder extends SudokuGrid {
         public void actionPerformed(ActionEvent e) {  
 	        	try {
 	        		if (checkBoxes()) {
-						FileManipulator fileManipulator = new FileManipulator();
 						fileManipulator.setSudoku(currentChangeBoxBorder);
 		        		if (fileManipulator.ReadFile() == 0) {
 		        			@SuppressWarnings("unused")
-							CreateSudoku createSudoku = new CreateSudoku(currentChangeBoxBorder.rows, currentChangeBoxBorder.cols, currentChangeBoxBorder.xLim, currentChangeBoxBorder.yLim, currentChangeBoxBorder.border, currentChangeBoxBorder.boxNumber, currentChangeBoxBorder.diagonalOn, currentChangeBoxBorder.sizeRelationships, currentChangeBoxBorder.userInput);
+							CreateSudoku createSudoku = new CreateSudoku(currentChangeBoxBorder.rows, currentChangeBoxBorder.cols, currentChangeBoxBorder.xLim, currentChangeBoxBorder.yLim, currentChangeBoxBorder.border, currentChangeBoxBorder.boxNumber, currentChangeBoxBorder.diagonalOn, currentChangeBoxBorder.sizeRelationships, currentChangeBoxBorder.userInput, fileManipulator);
 		        		}
 		        		currentChangeBoxBorder.checkBoxes();
 	        		}

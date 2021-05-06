@@ -56,38 +56,10 @@ public class SolveSudoku extends Sudoku {
 	
 	public SolveSudoku(int constructRows, int constructCols, int rowLimit, int colLimit, int[] constructBorder, int[] constructBoxNumber, boolean setDiagonalOn, Set<String> setSizeRelationships, int constructMinDifficulty, int constructMaxDifficulty) {
 		super(constructRows, constructCols, rowLimit, colLimit, setDiagonalOn, setSizeRelationships);
-		JFrame newFrame = new JFrame();
-		Object[] optionsForDialog = {"Da", "Ne"};
-		int dialogResult = JOptionPane.showOptionDialog (newFrame, "Želite li da se prikazuju greške?","Prikaži greške",
-				JOptionPane.YES_NO_OPTION,
-				JOptionPane.QUESTION_MESSAGE,
-				null,     //do not use a custom Icon
-				optionsForDialog,  //the titles of buttons
-				optionsForDialog[0]); //default button title
-		if(dialogResult == JOptionPane.YES_OPTION){
-			errorWarn = true;
-		} else {
-			errorWarn = false;
-		}
-		dialogResult = JOptionPane.showOptionDialog (newFrame, "Želite li da se automatski postave bilješke?","Postavi bilješke",
-				JOptionPane.YES_NO_OPTION,
-				JOptionPane.QUESTION_MESSAGE,
-				null,     //do not use a custom Icon
-				optionsForDialog,  //the titles of buttons
-				optionsForDialog[0]); //default button title
-		if(dialogResult == JOptionPane.YES_OPTION){
-			setAssumed = true;
-		} else {
-			setAssumed = false;
-		}
+		errorWarn = InformationBox.yesNoBox("Želite li da se prikazuju greške?", "Prikaži greške");
+		setAssumed = InformationBox.yesNoBox("Želite li da se automatski postave bilješke?", "Postavi bilješke");
 		if (setAssumed == false) {
-			dialogResult = JOptionPane.showOptionDialog (newFrame, "Želite li da se ukljuèi pisanje bilješki?","Ukljuèi bilješke",
-					JOptionPane.YES_NO_OPTION,
-					JOptionPane.QUESTION_MESSAGE,
-					null,     //do not use a custom Icon
-					optionsForDialog,  //the titles of buttons
-					optionsForDialog[0]); //default button title
-			if(dialogResult == JOptionPane.YES_OPTION){
+			if(InformationBox.yesNoBox("Želite li da se ukljuèi pisanje bilješki?","Ukljuèi bilješke")){
 				mode = 1;
 			} else {
 				mode = 0;
@@ -191,38 +163,10 @@ public class SolveSudoku extends Sudoku {
 	
 	public SolveSudoku(int constructRows, int constructCols, int rowLimit, int colLimit, int[] constructBorder, int[] constructBoxNumber, boolean setDiagonalOn, Set<String> setSizeRelationships, int[] constructUserInput) {
 		super(constructRows, constructCols, rowLimit, colLimit, setDiagonalOn, setSizeRelationships);
-		JFrame newFrame = new JFrame();
-		Object[] optionsForDialog = {"Da", "Ne"};
-		int dialogResult = JOptionPane.showOptionDialog (newFrame, "Želite li da se prikazuju greške?","Prikaži greške",
-				JOptionPane.YES_NO_OPTION,
-				JOptionPane.QUESTION_MESSAGE,
-				null,     //do not use a custom Icon
-				optionsForDialog,  //the titles of buttons
-				optionsForDialog[0]); //default button title
-		if(dialogResult == JOptionPane.YES_OPTION){
-			errorWarn = true;
-		} else {
-			errorWarn = false;
-		}
-		dialogResult = JOptionPane.showOptionDialog (newFrame, "Želite li da se automatski postave bilješke?","Postavi bilješke",
-				JOptionPane.YES_NO_OPTION,
-				JOptionPane.QUESTION_MESSAGE,
-				null,     //do not use a custom Icon
-				optionsForDialog,  //the titles of buttons
-				optionsForDialog[0]); //default button title
-		if(dialogResult == JOptionPane.YES_OPTION){
-			setAssumed = true;
-		} else {
-			setAssumed = false;
-		}
+		errorWarn = InformationBox.yesNoBox("Želite li da se prikazuju greške?", "Prikaži greške");
+		setAssumed = InformationBox.yesNoBox("Želite li da se automatski postave bilješke?", "Postavi bilješke");
 		if (setAssumed == false) {
-			dialogResult = JOptionPane.showOptionDialog (newFrame, "Želite li da se ukljuèi pisanje bilješki?","Ukljuèi bilješke",
-					JOptionPane.YES_NO_OPTION,
-					JOptionPane.QUESTION_MESSAGE,
-					null,     //do not use a custom Icon
-					optionsForDialog,  //the titles of buttons
-					optionsForDialog[0]); //default button title
-			if(dialogResult == JOptionPane.YES_OPTION){
+			if(InformationBox.yesNoBox("Želite li da se ukljuèi pisanje bilješki?","Ukljuèi bilješke")){
 				mode = 1;
 			} else {
 				mode = 0;
