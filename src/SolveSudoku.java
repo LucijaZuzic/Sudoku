@@ -250,6 +250,8 @@ public class SolveSudoku extends Sudoku {
 			int[] usedRows = new int[rows];
 			int[] usedCols = new int[cols];
 			int[] usedBoxes = new int[rows];
+		    int usedFirstDiagonal = 0;
+		    int usedSecondDiagonal = 0;
 		    for (int row = 0; row < rows; row++){
 		    	for (int col = 0; col < cols; col++) {
 		    		usedRows[row] = 0;
@@ -264,23 +266,117 @@ public class SolveSudoku extends Sudoku {
 			    		usedRows[row]++;
 			    		usedCols[col]++;
 			    		usedBoxes[boxNumber[row * cols + col]]++;
+			    		if (row == col) {
+			    			usedFirstDiagonal++;
+			    		}
+			    		if (row == cols - 1 - col) {
+			    			usedSecondDiagonal++;
+			    		}
 			    		if (usedRows[row] > 1) {
-			    			errorText += val + ": " + "(" + (row + 1) + ", " + (col + 1) + ") Broj " + val + " veæ postoji u retku " + (row + 1) + "\n";
+			    			errorText += val + ": " + "(" + (row + 1) + ", " + (col + 1) + ") Broj " + val + " veæ postoji u retku " + (row + 1) + ".\n";
 			    			correct = false;
 			    			status = true;
 			    			incorrect[row * cols + col] = true;
 			    		}
 			    		if (usedCols[col] > 1) {
-			    			errorText += val + ": " + "(" + (row + 1) + ", " + (col + 1) + ") Broj " + val + " veæ postoji u stupcu " + (col + 1) + "\n";
+			    			errorText += val + ": " + "(" + (row + 1) + ", " + (col + 1) + ") Broj " + val + " veæ postoji u stupcu " + (col + 1) + ".\n";
 			    			correct = false;
 			    			status = true;
 			    			incorrect[row * cols + col] = true;
 			    		}
 			    		if (usedBoxes[boxNumber[row * cols + col]] > 1) {
-			    			errorText += val + ": " + "(" + (row + 1) + ", " + (col + 1) + ") Broj " + val + " veæ postoji u kutiji " + (boxNumber[row * cols + col] + 1) + "\n";
+			    			errorText += val + ": " + "(" + (row + 1) + ", " + (col + 1) + ") Broj " + val + " veæ postoji u kutiji " + (boxNumber[row * cols + col] + 1) + ".\n";
 			    			correct = false;
 			    			status = true;
 			    			incorrect[row * cols + col] = true;
+			    		}
+			    		if (usedFirstDiagonal > 1 && diagonalOn) {
+			    			errorText += val + ": " + "(" + (row + 1) + ", " + (col + 1) + ") Broj " + val + " veæ postoji u rastuæoj dijagonali.\n";
+			    			correct = false;
+			    			status = true;
+			    			incorrect[row * cols + col] = true;
+			    		}
+			    		if (usedSecondDiagonal > 1 && diagonalOn) {
+			    			errorText += val + ": " + "(" + (row + 1) + ", " + (col + 1) + ") Broj " + val + " veæ postoji u padajuæoj dijagonali.\n";
+			    			correct = false;
+			    			status = true;
+			    			incorrect[row * cols + col] = true;
+			    		}
+			    		int rightCell = row * cols + col + 1;
+			    		if (rightCell < rows * cols) {
+			    			String relationshipRightCell = String.valueOf(row * cols + col) + " " + String.valueOf(rightCell);
+			    			if (sizeRelationships.contains(relationshipRightCell) && temporary[row * cols + col] <= temporary[rightCell]) {
+				    			errorText += val + ": " + "(" + (row + 1) + ", " + (col + 1) + ") Broj " + val + " nije veæi od broja " + temporary[rightCell] + " u æeliji (" + (row + 1) + ", " + (col + 2) + ").\n";
+				    			correct = false;
+				    			status = true;
+				    			incorrect[row * cols + col] = true;
+				    			incorrect[rightCell] = true;
+			    			} 
+			    			relationshipRightCell = String.valueOf(rightCell) + " " + String.valueOf(row * cols + col);
+			    			if (sizeRelationships.contains(relationshipRightCell) && temporary[rightCell] != 0 && temporary[row * cols + col] >= temporary[rightCell]) {
+				    			errorText += val + ": " + "(" + (row + 1) + ", " + (col + 1) + ") Broj " + val + " nije manji od broja " + temporary[rightCell] + " u æeliji (" + (row + 1) + ", " + (col + 2) + ").\n";
+				    			correct = false;
+				    			status = true;
+				    			incorrect[row * cols + col] = true;
+				    			incorrect[rightCell] = true;
+			    			} 
+			    		}
+			    		int leftCell = row * cols + col - 1;
+			    		if (leftCell >= 0) {
+			    			String relationshipLeftCell = String.valueOf(row * cols + col) + " " + String.valueOf(leftCell);
+			    			if (sizeRelationships.contains(relationshipLeftCell) && temporary[row * cols + col] <= temporary[leftCell]) {
+				    			errorText += val + ": " + "(" + (row + 1) + ", " + (col + 1) + ") Broj " + val + " nije veæi od broja " + temporary[leftCell] + " u æeliji (" + (row + 1) + ", " + (col) + ").\n";
+				    			correct = false;
+				    			status = true;
+				    			incorrect[row * cols + col] = true;
+				    			incorrect[leftCell] = true;
+			    			} 
+			    			relationshipLeftCell = String.valueOf(leftCell) + " " + String.valueOf(row * cols + col);
+			    			if (sizeRelationships.contains(relationshipLeftCell) && temporary[leftCell] != 0 && temporary[row * cols + col] >= temporary[leftCell]) {
+				    			errorText += val + ": " + "(" + (row + 1) + ", " + (col + 1) + ") Broj " + val + " nije manji od broja " + temporary[leftCell] + " u æeliji (" + (row + 1) + ", " + (col) + ").\n";
+				    			correct = false;
+				    			status = true;
+				    			incorrect[row * cols + col] = true;
+				    			incorrect[leftCell] = true;
+			    			} 
+			    		}
+			    		int bottomCell = row * cols + col + cols;
+			    		if (bottomCell < rows * cols) {
+			    			String relationshipBottomCell = String.valueOf(row * cols + col) + " " + String.valueOf(bottomCell);
+			    			if (sizeRelationships.contains(relationshipBottomCell) && temporary[row * cols + col] <= temporary[bottomCell]) {
+				    			errorText += val + ": " + "(" + (row + 1) + ", " + (col + 1) + ") Broj " + val + " nije veæi od broja " + temporary[bottomCell] + " u æeliji (" + (row + 2) + ", " + (col + 1) + ").\n";
+				    			correct = false;
+				    			status = true;
+				    			incorrect[row * cols + col] = true;
+				    			incorrect[bottomCell] = true;
+			    			} 
+			    			relationshipBottomCell = String.valueOf(leftCell) + " " + String.valueOf(row * cols + col);
+			    			if (sizeRelationships.contains(relationshipBottomCell) && temporary[bottomCell] != 0 && temporary[row * cols + col] >= temporary[bottomCell]) {
+				    			errorText += val + ": " + "(" + (row + 1) + ", " + (col + 1) + ") Broj " + val + " nije manji od broja " + temporary[bottomCell] + " u æeliji (" + (row + 2) + ", " + (col + 1) + ").\n";
+				    			correct = false;
+				    			status = true;
+				    			incorrect[row * cols + col] = true;
+				    			incorrect[bottomCell] = true;
+			    			} 
+			    		}
+			    		int topCell = row * cols + col - cols;
+			    		if (topCell >= 0) {
+			    			String relationshipTopCell = String.valueOf(row * cols + col) + " " + String.valueOf(topCell);
+			    			if (sizeRelationships.contains(relationshipTopCell) && (temporary[row * cols + col] <= temporary[topCell] || temporary[topCell] == 1)) {
+				    			errorText += val + ": " + "(" + (row + 1) + ", " + (col + 1) + ") Broj " + val + " nije veæi od broja " + temporary[topCell] + " u æeliji (" + (row + 2) + ", " + (col + 1) + ").\n";
+				    			correct = false;
+				    			status = true;
+				    			incorrect[row * cols + col] = true;
+				    			incorrect[topCell] = true;
+			    			} 
+			    			relationshipTopCell = String.valueOf(leftCell) + " " + String.valueOf(row * cols + col);
+			    			if (sizeRelationships.contains(relationshipTopCell) && ((temporary[topCell] != 0 && temporary[row * cols + col] >= temporary[topCell]) || temporary[topCell] == 9)) {
+				    			errorText += val + ": " + "(" + (row + 1) + ", " + (col + 1) + ") Broj " + val + " nije manji od broja " + temporary[topCell] + " u æeliji (" + (row + 2) + ", " + (col + 1) + ").\n";
+				    			correct = false;
+				    			status = true;
+				    			incorrect[row * cols + col] = true;
+				    			incorrect[topCell] = true;
+			    			} 
 			    		}
 			    		if (status) {
 			    			for (int sameCol = 0; sameCol < rows; sameCol++) {
@@ -298,6 +394,22 @@ public class SolveSudoku extends Sudoku {
 						    for (int x = (row / yLim) * (cols / xLim); x < (row / yLim + 1) * (cols / xLim); x++){
 						    	for (int y = (col / xLim) * (cols / xLim); y < (col / xLim + 1) * (cols / xLim); y++) {
 					    			int numCell = x * cols + y;
+						    		if (temporary[numCell] == val && backup[numCell] == 0) {
+					    				incorrect[numCell] = true;
+						    		}
+						    	}
+						    }
+						    if (row == col) {
+						    	for (int diagonally = 0; diagonally < cols; diagonally++) {
+						    		int numCell = diagonally * cols + diagonally;
+						    		if (temporary[numCell] == val && backup[numCell] == 0) {
+					    				incorrect[numCell] = true;
+						    		}
+						    	}
+						    }
+						    if (row == cols - 1 - col) {
+						    	for (int diagonally = 0; diagonally < cols; diagonally++) {
+						    		int numCell = diagonally * cols + cols - 1 - diagonally;
 						    		if (temporary[numCell] == val && backup[numCell] == 0) {
 					    				incorrect[numCell] = true;
 						    		}
