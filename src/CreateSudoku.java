@@ -87,10 +87,41 @@ public class CreateSudoku extends Sudoku {
 			digitButtons[val].setBackground(Color.WHITE);
 		}
 		digitButtons[selectedDigit].setBackground(Color.CYAN);
+		if (selectedDigit == 0) {
+			return;
+		}
 	    for (int row = 0; row < rows; row++){
 	    	for (int col = 0; col < cols; col++) {
-	    		if (userInput[row * cols + col] == selectedDigit && selectedDigit != 0) {
-	    			field[row * cols + col].setFont(field[row * cols + col].getFont().deriveFont(Font.BOLD | Font.ITALIC));
+	    		if (userInput[row * cols + col] == selectedDigit || possibilities[row * cols + col][selectedDigit - 1] == 1) {
+	    			if (userInput[row * cols + col] == selectedDigit) {
+	    				field[row * cols + col].setFont(field[row * cols + col].getFont().deriveFont(Font.BOLD | Font.ITALIC));
+	    			} else {
+			    		String text = "<html><font color = yellow>";
+			    		int numberOptions = 0;
+				    	for (int val = 0; val < cols; val++) {
+				    		if (possibilities[row * cols + col][val] == 1) {
+				    			numberOptions++;
+				    			if (val == selectedDigit - 1) {
+				    				text += "<row><b><i>";
+				    			}
+				    			text += String.valueOf(val + 1);
+				    			if (val == selectedDigit - 1) {
+				    				text += "</row></b></i>";
+				    			}
+				    			if (numberOptions % 3 == 0) {
+				    				text += "<br />";
+				    			} else {
+				    				text += " ";
+				    			}
+				    		}
+					    }
+				    	if (numberOptions != 0) {
+				    		text = text.substring(0, text.length() - 1) + "</font></html>";
+				    	} else {
+				    		text = "";
+				    	}
+		        		field[row * cols + col].setText(text);
+	    			}
 	    		} else {    				    			
 	    			field[row * cols + col].setFont(field[row * cols + col].getFont().deriveFont(~Font.BOLD | ~Font.ITALIC));
 	    		}
@@ -138,6 +169,7 @@ public class CreateSudoku extends Sudoku {
 	    		field[numCell].setText(String.valueOf(userInput[numCell]));
 	    	}
 	    }
+	    assume();
 		checkBoxes();
 	    checkIfCorrect();
 		for (int digit = 0; digit < cols + 1; digit++) {
@@ -168,6 +200,7 @@ public class CreateSudoku extends Sudoku {
 	    		field[numCell].setText(String.valueOf(userInput[numCell]));
 	    	}
 	    }
+	    assume();
 		checkBoxes();
 	    checkIfCorrect();
 		for (int digit = 0; digit < cols + 1; digit++) {
@@ -190,7 +223,6 @@ public class CreateSudoku extends Sudoku {
 	    for (int row = 0; row < rows; row++){ 
 	    	for (int col = 0; col < cols; col++) {
 		    	int numCell = row * cols + col;
-		    	field[numCell].setForeground(Color.BLACK);
 		    	temporary[numCell] = userInput[numCell];
 		    	incorrect[numCell] = false;
 	    	}
@@ -216,10 +248,10 @@ public class CreateSudoku extends Sudoku {
 			    		usedRows[row]++;
 			    		usedCols[col]++;
 			    		usedBoxes[boxNumber[row * cols + col]]++;
-			    		if (row == col) {
+			    		if (row == col && diagonalOn) {
 			    			usedFirstDiagonal++;
 			    		}
-			    		if (row == cols - 1 - col) {
+			    		if (row == cols - 1 - col  && diagonalOn) {
 			    			usedSecondDiagonal++;
 			    		}
 			    		if (usedRows[row] > 1) {
@@ -240,13 +272,13 @@ public class CreateSudoku extends Sudoku {
 			    			status = true;
 			    			incorrect[row * cols + col] = true;
 			    		}
-			    		if (usedFirstDiagonal > 1 && diagonalOn) {
+			    		if (row == col  && usedFirstDiagonal > 1 && diagonalOn) {
 			    			errorText += val + ": " + "(" + (row + 1) + ", " + (col + 1) + ") Broj " + val + " veæ postoji u rastuæoj dijagonali.\n";
 			    			correct = false;
 			    			status = true;
 			    			incorrect[row * cols + col] = true;
 			    		}
-			    		if (usedSecondDiagonal > 1 && diagonalOn) {
+			    		if (row == cols - 1 - col  && usedSecondDiagonal > 1 && diagonalOn) {
 			    			errorText += val + ": " + "(" + (row + 1) + ", " + (col + 1) + ") Broj " + val + " veæ postoji u padajuæoj dijagonali.\n";
 			    			correct = false;
 			    			status = true;
@@ -349,7 +381,7 @@ public class CreateSudoku extends Sudoku {
 						    		}
 						    	}
 						    }
-						    if (row == col) {
+						    if (row == col && diagonalOn) {
 						    	for (int diagonally = 0; diagonally < cols; diagonally++) {
 						    		int numCell = diagonally * cols + diagonally;
 						    		if (temporary[numCell] == val) {
@@ -357,7 +389,7 @@ public class CreateSudoku extends Sudoku {
 						    		}
 						    	}
 						    }
-						    if (row == cols - 1 - col) {
+						    if (row == cols - 1 - col && diagonalOn) {
 						    	for (int diagonally = 0; diagonally < cols; diagonally++) {
 						    		int numCell = diagonally * cols + cols - 1 - diagonally;
 						    		if (temporary[numCell] == val) {
@@ -373,16 +405,13 @@ public class CreateSudoku extends Sudoku {
 	    for (int row = 0; row < rows; row++){
 	    	for (int col = 0; col < cols; col++) {
     			int numCell = row * cols + col;
-	    		if (incorrect[numCell] && temporary[numCell] != 0) {
-    				field[numCell].setForeground(Color.ORANGE);
+    			if (temporary[numCell] != 0) {
     			    field[numCell].setFont(new Font("Arial", Font.PLAIN, numberFontsize));
-	    		} else {
-	    			if (temporary[numCell] == 0) {
-	    				field[numCell].setForeground(Color.RED);
-		    		} else {
-	    				field[numCell].setForeground(Color.GREEN);
-        			    field[numCell].setFont(new Font("Arial", Font.PLAIN, numberFontsize));	
-		    		}
+    	    		if (incorrect[numCell]) {
+        				field[numCell].setForeground(Color.ORANGE);
+    	    		} else {
+    	    			field[numCell].setForeground(Color.WHITE);
+    	    		}
 	    		}
 		    }
 	    }
@@ -399,6 +428,59 @@ public class CreateSudoku extends Sudoku {
     //System.out.println(key);
 }*/
 
+	public void assume() {
+	    for (int row = 0; row < rows; row++){ 
+	    	for (int col = 0; col < cols; col++) {
+		    	int numCell = row * cols + col;
+		    	temporary[numCell] = userInput[numCell];
+	    	}
+	    }
+		possibilities = new int[rows * cols][rows];
+	    for (int row = 0; row < rows; row++){
+	    	for (int col = 0; col < cols; col++) {
+	    		if (temporary[row * cols + col] != 0) {
+			    	for (int val = 0; val < cols; val++) {
+			    		possibilities[row * cols + col][val] = 0;
+				    }
+		    		possibilities[row * cols + col][temporary[row * cols + col] - 1] = 1;
+	    		} else {
+			    	for (int val = 0; val < cols; val++) {
+			    		possibilities[row * cols + col][val] = 1;
+				    }
+	    		}
+	    	}
+	    }
+		fixPencilmarks();
+	    for (int row = 0; row < rows; row++){ 
+	    	for (int col = 0; col < cols; col++) {
+		    	int numCell = row * cols + col;
+	    		if (userInput[numCell] != 0) {
+	    			continue;
+	    		}
+	    		String text = "<html><font color = yellow>";
+			    field[numCell].setFont(new Font("Arial", Font.PLAIN, fontsize));
+	    		int numberOptions = 0;
+		    	for (int val = 1; val <= cols; val++) {
+		    		if (possibilities[numCell][val - 1] == 1) {
+		    			numberOptions++;
+		    			text += String.valueOf(val);
+		    			if (numberOptions % 3 == 0) {
+		    				text += "<br />";
+		    			} else {
+		    				text += " ";
+		    			}
+		    		}
+			    }
+		    	if (numberOptions != 0) {
+		    		text = text.substring(0, text.length() - 1) + "</font></html>";
+		    	} else {
+		    		text = "";
+		    	}
+        		field[numCell].setText(text);
+	    	}
+	    }
+	}
+    
 
 	KeyListener keyListener  =
 	new KeyListener(){
@@ -444,7 +526,10 @@ public class CreateSudoku extends Sudoku {
 			        		}
 			        		userInput[numCell] = selectedDigit;
 						    field[numCell].setFont(new Font("Arial", Font.PLAIN, numberFontsize));
-			        		field[numCell].setText(String.valueOf(selectedDigit));
+			        		if (selectedDigit != 0) {
+						    	field[numCell].setText(String.valueOf(selectedDigit));
+			        		}
+			        		assume();
 			        		highlightCell(numCell);
 							highlightDigit();
 			        		checkIfCorrect();
@@ -533,9 +618,6 @@ public class CreateSudoku extends Sudoku {
 	        	    		temporary[numCell] = 0;
 	        	    		solution[numCell] = 0;
 	        	    		userInput[numCell] = 0;
-	        	    		field[numCell].setText("0");
-	        	    		field[numCell].setForeground(Color.RED);
-	        			    field[numCell].setFont(new Font("Arial", Font.PLAIN, numberFontsize));
 	        		    }
 	        	    }
 	        		for (int digit = 0; digit < cols + 1; digit++) {
@@ -544,6 +626,7 @@ public class CreateSudoku extends Sudoku {
 	        		for (int digit = 1; digit < cols + 1; digit++) {
 	        			checkIfDigitMaxUsed(digit);
 	        		}
+	        		assume();
 	        		resetHighlight();
 				} catch (Exception e1) {
 	
@@ -587,6 +670,7 @@ public class CreateSudoku extends Sudoku {
         public void actionPerformed(ActionEvent e) {  
 	        	try {
 	        		removeSymetricPair();
+	        		assume();
 	        		checkIfCorrect();
 				} catch (Exception e1) {
 	
@@ -604,6 +688,7 @@ public class CreateSudoku extends Sudoku {
         public void actionPerformed(ActionEvent e) {  
 	        	try {
 	        		restoreLastRemoved();
+	        		assume();
 	        		checkIfCorrect();
 				} catch (Exception e1) {
 	
@@ -686,7 +771,7 @@ public class CreateSudoku extends Sudoku {
         frame.add(difficulty);
 		int buttonEnd = y + h + space;
         x += w + space;
-        w = (int) (270 * widthScaling);
+        w = (int) (350 * widthScaling);
         y = space;
         errorArea = new JTextArea(0, 0);
         errorArea.setFont(new Font("Arial", Font.PLAIN, fontsize));
