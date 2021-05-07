@@ -16,7 +16,6 @@ import java.util.concurrent.ThreadLocalRandom;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -378,6 +377,7 @@ public class SolveSudoku extends Sudoku {
     	field[numCell].setText(String.valueOf(userInput[numCell]));
 	    field[numCell].setFont(new Font("Arial", Font.PLAIN, numberFontsize));
     	hints.add(numCell);
+    	oldHints.add(numCell);
     	numUseDigit[userInput[numCell]]++;
     	checkIfDigitMaxUsed(userInput[numCell]);
     	helpLabel.setText("Iskorištena pomoæ: " + String.valueOf(hints.size()));
@@ -405,6 +405,7 @@ public class SolveSudoku extends Sudoku {
     	field[numCell].setText(String.valueOf(userInput[numCell]));
 	    field[numCell].setFont(new Font("Arial", Font.PLAIN, numberFontsize));
     	hints.add(numCell);
+    	oldHints.add(numCell);
     	numUseDigit[userInput[numCell]]++;
     	checkIfDigitMaxUsed(userInput[numCell]);
     	helpLabel.setText("Iskorištena pomoæ: " + String.valueOf(hints.size()));
@@ -417,34 +418,41 @@ public class SolveSudoku extends Sudoku {
 	int errorNum = 0;
 	int emptyNum = 0;
 	int correctNum = 0;
+	Set<Integer> oldHints = new HashSet<Integer>();
 	public boolean countError() {
 		boolean hasErrors = false;
-		errorNum = 0;
-		emptyNum = 0;
-		correctNum = 0;
-	    for (int row = 0; row < rows; row++){ 
-	    	for (int col = 0; col < cols; col++) {
-		    	int numCell = row * cols + col;
-	    		if (backup[numCell] != 0) {
-	    			continue;
-	    		}
-	    		if (userInput[numCell] != result[numCell]) {
-	    			if (userInput[numCell] == 0) {
-	    	        	emptyNum++;
-	    			} else {
-	    	        	errorNum++;
-	    			}
-	    	        hasErrors = true;
-	    		} else {
-    	        	correctNum++;
-	    		}
-	    	}	
-	    }
-	    InformationBox.infoBox("Pomoæ: " + String.valueOf(hints.size()) + "\nGreške: " + String.valueOf(errorNum) + "\nPrazno: " + String.valueOf(emptyNum) + "\nIspravno: " + String.valueOf(correctNum), "Rezultat");
+		if (!timerStopped) {
+			errorNum = 0;
+			emptyNum = 0;
+			correctNum = 0;
+		    for (int row = 0; row < rows; row++){ 
+		    	for (int col = 0; col < cols; col++) {
+			    	int numCell = row * cols + col;
+		    		if (backup[numCell] != 0) {
+		    			continue;
+		    		}
+		    		if (userInput[numCell] != result[numCell]) {
+		    			if (userInput[numCell] == 0) {
+		    	        	emptyNum++;
+		    			} else {
+		    	        	errorNum++;
+		    			}
+		    	        hasErrors = true;
+		    		} else {
+	    	        	correctNum++;
+		    		}
+		    	}	
+		    }
+		} else {
+			if (errorNum + emptyNum > 0) {
+				hasErrors = true;
+			}
+		}
+	    timerStopped = true;
+	    InformationBox.infoBox("Pomoæ: " + String.valueOf(oldHints.size()) + "\nGreške: " + String.valueOf(errorNum) + "\nPrazno: " + String.valueOf(emptyNum) + "\nIspravno: " + String.valueOf(correctNum), "Rezultat");
 		return hasErrors;
 	}
 	public void showError() {
-		countError();
 	    for (int row = 0; row < rows; row++){ 
 	    	for (int col = 0; col < cols; col++) {
 		    	int numCell = row * cols + col;
@@ -452,6 +460,11 @@ public class SolveSudoku extends Sudoku {
 	    			continue;
 	    		}
 	    	    field[numCell].setFont(new Font("Arial", Font.PLAIN, numberFontsize));
+	    		if (oldHints.contains(numCell)) {
+    	        	field[numCell].setForeground(Color.CYAN);
+	    			setBackground(row, col, "blue");
+	    			continue;
+	    		}
 	    		if (userInput[numCell] != result[numCell]) {
 	    			if (userInput[numCell] == 0) {
 	    	        	field[numCell].setText(String.valueOf(result[numCell]));
@@ -465,7 +478,6 @@ public class SolveSudoku extends Sudoku {
 	    	}	
 	    }
 	    instructionArea.setText(solvingInstructions);
-	    timerStopped = true;
 	}
 
 	public void changeTime () {
@@ -789,27 +801,6 @@ public class SolveSudoku extends Sudoku {
 		w = (int) (200 * widthScaling);
 		x += space;
 		y = space;
-        JButton solvedButton = new JButton("Ispravnost rješenja");  
-        solvedButton.setMargin(new Insets(1,1,1,1));
-        solvedButton.setBounds(x, y, w, h);
-        solvedButton.setFont(new Font("Arial", Font.PLAIN, fontsize));
-        solvedButton.addActionListener(new ActionListener(){  
-        public void actionPerformed(ActionEvent e) {  
-	        	try {
-	        		if (timerStopped) {
-	        			return;
-	        		}
-	        	    errorWarn = true;
-	        		showError();
-	        	    resetHighlight();
-				} catch (Exception e1) {
-	
-	
-				}
-	        }  
-	    });
-        solvedButton.addKeyListener(keyListener);
-		y += h + space;
         JButton showStepButton = new JButton("Prikaži korake");  
         showStepButton.setMargin(new Insets(1,1,1,1));
         showStepButton.setBounds(x, y, w, h);
@@ -820,11 +811,11 @@ public class SolveSudoku extends Sudoku {
 	        		showSteps = true;
 	        	    errorWarn = true;
 					resetHighlight();
-	        	    if (!timerStopped) {
-	        	    	showError();
-	        	    	InformationBox.infoBox("Jeste li spremni za prikaz koraka?", "Korak po korak");
+	        	    showError();
+					countError();
+	        	    if (!InformationBox.stepBox("Jeste li spremni za prikaz koraka?", "Korak po korak")) {
+	        	    	showSteps = false;
 	        	    }
-	        	    timerStopped = true;
 	        	    for (int row = 0; row < rows; row++){ 
 	        	    	for (int col = 0; col < cols; col++) {
 	        	    		int numCell = row * cols + col;
@@ -837,10 +828,10 @@ public class SolveSudoku extends Sudoku {
 	        	    		}
 	        	    	}	
 	        	    }
-					resetHighlight();
+	        	    checkBoxes();
 	        		isOnlyOneSolution();
-	        		checkIfCorrect();
 	        	    instructionArea.setText(solvingInstructions);
+	        		showError();
 	        		showSteps = false;
 				} catch (Exception e1) {
 	
@@ -1055,7 +1046,6 @@ public class SolveSudoku extends Sudoku {
 	    instructionPanel.setBackground(Color.WHITE);
 	    instructionScroll.setVisible(true);  
         x += w + 2 * space;
-        frame.add(solvedButton);
         frame.add(modeButton);
         frame.add(randomHintButton);
         frame.add(pencilButton);

@@ -386,24 +386,6 @@ public class CreateSudoku extends Sudoku {
 	    w = (int) (200 * widthScaling);
 	    y = space;
 	    x += space;
-        JButton uniqueButton = new JButton("Jedinstvenost rješenja");  
-		uniqueButton.setMargin(new Insets(1,1,1,1));
-		uniqueButton.setBounds(x, y, w, h);
-		uniqueButton.setFont(new Font("Arial", Font.PLAIN, fontsize));
-		uniqueButton.addActionListener(new ActionListener(){  
-        public void actionPerformed(ActionEvent e) {  
-	        	try {
-	        		isOnlyOneSolution();
-	        	    instructionArea.setText(solvingInstructions);
-	        		checkIfCorrect();
-				} catch (Exception e1) {
-	
-	
-				}
-	        }  
-	    });
-		uniqueButton.addKeyListener(keyListener);
-		y += h + space;
         JButton showStepButton = new JButton("Prikaži korake");  
         showStepButton.setMargin(new Insets(1,1,1,1));
         showStepButton.setBounds(x, y, w, h);
@@ -412,11 +394,13 @@ public class CreateSudoku extends Sudoku {
         public void actionPerformed(ActionEvent e) {  
 	        	try {
 	        		showSteps = true;
+	        	    if (!InformationBox.stepBox("Jeste li spremni za prikaz koraka?", "Korak po korak")) {
+	        	    	showSteps = false;
+	        	    }
 	        		isOnlyOneSolution();
-	        		checkIfCorrect();
 	        	    instructionArea.setText(solvingInstructions);
-	        		showSteps = false;
 	        		checkIfCorrect();
+	        		showSteps = false;
 				} catch (Exception e1) {
 	
 				}
@@ -623,7 +607,6 @@ public class CreateSudoku extends Sudoku {
         x += w + 2 * space;
 
         frame.add(fillButton);
-        frame.add(uniqueButton);
         frame.add(clearGridButton);
         frame.add(removeButton);
         frame.add(restoreButton);
