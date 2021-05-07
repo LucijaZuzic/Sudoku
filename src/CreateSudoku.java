@@ -404,6 +404,23 @@ public class CreateSudoku extends Sudoku {
 		}
 	    for (int row = 0; row < rows; row++){
 	    	for (int col = 0; col < cols; col++) {
+	    		int numPossibilities = 0;
+	    		if (temporary[row * cols + col] == 0) {
+			    	for (int val = 0; val < cols; val++) {
+			    		if (possibilities[row * cols + col][val] == 1) {
+			    			numPossibilities++;
+			    		}
+				    }
+			    	if (numPossibilities == 0) {
+		    			errorText += "Æelija (" + (row + 1) + ", " + (col + 1) + ") nema moguæih vrijednosti.\n";
+	    				incorrect[row * cols + col] = true;
+		    			correct = false;
+			    	}
+	    		}
+	    	}
+	    }
+	    for (int row = 0; row < rows; row++){
+	    	for (int col = 0; col < cols; col++) {
     			int numCell = row * cols + col;
     			if (temporary[numCell] != 0) {
     			    field[numCell].setFont(new Font("Arial", Font.PLAIN, numberFontsize));
@@ -427,7 +444,7 @@ public class CreateSudoku extends Sudoku {
 
     //System.out.println(key);
 }*/
-
+    @Override
 	public void assume() {
 	    for (int row = 0; row < rows; row++){ 
 	    	for (int col = 0; col < cols; col++) {

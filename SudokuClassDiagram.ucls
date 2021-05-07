@@ -30,7 +30,7 @@
   </class>  
   <class id="4" language="java" name="CreateSudoku" project="Sudoku" file="/Sudoku/src/CreateSudoku.java" binary="false" 
     corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="324" y="88"/>    
+    <position height="-1" width="-1" x="329" y="98"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
@@ -48,7 +48,7 @@
   </interface>  
   <class id="6" language="java" name="ScoreTask" project="Sudoku" file="/Sudoku/src/ScoreTask.java" binary="false" 
     corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="310" y="277"/>    
+    <position height="-1" width="-1" x="313" y="291"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
@@ -57,7 +57,7 @@
   </class>  
   <class id="7" language="java" name="SolveSudoku" project="Sudoku" file="/Sudoku/src/SolveSudoku.java" binary="false" 
     corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="320" y="710"/>    
+    <position height="-1" width="-1" x="320" y="728"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
@@ -105,10 +105,10 @@
   <association id="15">    
     <end type="SOURCE" refId="6" navigable="false">      
       <attribute id="16" name="solveSudoku">        
-        <position height="0" width="0" x="-29" y="137"/>      
+        <position height="0" width="0" x="-29" y="155"/>      
       </attribute>      
       <multiplicity id="17" minimum="0" maximum="1">        
-        <position height="0" width="0" x="-29" y="137"/>      
+        <position height="0" width="0" x="-29" y="155"/>      
       </multiplicity>    
     </end>    
     <end type="TARGET" refId="7" navigable="true"/>    

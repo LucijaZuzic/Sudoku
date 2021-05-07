@@ -3145,6 +3145,7 @@ public abstract class Sudoku extends SudokuGrid {
 	abstract public void highlightCell(int numCell);
 	// Dodajemo oznaèavanje odabrane znamenke
 	abstract public void highlightDigit();
+	abstract public void assume();
 	
 	int[] numUseDigit = new int[cols + 1];
 	
