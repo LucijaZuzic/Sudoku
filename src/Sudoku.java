@@ -2171,10 +2171,6 @@ public abstract class Sudoku extends SudokuGrid {
 	int maxDepth = 4;
 	// Sekvenca kojom se primjenjuju tehnike, prema složenosti (trošku)
 	public int sequence() {
-		// Ako rješavanje predugo traje, prekidamo postupak
-    	if (System.currentTimeMillis() - startSolving >= 10000) {
-    		 return 0;
-    	}
     	// Pokreæemo traženje jedine poziciju unutar reda, stupca, kutije ili rastuæe ili padajuæe dijagonale
 		if (singlePosition() == 1 || unset == 0) {
 			return 1;
@@ -2262,10 +2258,6 @@ public abstract class Sudoku extends SudokuGrid {
 				return 1;
 			}
 		}
-		// Ako niti jedna druga metoda nije rješila zagonetku, pogaðamo
-		if (guessing() == 1 || unset == 0) {
-			return 1;
-		}
 		return 0;
 	}
 	long startSolving;
@@ -2273,7 +2265,7 @@ public abstract class Sudoku extends SudokuGrid {
 	public int isOnlyOneSolution() {
 		// Zapisjuemo vrijeme kada smo poèeli rješavati
 		startSolving = System.currentTimeMillis();
-		// Postavljamo boj korištenja svih tehnika na 0
+		// Postavljamo broj korištenja svih tehnika na 0
 		clt = 0;
 		dpt = 0;
 		mlt = 0;
@@ -2324,21 +2316,28 @@ public abstract class Sudoku extends SudokuGrid {
 	    }
 	    // Ažuriramo moguænosti svih æelija prema pravilima zagonetke
 		fixPencilmarks();
-		// Sudoku zagonetka 9 * 9 nema jedinstveno rješenje ako je zadano manje od 17 polja
+		// Sudoku zagonetka 9 * 9 nema jedinstveno rješenje ako je zadano manje od 17 polja i ako nema dijagonale niti odnosa veæe-manje
 	    if (cols == 9 && rows * cols - unset < 17 && 0 != unset && diagonalOn == false && sizeRelationships.size() == 0) {
+			print();
+			difficulty.setText(String.valueOf(unset) + " Zadano je premalo polja");
+			return 0;
+	    }
+	    if (unset == rows * cols) {
 			print();
 			difficulty.setText(String.valueOf(unset) + " Zadano je premalo polja");
 			return 0;
 	    }
 		if (sequence() == 1 || unset == 0) {
 			solvingInstructions += "Sva polja rješena.\n";
-			if (solvingInstructions.contains("pogaðati")) {
-				// Ako smo u rješavanju pogaðali ali smo uspjeli rješiti zagonetku, o tome obavještavamo korisnika
-				difficulty.setText(String.valueOf(difficultyScore) + " Postoji verzija rješenja");	
-			} else {
-				// Ako smo postavili sve æelije bez pogaðanja, postoji jedinstveno rješenje
-				difficulty.setText(String.valueOf(difficultyScore) + " Postoji jedinstveno rješenje");
+	    	if (showSteps == true) {
+			    instructionArea.setText(solvingInstructions);
+			    print();
+				if (!InformationBox.stepBox( "Sva polja rješena.", "Rješavaè")) {
+					showSteps = false;
+				}
 			}
+			// Ako smo postavili sve æelije bez pogaðanja, postoji jedinstveno rješenje
+			difficulty.setText(String.valueOf(difficultyScore) + " Postoji jedinstveno rješenje");
 			print();
 			return 1;
 		}
@@ -2382,7 +2381,6 @@ public abstract class Sudoku extends SudokuGrid {
 		int[][] backupPossibilities = new int[rows * cols][cols];
 		int backupUnset = unset;
 		int backupDifficultyScore = difficultyScore;
-		String backupSolvingInstructions = solvingInstructions;
 	    for (int row = 0; row < rows; row++){
 	    	for (int col = 0; col < cols; col++) {
 	    		backupTemporary[row * cols + col] =  temporary[row * cols + col];
@@ -2400,7 +2398,15 @@ public abstract class Sudoku extends SudokuGrid {
 	    		for (int val = 0; val < rows; val++) {
 	    			// Za svaku od moguænosti u æeliji prouèavamo ishod ako ju odaberemo
 		    		if (possibilities[row * cols + col][val] == 1 && temporary[row * cols + col] == 0) {
-				    	temporary[row * cols + col] = val + 1;
+	    				String lineSolvInstr = "Isprobavam vrijednost " + String.valueOf(val + 1) + " u æeliji (" + String.valueOf(row + 1) + ", " + String.valueOf(col + 1) + ").";
+    					solvingInstructions += lineSolvInstr + "\n";
+    					if (showSteps == true) {
+    		    		    instructionArea.setText(solvingInstructions);
+	    		    		print();
+	    	    			if (!InformationBox.stepBox("Isprobavam vrijednost " + String.valueOf(val + 1) + " u æeliji (" + String.valueOf(row + 1) + ", " + String.valueOf(col + 1) + ").", "Rješavaè")) {
+	    	    				showSteps = false;
+	    	    			}
+    		    		}
 						// Èistimo moguænosti prepostavljene æelije
 			    		for (int clearVal = 0; clearVal < cols; clearVal++) {
 			    			possibilities[row * cols + col][clearVal] = 0;
@@ -2408,15 +2414,24 @@ public abstract class Sudoku extends SudokuGrid {
 		    			possibilities[row * cols + col][val] = 1;
 				    	unset--;
 				    	// Pokušavamo rješiti zagonetku uz novu pretpostavku
-						sequence();
-						// Nakon rješavanja s pretpostavkom, vraæamo prethodno stanje
+				    	sequence();
+	    				lineSolvInstr = "Vraæam unatrag vrijednost " + String.valueOf(val + 1) + " u æeliji (" + String.valueOf(row + 1) + ", " + String.valueOf(col + 1) + ").";
+    					solvingInstructions += lineSolvInstr + "\n";
+    					if (showSteps == true) {
+    		    		    instructionArea.setText(solvingInstructions);
+	    		    		print();
+	    	    			if (!InformationBox.stepBox("Vraæam unatrag vrijednost " + String.valueOf(val + 1) + " u æeliji (" + String.valueOf(row + 1) + ", " + String.valueOf(col + 1) + ").", "Rješavaè")) {
+	    	    				showSteps = false;
+	    	    			}
+    		    		}
+						// Nakon rješavanja s pretpostavkom vraæamo prethodno stanje
 					    for (int rowRestore = 0; rowRestore < rows; rowRestore++){
 					    	for (int colRestore = 0; colRestore < cols; colRestore++) {
 					    		if (possibilityNum == 0) {
 					    			// Ako smo pomoæu pretpostavke po prvi put dobili vrijednost u nekoj æeliji, zapisujemo ju
 					    			forcedValues[rowRestore * cols + colRestore] = temporary[rowRestore * cols + colRestore];
 					    		} else { 
-					    			// Ako smo pomoæu pretpostavk iduæi put dobili vrijednost u nekoj æeliji, zapisujemo ju ako je ista kao prehodna, a zamjenjujemo s 0 ako se razlikuju
+					    			// Ako smo pomoæu pretpostavki iduæi put dobili vrijednost u nekoj æeliji, zapisujemo ju ako je ista kao prehodna, a zamjenjujemo s 0 ako se razlikuju
 					    			if (forcedValues[rowRestore * cols + colRestore] != temporary[rowRestore * cols + colRestore]) {
 					    				forcedValues[rowRestore * cols + colRestore] = 0;
 					    			}
@@ -2428,12 +2443,11 @@ public abstract class Sudoku extends SudokuGrid {
 		    				}
 		    			}
 					    difficultyScore = backupDifficultyScore;
-					    solvingInstructions = backupSolvingInstructions;
 					    unset = backupUnset;
 					    possibilityNum++;
 		    		}
 			    }
-	    		// Prelazimo polje gdje pamtimo zajednike ishode pretpostavki za odreðenu æeliju
+	    		// Prelazimo polje gdje pamtimo zajednièke ishode pretpostavki za odreðenu æeliju
 			    for (int rowForce = 0; rowForce < rows; rowForce++){
 			    	for (int colForce = 0; colForce < cols; colForce++) {
 			    		// Ako za bilo koju vrijednost poèetne æelije neka druga æelija ima uvijek istu vrijednost, kažemo da poèetna æelija forsira njezinu vrijednost
@@ -2472,9 +2486,10 @@ public abstract class Sudoku extends SudokuGrid {
 		    				if (unset == 0) {
 		    					return 1;
 		    				} 
-	    					if (sequence() == 1) {
-	    						return 1;
-	    					}
+						    // Ako nismo postavili sve æelije, pokreæemo sekvencu
+						    if (sequence() == 1) {
+								return 1;
+							}
 	    		    	}
 			    	}
 			    }
@@ -2778,15 +2793,15 @@ public abstract class Sudoku extends SudokuGrid {
 		    		// Ako æelija sadrži više moguænosti, moramo smanjiti velièinu fonta
 	    			field[numCell].setFont(new Font("Arial", Font.PLAIN, fontsize));
 		    	} else {
-		    		// Ako postoji samo jedna moguænost u æeliji, moramo možemo poveæati velièinu fonta
+		    		// Ako postoji samo jedna moguænost u æeliji, možemo poveæati velièinu fonta
 	    			field[numCell].setFont(new Font("Arial", Font.PLAIN, numberFontsize));
 		    	}
 	    		field[numCell].setText(text);
-	    		if (userInput[numCell] != temporary[numCell] || temporary[numCell] == 0) {
-		    		// Ako æelija , moramo smanjiti velièinu fonta
+	    		if (temporary[numCell] == 0) {
+		    		// Ako æelija nema definiranu konaènu vrijednost, moramo je obojati u crveno
 	    			field[numCell].setForeground(Color.RED);
 	    		} else {
-		    		// Ako je definirana konaèna vrijedonst æelije, moramo možemo poveæati veèininu fonta
+		    		// Ako je definirana konaèna vrijednost æelije, moramo je obojati u zeleno
 	    			field[numCell].setForeground(Color.GREEN);
 	    		}
 	    	}

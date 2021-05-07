@@ -3,7 +3,7 @@
   realizations="true" associations="true" dependencies="false" nesting-relationships="true" router="FAN">  
   <class id="1" language="java" name="ChangeBoxBorder" project="Sudoku" file="/Sudoku/src/ChangeBoxBorder.java" 
     binary="false" corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="1007" y="-32"/>    
+    <position height="-1" width="-1" x="1005" y="-40"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
@@ -21,7 +21,7 @@
   </class>  
   <class id="3" language="java" name="FileManipulator" project="Sudoku" file="/Sudoku/src/FileManipulator.java" 
     binary="false" corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="984" y="249"/>    
+    <position height="-1" width="-1" x="1202" y="-49"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
@@ -30,7 +30,7 @@
   </class>  
   <class id="4" language="java" name="CreateSudoku" project="Sudoku" file="/Sudoku/src/CreateSudoku.java" binary="false" 
     corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="359" y="78"/>    
+    <position height="-1" width="-1" x="324" y="88"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
@@ -48,7 +48,7 @@
   </interface>  
   <class id="6" language="java" name="ScoreTask" project="Sudoku" file="/Sudoku/src/ScoreTask.java" binary="false" 
     corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="99" y="136"/>    
+    <position height="-1" width="-1" x="310" y="277"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
@@ -57,7 +57,7 @@
   </class>  
   <class id="7" language="java" name="SolveSudoku" project="Sudoku" file="/Sudoku/src/SolveSudoku.java" binary="false" 
     corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="320" y="569"/>    
+    <position height="-1" width="-1" x="320" y="710"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
@@ -66,7 +66,7 @@
   </class>  
   <class id="8" language="java" name="Sudoku" project="Sudoku" file="/Sudoku/src/Sudoku.java" binary="false" 
     corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="706" y="471"/>    
+    <position height="-1" width="-1" x="708" y="445"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
@@ -75,52 +75,52 @@
   </class>  
   <class id="9" language="java" name="SudokuGrid" project="Sudoku" file="/Sudoku/src/SudokuGrid.java" binary="false" 
     corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="1230" y="292"/>    
+    <position height="-1" width="-1" x="1098" y="536"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
       <operations public="true" package="true" protected="true" private="true" static="true"/>    
     </display>  
   </class>  
-  <association id="10">    
+  <generalization id="10">    
+    <end type="SOURCE" refId="1"/>    
+    <end type="TARGET" refId="9"/>  
+  </generalization>  
+  <association id="11">    
     <end type="SOURCE" refId="3" navigable="false">      
-      <attribute id="11" name="sudoku">        
-        <position height="0" width="0" x="31" y="34"/>      
+      <attribute id="12" name="sudoku">        
+        <position height="0" width="0" x="-101" y="278"/>      
       </attribute>      
-      <multiplicity id="12" minimum="0" maximum="1">        
-        <position height="0" width="0" x="31" y="34"/>      
+      <multiplicity id="13" minimum="0" maximum="1">        
+        <position height="0" width="0" x="-101" y="278"/>      
       </multiplicity>    
     </end>    
     <end type="TARGET" refId="9" navigable="true"/>    
     <display labels="true" multiplicity="true"/>  
   </association>  
-  <association id="13">    
+  <generalization id="14">    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="8"/>  
+  </generalization>  
+  <association id="15">    
     <end type="SOURCE" refId="6" navigable="false">      
-      <attribute id="14" name="solveSudoku">        
-        <position height="0" width="0" x="-29" y="-4"/>      
+      <attribute id="16" name="solveSudoku">        
+        <position height="0" width="0" x="-29" y="137"/>      
       </attribute>      
-      <multiplicity id="15" minimum="0" maximum="1">        
-        <position height="0" width="0" x="-29" y="-4"/>      
+      <multiplicity id="17" minimum="0" maximum="1">        
+        <position height="0" width="0" x="-29" y="137"/>      
       </multiplicity>    
     </end>    
     <end type="TARGET" refId="7" navigable="true"/>    
     <display labels="true" multiplicity="true"/>  
   </association>  
-  <generalization id="16">    
-    <end type="SOURCE" refId="8"/>    
-    <end type="TARGET" refId="9"/>  
-  </generalization>  
-  <generalization id="17">    
-    <end type="SOURCE" refId="1"/>    
-    <end type="TARGET" refId="9"/>  
-  </generalization>  
   <generalization id="18">    
-    <end type="SOURCE" refId="7"/>    
+    <end type="SOURCE" refId="4"/>    
     <end type="TARGET" refId="8"/>  
   </generalization>  
   <generalization id="19">    
-    <end type="SOURCE" refId="4"/>    
-    <end type="TARGET" refId="8"/>  
+    <end type="SOURCE" refId="8"/>    
+    <end type="TARGET" refId="9"/>  
   </generalization>  
   <classifier-display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
     sort-features="false" accessors="true" visibility="true">    
