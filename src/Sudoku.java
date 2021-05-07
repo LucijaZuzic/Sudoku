@@ -2287,7 +2287,7 @@ public abstract class Sudoku extends SudokuGrid {
 			difficulty.setText("U zagonetki ima grešaka");
     		return -1;
     	}
-    	// Preborjavamo prazna polja i kopiramo unos u polja koja nisu prazna
+    	// Prebrojavamo prazna polja i kopiramo unos u polja koja nisu prazna
 		unset = 0;
 	    for (int row = 0; row < rows; row++){ 
 	    	for (int col = 0; col < cols; col++) {
