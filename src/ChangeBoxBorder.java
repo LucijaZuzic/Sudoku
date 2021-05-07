@@ -6,6 +6,8 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
@@ -150,10 +152,55 @@ public class ChangeBoxBorder extends SudokuGrid {
 								    	    			InformationBox.infoBox("Æelija (" + String.valueOf(smallerCell / cols + 1) + ", " + String.valueOf(smallerCell % cols + 1) + ") ne može istodobno biti i veæa i manja od susjedne æelije (" + String.valueOf(largerCell / cols + 1) + ", " + String.valueOf(largerCell % cols + 1) + ").", "Veæe-manje");
 						        					} else {
 						        						sizeRelationships.add(relationship);
-						        						//if (getLargerTrees() > 0) {
-								        					//sizeRelationships.remove(relationship);
-									    	    			//InformationBox.infoBox("Æelija (" + String.valueOf(largerCell / cols + 1) + ", " + String.valueOf(largerCell % cols + 1) + ") je dio stabla u kojem ima previše djece.", "Veæe-manje");
-						        						//}
+						        					    // Inicijaliziramo moguænosti za sve vrijednosti u svim æelijama na 1
+						        						possibilities = new int[rows * cols][rows];
+						        					    for (int row = 0; row < rows; row++){
+						        					    	for (int col = 0; col < cols; col++) {
+						        					    		if (temporary[row * cols + col] != 0) {
+						        							    	for (int val = 0; val < cols; val++) {
+						        							    		possibilities[row * cols + col][val] = 0;
+						        								    }
+						        						    		possibilities[row * cols + col][temporary[row * cols + col] - 1] = 1;
+						        					    		} else {
+						        							    	for (int val = 0; val < cols; val++) {
+						        							    		possibilities[row * cols + col][val] = 1;
+						        								    }
+						        					    		}
+						        					    	}
+						        					    }
+						        					    for (int row = 0; row < rows; row++){
+						        					    	for (int col = 0; col < cols; col++) {
+						        					    		setMaxPossibility(row * cols + col);
+						        					    		setMinPossibility(row * cols + col);
+						        					    	}
+						        					    }
+						        					    Set<Integer> impossible = new HashSet<Integer>();
+						        					    String impossibleString = "";
+						        					    for (int row = 0; row < rows; row++){
+						        					    	for (int col = 0; col < cols; col++) {
+						        					    		int possibleVals = 0;
+						        					    		for (int val = 0; val < cols; val++) {
+						        					    			if (possibilities[row * cols + col][val] == 1) {
+						        					    				possibleVals = 1;
+						        					    				break;
+						        					    			}
+						        					    		}
+						        					    		if (possibleVals == 0) {
+						        					    			if (impossible.size() == 0) {
+						        					    				impossibleString += "\n"; 
+						        					    			} else {
+						        					    				impossibleString += ", "; 
+						        					    			}
+						        					    			impossibleString += "(" + (row + 1) + ", " + (col + 1) + ")";
+						        					    			impossible.add(row * cols + col);
+						        					    			break;
+						        					    		}
+						        					    	}
+						        					    }
+						        					    if (impossible.size() > 0) {
+									    	    			InformationBox.infoBox("Æelija (" + String.valueOf(smallerCell / cols + 1) + ", " + String.valueOf(smallerCell % cols + 1) + ") ne može biti manja od æelije (" + String.valueOf(largerCell / cols + 1) + ", " + String.valueOf(largerCell % cols + 1) + ") jer bi ove æelije ostale bez moguæih vrijednosti: " + impossibleString, "Veæe-manje");
+									    	    			sizeRelationships.remove(relationship);
+						        					    }
 						        					}
 					        					}
 					        				} else {
