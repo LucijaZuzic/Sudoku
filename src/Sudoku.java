@@ -2338,6 +2338,15 @@ public abstract class Sudoku extends SudokuGrid {
 			}
 			// Ako smo postavili sve æelije bez pogaðanja, postoji jedinstveno rješenje
 			difficulty.setText(String.valueOf(difficultyScore) + " Postoji jedinstveno rješenje");
+
+		/*  String solution = "";
+		  for (int row = 0; row < rows; row++){
+			  for (int col = 0; col < cols; col++) {
+				  solution += String.valueOf(temporary[row * cols + col]);
+			  }
+			  solution += "\n";
+		  }
+		  System.out.println(solution);*/
 			print();
 			return 1;
 		}
