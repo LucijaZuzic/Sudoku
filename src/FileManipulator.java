@@ -151,6 +151,61 @@ public class FileManipulator {
 		    }
 	}
 	 
+	 public int ReadFile(String filename) {
+		    try {
+		      File myObj = new File(filename);
+		      java.util.Scanner myReader = new java.util.Scanner(myObj);
+	          int lineNum = 0;
+	          int cols = 0;
+	          ArrayList<String> data = new ArrayList<String>();
+		      while (myReader.hasNextLine()) {
+		    	    data.add(myReader.nextLine());
+				    lineNum++;
+		      }
+		      myReader.close(); 
+		      cols = data.get(0).length();
+		      if (lineNum < cols * 2 || lineNum == 0) {
+				  InformationBox.infoBox("Sadržaj datoteke je neispravan.", "Uèitavanje datoteke");
+		    	  return 1;
+		      }
+		      if (cols != sudoku.cols) {
+				  InformationBox.infoBox("Dimenzije zagonetke u datoteci ne odgovaraju vašem dizajnu.", "Uèitavanje datoteke");
+				  return 1;
+		      }
+		      sudoku.rows = cols;
+		      sudoku.cols = cols;
+	          sudoku.diagonalOn = false;
+	          sudoku.sizeRelationships.clear();
+		      for (int row = 0; row < lineNum; row++) {
+		        	if (row < sudoku.rows) {
+			        	for (int col = 0; col < sudoku.cols; col++) {
+			        		sudoku.userInput[row * sudoku.cols + col] = Integer.parseInt(data.get(row).substring(col, col + 1));
+			        	}
+		        	} 
+		        	if (row >= sudoku.rows && row < sudoku.rows * 2) {
+		        		for (int col = 0; col < sudoku.cols; col++) {
+			        		sudoku.border[(row - sudoku.rows) * sudoku.cols + col] = Integer.parseInt(data.get(row).substring(col, col + 1));
+		        		}
+		        	}
+		        	if (row == sudoku.rows * 2) {
+		        		String reply = data.get(row).replace("\n", "");
+		        		if (reply.compareTo("Yes") == 0) {
+		        			sudoku.diagonalOn = true;
+		        		}
+		        	}
+		        	if (row > sudoku.rows * 2) {
+		        		String relationship = data.get(row).replace("\n", "");
+		        		sudoku.sizeRelationships.add(relationship);
+		        	}
+		      }
+		      return 0;
+		    } catch (FileNotFoundException e) {
+		      //System.out.println("An error occurred.");
+		      e.printStackTrace();
+		      return 1;
+		    }
+	}
+	 
 	 public String testFile () {
 		if (lastUsedPath != "") {
 			if (InformationBox.yesNoBox("Želite li pristupiti zadnjoj korištenoj datoteci?", "Uèitavanje")) {

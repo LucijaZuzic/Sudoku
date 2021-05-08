@@ -227,6 +227,22 @@ public class CreateSudoku extends Sudoku {
 		    	incorrect[numCell] = false;
 	    	}
 	    }
+		possibilities = new int[rows * cols][rows];
+	    for (int row = 0; row < rows; row++){
+	    	for (int col = 0; col < cols; col++) {
+	    		if (temporary[row * cols + col] != 0) {
+			    	for (int val = 0; val < cols; val++) {
+			    		possibilities[row * cols + col][val] = 0;
+				    }
+		    		possibilities[row * cols + col][temporary[row * cols + col] - 1] = 1;
+	    		} else {
+			    	for (int val = 0; val < cols; val++) {
+			    		possibilities[row * cols + col][val] = 1;
+				    }
+	    		}
+	    	}
+	    }
+		fixPencilmarks();
 		boolean correct = true;
 		for (int val = 1; val <= rows; val++) {
 			int[] usedRows = new int[rows];
