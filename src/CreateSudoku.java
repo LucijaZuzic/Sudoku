@@ -16,7 +16,6 @@ import javax.swing.JTextArea;
 
 public class CreateSudoku extends Sudoku {
 
-	FileManipulator fileManipulator = new FileManipulator();
 	public void fill() {
 	    boolean correct = checkIfCorrect();
     	if (!correct) {
@@ -186,9 +185,9 @@ public class CreateSudoku extends Sudoku {
 	}
 	
 
-	public CreateSudoku(int constructRows, int constructCols, int rowLimit, int colLimit, int[] constructBorder, int[] constructBoxNumber, boolean setDiagonalOn, Set<String> setSizeRelationships, int constructUserInput[], FileManipulator oldFileManipulator) {
+	public CreateSudoku(int constructRows, int constructCols, int rowLimit, int colLimit, int[] constructBorder, int[] constructBoxNumber, boolean setDiagonalOn, Set<String> setSizeRelationships, int constructUserInput[], String oldLastUsedPath) {
 		super(constructRows, constructCols, rowLimit, colLimit, setDiagonalOn, setSizeRelationships);
-		fileManipulator = oldFileManipulator;
+		lastUsedPath = oldLastUsedPath;
 		border = constructBorder;
 		boxNumber = constructBoxNumber;
 	    draw();
@@ -731,7 +730,6 @@ public class CreateSudoku extends Sudoku {
 	    });
 		restoreButton.addKeyListener(keyListener);
 		y += h + space;
-		fileManipulator.setSudoku(this);
         JButton fileSaveButton = new JButton("Spremi zagonetku");  
         fileSaveButton.setMargin(new Insets(1,1,1,1));
         fileSaveButton.setBounds(x, y, w, h);
@@ -739,7 +737,7 @@ public class CreateSudoku extends Sudoku {
         fileSaveButton.addActionListener(new ActionListener(){  
         public void actionPerformed(ActionEvent e) {  
 	        	try {
-	        		fileManipulator.WriteToFile();
+	        		writeToFile();
 				} catch (Exception e1) {
 					
 				}
@@ -753,7 +751,7 @@ public class CreateSudoku extends Sudoku {
         fileReadButton.addActionListener(new ActionListener(){  
         public void actionPerformed(ActionEvent e) {  
 	        	try {
-	        		if (fileManipulator.ReadFile() == 0) {
+	        		if (readFile() == 0) {
 		        	    for (int row = 0; row < rows; row++){ 
 		        	    	for (int col = 0; col < cols; col++) {
 		        		    	int numCell = row * cols + col;
