@@ -2,13 +2,22 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.Toolkit;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.LookAndFeel;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.MatteBorder;
@@ -53,6 +62,253 @@ public abstract class SudokuGrid {
 	boolean showBoxMsg = true;
 	
 
+	String lastUsedPath = "";
+	
+	
+	public void CreateFile(String filename) {
+	    try {
+	      File myObj = new File(filename);
+	      if (myObj.createNewFile()) {
+	        //System.out.println("File created: " + myObj.getName());
+	      } else {
+	        //System.out.println("File already exists.");
+	      }
+	    } catch (IOException e) {
+	      //System.out.println("An error occurred.");
+	      e.printStackTrace();
+	    }
+	  }
+	
+	 public void writeToFile() {
+		  try {
+	        FileWriter myWriter = new FileWriter(testFile());
+	        String lineUserInput = "";
+	        for (int row = 0; row < rows; row++) {
+	        	for (int col = 0; col < cols; col++) {
+	        		lineUserInput += String.valueOf(userInput[row * cols + col]);
+	        	}
+	        	lineUserInput += "\n";
+	        }
+	        String lineBorder = "";
+	        for (int row = 0; row < rows; row++) {
+	        	for (int col = 0; col < cols; col++) {
+	        		lineBorder += String.valueOf(border[row * cols + col]);
+	        	}
+	        	lineBorder += "\n";
+	        }
+	        String lineDiagonal = "";
+	        if (diagonalOn) {
+	        	lineDiagonal = "Yes\n";
+	        } else {
+	        	lineDiagonal = "No\n";
+	        }
+	        String lineRelationship = "";
+	        for (int row = 0; row < rows; row++) {
+	        	for (int col = 0; col < cols; col++) {
+	        		int largerCell = row * cols + col;
+	        		int rightCell = largerCell + 1;
+					int leftCell = largerCell - 1;
+					int bottomCell = largerCell + cols;
+					int topCell = largerCell - cols;
+					String relationshipRightCell = String.valueOf(largerCell) + " " + String.valueOf(rightCell);
+					String relationshipLeftCell = String.valueOf(largerCell) + " " + String.valueOf(leftCell);
+					String relationshipBottomCell = String.valueOf(largerCell) + " " + String.valueOf(bottomCell);
+					String relationshipTopCell = String.valueOf(largerCell) + " " + String.valueOf(topCell);
+					if (sizeRelationships.contains(relationshipTopCell)) {
+						lineRelationship += relationshipTopCell + "\n";
+					}
+					if (sizeRelationships.contains(relationshipRightCell)) {
+						lineRelationship += relationshipRightCell + "\n";
+					}
+					if (sizeRelationships.contains(relationshipLeftCell)) {
+						lineRelationship += relationshipLeftCell + "\n";
+					}
+					if (sizeRelationships.contains(relationshipBottomCell)) {
+						lineRelationship += relationshipBottomCell + "\n";
+					}
+					if (sizeRelationships.contains(relationshipTopCell)) {
+						lineRelationship += relationshipTopCell + "\n";
+					}
+	        	}
+	        }
+	        myWriter.write(lineUserInput + lineBorder + lineDiagonal + lineRelationship);
+	        myWriter.close();
+			InformationBox.infoBox("Zagonetka je uspješno spremljena.", "Spremanje datoteke");
+	      } catch (IOException e) {
+	        //System.out.println("An error occurred.");
+	        e.printStackTrace();
+	      }
+	  }
+	 
+	 public int readFile() {
+		    try {
+		      File myObj = new File(testFile());
+		      java.util.Scanner myReader = new java.util.Scanner(myObj);
+	          int lineNum = 0;
+	          int newCols = 0;
+	          ArrayList<String> data = new ArrayList<String>();
+		      while (myReader.hasNextLine()) {
+		    	    data.add(myReader.nextLine());
+				    lineNum++;
+		      }
+		      myReader.close(); 
+		      newCols = data.get(0).length();
+		      if (lineNum < cols * 2 || lineNum == 0) {
+				  InformationBox.infoBox("Sadržaj datoteke je neispravan.", "Uèitavanje datoteke");
+		    	  return 1;
+		      }
+		      if (newCols != cols) {
+				  InformationBox.infoBox("Dimenzije zagonetke u datoteci ne odgovaraju vašem dizajnu.", "Uèitavanje datoteke");
+				  return 1;
+		      }
+		      rows = newCols;
+		      cols = newCols;
+	          diagonalOn = false;
+	          sizeRelationships.clear();
+		      for (int row = 0; row < lineNum; row++) {
+		        	if (row < rows) {
+			        	for (int col = 0; col < cols; col++) {
+			        		userInput[row * cols + col] = Integer.parseInt(data.get(row).substring(col, col + 1));
+			        	}
+		        	} 
+		        	if (row >= rows && row < rows * 2) {
+		        		for (int col = 0; col < cols; col++) {
+			        		border[(row - rows) * cols + col] = Integer.parseInt(data.get(row).substring(col, col + 1));
+		        		}
+		        	}
+		        	if (row == rows * 2) {
+		        		String reply = data.get(row).replace("\n", "");
+		        		if (reply.compareTo("Yes") == 0) {
+		        			diagonalOn = true;
+		        		}
+		        	}
+		        	if (row > rows * 2) {
+		        		String relationship = data.get(row).replace("\n", "");
+		        		sizeRelationships.add(relationship);
+		        	}
+		      }
+		      return 0;
+		    } catch (FileNotFoundException e) {
+		      //System.out.println("An error occurred.");
+		      e.printStackTrace();
+		      return 1;
+		    }
+	}
+	 
+	 public int readFile(String filename) {
+		    try {
+		      File myObj = new File(filename);
+		      java.util.Scanner myReader = new java.util.Scanner(myObj);
+	          int lineNum = 0;
+	          int newCols = 0;
+	          ArrayList<String> data = new ArrayList<String>();
+		      while (myReader.hasNextLine()) {
+		    	    data.add(myReader.nextLine());
+				    lineNum++;
+		      }
+		      myReader.close(); 
+		      newCols = data.get(0).length();
+		      if (lineNum < cols * 2 || lineNum == 0) {
+				  InformationBox.infoBox("Sadržaj datoteke je neispravan.", "Uèitavanje datoteke");
+		    	  return 1;
+		      }
+		      if (newCols != cols) {
+				  InformationBox.infoBox("Dimenzije zagonetke u datoteci ne odgovaraju vašem dizajnu.", "Uèitavanje datoteke");
+				  return 1;
+		      }
+		      rows = newCols;
+		      cols = newCols;
+	          diagonalOn = false;
+	          sizeRelationships.clear();
+		      for (int row = 0; row < lineNum; row++) {
+		        	if (row < rows) {
+			        	for (int col = 0; col < cols; col++) {
+			        		userInput[row * cols + col] = Integer.parseInt(data.get(row).substring(col, col + 1));
+			        	}
+		        	} 
+		        	if (row >= rows && row < rows * 2) {
+		        		for (int col = 0; col < cols; col++) {
+			        		border[(row - rows) * cols + col] = Integer.parseInt(data.get(row).substring(col, col + 1));
+		        		}
+		        	}
+		        	if (row == rows * 2) {
+		        		String reply = data.get(row).replace("\n", "");
+		        		if (reply.compareTo("Yes") == 0) {
+		        			diagonalOn = true;
+		        		}
+		        	}
+		        	if (row > rows * 2) {
+		        		String relationship = data.get(row).replace("\n", "");
+		        		sizeRelationships.add(relationship);
+		        	}
+		      }
+		      return 0;
+		    } catch (FileNotFoundException e) {
+		      //System.out.println("An error occurred.");
+		      e.printStackTrace();
+		      return 1;
+		    }
+	}
+	 
+	 public String testFile () {
+		if (lastUsedPath != "") {
+			if (InformationBox.yesNoBox("Želite li pristupiti zadnjoj korištenoj datoteci?", "Uèitavanje")) {
+				return lastUsedPath;
+			}
+		} else {
+			
+		}
+		JFrame frame = new JFrame();
+		int x = 15;
+		int y = 15;
+		int w = 100;
+		int h = 30;
+		JButton createb = new JButton("Uèitaj");
+		LookAndFeel previousLF = UIManager.getLookAndFeel();
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InstantiationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (UnsupportedLookAndFeelException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		JFileChooser fileChooser = new JFileChooser();
+		try {
+			UIManager.setLookAndFeel(previousLF);
+		} catch (UnsupportedLookAndFeelException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		int returnVal = fileChooser.showOpenDialog(createb);
+	    //System.out.println(returnVal);
+	    File file = fileChooser.getSelectedFile();
+		String newFile = file.getAbsolutePath();
+	    if (returnVal == 1) {
+	    	newFile = "sudoku.txt";
+	    }
+	    if(!file.exists() || file.isDirectory()) { 
+	        CreateFile(newFile);
+	    }
+	    //System.out.println(newFile);
+		createb.setBounds(x, y, w, h);
+		frame.add(createb);
+		frame.setSize(300, 300);  
+		frame.setLayout(null);  
+		lastUsedPath = newFile;
+		return newFile;
+	 }
+	
+	
+	
+	
 	public String returnColour(int centerCell) {
 	    String colorButton = "";
         if (border[centerCell] == 3) {

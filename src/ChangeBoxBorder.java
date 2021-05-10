@@ -552,7 +552,6 @@ public class ChangeBoxBorder extends SudokuGrid {
 
 	    y += h + space;
 
-		FileManipulator fileManipulator = new FileManipulator();
         JButton solveButton = new JButton("Riješi spremljeno");  
         solveButton.setMargin(new Insets(1,1,1,1));
         solveButton.setBounds(x, y, w, h);
@@ -561,12 +560,10 @@ public class ChangeBoxBorder extends SudokuGrid {
         public void actionPerformed(ActionEvent e) {  
 	        	try {
 					ChangeBoxBorder changeBoxBorder = new ChangeBoxBorder(rows, cols, xLim, yLim, false);
-					fileManipulator.setSudoku(changeBoxBorder);
-	        		if (fileManipulator.ReadFile() == 0) {
-	        			@SuppressWarnings("unused")
-	        			SolveSudoku SolveSudoku = new SolveSudoku(changeBoxBorder.rows, changeBoxBorder.cols, changeBoxBorder.xLim, changeBoxBorder.yLim, changeBoxBorder.border, changeBoxBorder.boxNumber, changeBoxBorder.diagonalOn, changeBoxBorder.sizeRelationships, changeBoxBorder.userInput);
-	        		}
-				} catch (Exception e1) {
+					changeBoxBorder.readFile();
+	        		@SuppressWarnings("unused")
+	        		SolveSudoku SolveSudoku = new SolveSudoku(changeBoxBorder.rows, changeBoxBorder.cols, changeBoxBorder.xLim, changeBoxBorder.yLim, changeBoxBorder.border, changeBoxBorder.boxNumber, changeBoxBorder.diagonalOn, changeBoxBorder.sizeRelationships, changeBoxBorder.userInput);
+	        	} catch (Exception e1) {
 	
 	
 				}
@@ -660,8 +657,7 @@ public class ChangeBoxBorder extends SudokuGrid {
         designContinueButton.addActionListener(new ActionListener(){  
         public void actionPerformed(ActionEvent e) {  
 	        	try {
-					fileManipulator.setSudoku(currentChangeBoxBorder);
-					fileManipulator.ReadFile();
+					readFile();
 	        		currentChangeBoxBorder.checkBoxes();
 				} catch (Exception e1) {
 	
@@ -678,8 +674,7 @@ public class ChangeBoxBorder extends SudokuGrid {
         designSaveButton.addActionListener(new ActionListener(){  
         public void actionPerformed(ActionEvent e) {  
 	        	try {
-					fileManipulator.setSudoku(currentChangeBoxBorder);
-					fileManipulator.WriteToFile();
+					writeToFile();
 				} catch (Exception e1) {
 	
 	
@@ -696,11 +691,9 @@ public class ChangeBoxBorder extends SudokuGrid {
         public void actionPerformed(ActionEvent e) {  
 	        	try {
 	        		if (checkBoxes()) {
-						fileManipulator.setSudoku(currentChangeBoxBorder);
-		        		if (fileManipulator.ReadFile() == 0) {
-		        			@SuppressWarnings("unused")
-							CreateSudoku createSudoku = new CreateSudoku(currentChangeBoxBorder.rows, currentChangeBoxBorder.cols, currentChangeBoxBorder.xLim, currentChangeBoxBorder.yLim, currentChangeBoxBorder.border, currentChangeBoxBorder.boxNumber, currentChangeBoxBorder.diagonalOn, currentChangeBoxBorder.sizeRelationships, currentChangeBoxBorder.userInput, fileManipulator);
-		        		}
+		        		readFile();
+		        		@SuppressWarnings("unused")
+						CreateSudoku createSudoku = new CreateSudoku(currentChangeBoxBorder.rows, currentChangeBoxBorder.cols, currentChangeBoxBorder.xLim, currentChangeBoxBorder.yLim, currentChangeBoxBorder.border, currentChangeBoxBorder.boxNumber, currentChangeBoxBorder.diagonalOn, currentChangeBoxBorder.sizeRelationships, currentChangeBoxBorder.userInput, currentChangeBoxBorder.lastUsedPath);
 		        		currentChangeBoxBorder.checkBoxes();
 	        		}
 				} catch (Exception e1) {
