@@ -1,12 +1,20 @@
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.Insets;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Stack;
 import java.util.concurrent.ThreadLocalRandom;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.plaf.metal.MetalButtonUI;
 
 
 public abstract class Sudoku extends SudokuGrid {
@@ -93,11 +101,13 @@ public abstract class Sudoku extends SudokuGrid {
 	    			}
 	    		}
 		    	// Ukloni moguænosti prema odnosima veæe-manje
-	    		if (setMaxPossibility(row * cols + col) == 1) {
+	    		Set<Integer> visitedMax = new HashSet<Integer>();
+	    		if (setMaxPossibility(row * cols + col, visitedMax) == 1) {
 	    			numChanged = 1;
 	    		}
 		    	// Ukloni moguænosti prema odnosima manje-veæe
-	    		if (setMinPossibility(row * cols + col) == 1) {
+	    		Set<Integer> visitedMin = new HashSet<Integer>();
+	    		if (setMinPossibility(row * cols + col, visitedMin) == 1) {
 	    			numChanged = 1;
 	    		}
 	    	}
@@ -446,9 +456,11 @@ public abstract class Sudoku extends SudokuGrid {
 					    		}
 								possibilities[notInSet][val] = 0;
 						    	// Ukloni moguænosti prema odnosima veæe-manje
-								setMaxPossibility(notInSet);
+					    		Set<Integer> visitedMax = new HashSet<Integer>();
+								setMaxPossibility(notInSet, visitedMax);
 						    	// Ukloni moguænosti prema odnosima manje-veæe
-								setMinPossibility(notInSet);
+					    		Set<Integer> visitedMin = new HashSet<Integer>();
+								setMinPossibility(notInSet, visitedMin);
 					    		// Ako nismo postavili sve æelije, pozivamo sekvencu metoda za rješavanje, ako ona uspije sve rješiti, prekidamo rješavanje
 								if (sequence() == 1) {
 					    			return 1;
@@ -556,9 +568,11 @@ public abstract class Sudoku extends SudokuGrid {
 			    				}
 			    				possibilities[notInSet][val] = 0;
 						    	// Ukloni moguænosti prema odnosima veæe-manje
-								setMaxPossibility(notInSet);
+					    		Set<Integer> visitedMax = new HashSet<Integer>();
+								setMaxPossibility(notInSet, visitedMax);
 						    	// Ukloni moguænosti prema odnosima manje-veæe
-								setMinPossibility(notInSet);
+					    		Set<Integer> visitedMin = new HashSet<Integer>();
+								setMinPossibility(notInSet, visitedMin);
 					    		// Ako nismo postavili sve æelije, pozivamo sekvencu metoda za rješavanje, ako ona uspije sve rješiti, prekidamo rješavanje
 								if (sequence() == 1) {
 					    			return 1;
@@ -675,9 +689,11 @@ public abstract class Sudoku extends SudokuGrid {
 					    		}
 			    				possibilities[notInSet][val] = 0;
 						    	// Ukloni moguænosti prema odnosima veæe-manje
-								setMaxPossibility(notInSet);
+					    		Set<Integer> visitedMax = new HashSet<Integer>();
+								setMaxPossibility(notInSet, visitedMax);
 						    	// Ukloni moguænosti prema odnosima manje-veæe
-								setMinPossibility(notInSet);
+					    		Set<Integer> visitedMin = new HashSet<Integer>();
+								setMinPossibility(notInSet, visitedMin);
 					    		// Ako nismo postavili sve æelije, pozivamo sekvencu metoda za rješavanje, ako ona uspije sve rješiti, prekidamo rješavanje
 								if (sequence() == 1) {
 					    			return 1;
@@ -1017,9 +1033,11 @@ public abstract class Sudoku extends SudokuGrid {
 					    		}
 			    				possibilities[firstRow * cols + col][val] = 0;
 						    	// Ukloni moguænosti prema odnosima veæe-manje
-								setMaxPossibility(firstRow * cols + col);
+					    		Set<Integer> visitedMax = new HashSet<Integer>();
+								setMaxPossibility(firstRow * cols + col, visitedMax);
 						    	// Ukloni moguænosti prema odnosima manje-veæe
-								setMinPossibility(firstRow * cols + col);
+					    		Set<Integer> visitedMin = new HashSet<Integer>();
+								setMinPossibility(firstRow * cols + col, visitedMin);
 					    		// Ako nismo postavili sve æelije, pozivamo sekvencu metoda za rješavanje, ako ona uspije sve rješiti, prekidamo rješavanje
 								if (sequence() == 1) {
 									return 1;
@@ -1119,9 +1137,11 @@ public abstract class Sudoku extends SudokuGrid {
 					    		}
 								possibilities[row * cols + firstCol][val] = 0;
 						    	// Ukloni moguænosti prema odnosima veæe-manje
-								setMaxPossibility(row * cols + firstCol);
+					    		Set<Integer> visitedMax = new HashSet<Integer>();
+								setMaxPossibility(row * cols + firstCol, visitedMax);
 						    	// Ukloni moguænosti prema odnosima manje-veæe
-								setMinPossibility(row * cols + firstCol);
+					    		Set<Integer> visitedMin = new HashSet<Integer>();
+								setMinPossibility(row * cols + firstCol, visitedMin);
 					    		// Ako nismo postavili sve æelije, pozivamo sekvencu metoda za rješavanje, ako ona uspije sve rješiti, prekidamo rješavanje
 								if (sequence() == 1) {
 					    			return 1;
@@ -1227,9 +1247,11 @@ public abstract class Sudoku extends SudokuGrid {
 					    		}
 								possibilities[numCell][notInSet] = 0;
 						    	// Ukloni moguænosti prema odnosima veæe-manje
-								setMaxPossibility(numCell);
+					    		Set<Integer> visitedMax = new HashSet<Integer>();
+								setMaxPossibility(numCell, visitedMax);
 						    	// Ukloni moguænosti prema odnosima manje-veæe
-								setMinPossibility(numCell);
+					    		Set<Integer> visitedMin = new HashSet<Integer>();
+								setMinPossibility(numCell, visitedMin);
 					    		// Ako nismo postavili sve æelije, pozivamo sekvencu metoda za rješavanje, ako ona uspije sve rješiti, prekidamo rješavanje
 								if (sequence() == 1) {
 					    			return 1;
@@ -1410,9 +1432,11 @@ public abstract class Sudoku extends SudokuGrid {
 				    		}
 		    				possibilities[valueRow[val] * cols + col][val] = 0;
 					    	// Ukloni moguænosti prema odnosima veæe-manje
-							setMaxPossibility(valueRow[val] * cols + col);
+				    		Set<Integer> visitedMax = new HashSet<Integer>();
+							setMaxPossibility(valueRow[val] * cols + col, visitedMax);
 					    	// Ukloni moguænosti prema odnosima manje-veæe
-							setMinPossibility(valueRow[val] * cols + col);
+				    		Set<Integer> visitedMin = new HashSet<Integer>();
+							setMinPossibility(valueRow[val] * cols + col, visitedMin);
 				    		// Ako nismo postavili sve æelije, pozivamo sekvencu metoda za rješavanje, ako ona uspije sve rješiti, prekidamo rješavanje
 				    		if (sequence() == 1) {
 		    	    			return 1;
@@ -1463,10 +1487,12 @@ public abstract class Sudoku extends SudokuGrid {
 		    	    			}
 				    		}
 		    				possibilities[row * cols + valueCol[val]][val] = 0;
-		    		    	// Ukloni moguænosti prema odnosima veæe-manje
-							setMaxPossibility(row * cols + valueCol[val]);
+					    	// Ukloni moguænosti prema odnosima veæe-manje
+				    		Set<Integer> visitedMax = new HashSet<Integer>();
+							setMaxPossibility(row * cols + valueCol[val], visitedMax);
 					    	// Ukloni moguænosti prema odnosima manje-veæe
-							setMinPossibility(row * cols + valueCol[val]);
+				    		Set<Integer> visitedMin = new HashSet<Integer>();
+							setMinPossibility(row * cols + valueCol[val], visitedMin);
 				    		// Ako nismo postavili sve æelije, pozivamo sekvencu metoda za rješavanje, ako ona uspije sve rješiti, prekidamo rješavanje
 				    		if (sequence() == 1) {
 		    	    			return 1;
@@ -1668,9 +1694,11 @@ public abstract class Sudoku extends SudokuGrid {
 						    		}
 									possibilities[row * cols + col][val] = 0;
 							    	// Ukloni moguænosti prema odnosima veæe-manje
-									setMaxPossibility(row * cols + col);
+						    		Set<Integer> visitedMax = new HashSet<Integer>();
+									setMaxPossibility(row * cols + col, visitedMax);
 							    	// Ukloni moguænosti prema odnosima manje-veæe
-									setMinPossibility(row * cols + col);
+						    		Set<Integer> visitedMin = new HashSet<Integer>();
+									setMinPossibility(row * cols + col, visitedMin);
 						    		numRemoved++;
 						    		// Ako nismo postavili sve æelije, pozivamo sekvencu metoda za rješavanje, ako ona uspije sve rješiti, prekidamo rješavanje
 				    				if (sequence() == 1) {
@@ -1776,9 +1804,11 @@ public abstract class Sudoku extends SudokuGrid {
 			    					}
 									possibilities[row * cols + col][val] = 0;
 							    	// Ukloni moguænosti prema odnosima veæe-manje
-									setMaxPossibility(row * cols + col);
+						    		Set<Integer> visitedMax = new HashSet<Integer>();
+									setMaxPossibility(row * cols + col, visitedMax);
 							    	// Ukloni moguænosti prema odnosima manje-veæe
-									setMinPossibility(row * cols + col);
+						    		Set<Integer> visitedMin = new HashSet<Integer>();
+									setMinPossibility(row * cols + col, visitedMin);
 						    		numRemoved++;
 						    		// Ako nismo postavili sve æelije, pozivamo sekvencu metoda za rješavanje, ako ona uspije sve rješiti, prekidamo rješavanje
 				    				if (sequence() == 1) {
@@ -2261,6 +2291,7 @@ public abstract class Sudoku extends SudokuGrid {
 		return 0;
 	}
 	long startSolving;
+	int[] forceVisited = new int[rows * cols];
 	// Provjeravamo rješivost zagonetke i ažuriramo upute za rješavanje i težinu
 	public int isOnlyOneSolution() {
 		// Zapisjuemo vrijeme kada smo poèeli rješavati
@@ -2298,6 +2329,13 @@ public abstract class Sudoku extends SudokuGrid {
 	    		}
 	    	}
 	    }
+    	// Za algoritam forsiranja ulanèavanjem pratimo broj posjeta
+	    for (int row = 0; row < rows; row++){ 
+	    	for (int col = 0; col < cols; col++) {
+		    	int numCell = row * cols + col;
+		    	forceVisited[numCell] = 0;
+	    	}
+	    }
 	    // Inicijaliziramo moguænosti za sve vrijednosti u svim æelijama na 1
 		possibilities = new int[rows * cols][rows];
 	    for (int row = 0; row < rows; row++){
@@ -2318,11 +2356,6 @@ public abstract class Sudoku extends SudokuGrid {
 		fixPencilmarks();
 		// Sudoku zagonetka 9 * 9 nema jedinstveno rješenje ako je zadano manje od 17 polja i ako nema dijagonale niti odnosa veæe-manje
 	    if (cols == 9 && rows * cols - unset < 17 && 0 != unset && diagonalOn == false && sizeRelationships.size() == 0) {
-			print();
-			difficulty.setText(String.valueOf(unset) + " Zadano je premalo polja");
-			return 0;
-	    }
-	    if (unset == rows * cols) {
 			print();
 			difficulty.setText(String.valueOf(unset) + " Zadano je premalo polja");
 			return 0;
@@ -2400,6 +2433,10 @@ public abstract class Sudoku extends SudokuGrid {
 		}
 	    for (int row = 0; row < rows; row++){
 	    	for (int col = 0; col < cols; col++) {
+	    		if (forceVisited[row * cols + row] == 1) {
+	    			continue;
+	    		}
+	    		forceVisited[row * cols + row] = 1;
 	    		// U polju pamtimo ishode za sve æelije ako za neku od æelija odaberemo odreðenu moguænost
 	    		int [] forcedValues = new int[rows * cols];
 	    		// Pratimo koliko puta smo uspjeli odrediti vrijednost neke æelije
@@ -2715,9 +2752,11 @@ public abstract class Sudoku extends SudokuGrid {
 				numRemoved++;
 				possibilities[cell][beginVal] = 0;
 		    	// Ukloni moguænosti prema odnosima veæe-manje
-				setMaxPossibility(cell);
+	    		Set<Integer> visitedMax = new HashSet<Integer>();
+				setMaxPossibility(cell, visitedMax);
 		    	// Ukloni moguænosti prema odnosima manje-veæe
-				setMinPossibility(cell);	
+	    		Set<Integer> visitedMin = new HashSet<Integer>();
+				setMinPossibility(cell, visitedMin);
 				// Dodajemo novi red za uklanjanje moguænosti u tekst uputa
 				solvingInstructions += "Uklanjam moguænost " + String.valueOf(beginVal + 1) + " iz æelije (" + String.valueOf(cell / cols + 1) + ", " + String.valueOf(cell % cols + 1) + ").\n" ;
 	    		// Ako nismo postavili sve æelije, pozivamo sekvencu metoda za rješavanje, ako ona uspije sve rješiti, prekidamo rješavanje
@@ -2777,30 +2816,25 @@ public abstract class Sudoku extends SudokuGrid {
 		for (int row = 0; row < rows; row++){ 
 	    	for (int col = 0; col < cols; col++) {
 		    	int numCell = row * cols + col;
-	    		String text = "<html>";
+	    		String text = "<html><p style='text-align: center'>";
 	    		int numberOptions = 0;
 	    		// Zapisujemo sve vrijednosti za æeliju
 		    	for (int val = 0; val < cols; val++) {
 		    		if (possibilities[row * cols + col][val] == 1 || temporary[row * cols + col] == val + 1) {
 		    			numberOptions++;
-		    			text += String.valueOf(val + 1);
-		    			if (numberOptions % 3 == 0) {
-		    				text += "<br />";
-		    			} else {
-		    				text += " ";
-		    			}
+		    			text += String.valueOf(val + 1) + " ";
 		    		}
 			    }
 		    	if (numberOptions != 0) {
 			    	// Ako imam više moguænosti za æeliju zapisujemo ih u HTML oznakama"
-		    		text = text.substring(0, text.length() - 1) + "</html>";
+		    		text = text.substring(0, text.length() - 1) + "</p></html>";
 		    	} else {
 			    	// Ako nema moguænosti za æeliju zapisujemo 0"
 		    		text = "0";
 		    	}
 		    	if (numberOptions > 1) {
 		    		// Ako æelija sadrži više moguænosti, moramo smanjiti velièinu fonta
-	    			field[numCell].setFont(new Font("Arial", Font.PLAIN, fontsize));
+	    			field[numCell].setFont(new Font("Arial", Font.PLAIN, guessFontsize));
 		    	} else {
 		    		// Ako postoji samo jedna moguænost u æeliji, možemo poveæati velièinu fonta
 	    			field[numCell].setFont(new Font("Arial", Font.PLAIN, numberFontsize));
@@ -3171,5 +3205,129 @@ public abstract class Sudoku extends SudokuGrid {
 			// Ako je znamenka iskorištena manje puta nego što je stupaca u mreži, pobojamo tekst gumba koji joj pripada u crno
 			digitButtons[digit].setForeground(Color.BLACK);
 		}
+	}	
+
+	KeyListener keyListener  =
+	new KeyListener(){
+		public void keyPressed(KeyEvent e) {
+			int key = e.getKeyCode();
+			if (key - 48 >= 0 && key <= 57 && key - 48 <= cols) {
+				selectedDigit = key - 48;
+				resetHighlight();
+				highlightDigit();
+			}
+			if (key - 65 >= 0 && key <= 90 && key - 65 + 10 <= cols) {
+				selectedDigit = key - 65 + 10;
+				resetHighlight();
+				highlightDigit();
+			}
+    		checkIfCorrect();
+		}
+		public void keyReleased(KeyEvent e) {}
+		public void keyTyped(KeyEvent e) {}
+	};
+	
+	public void addErrorScroll(int digitEnd, int buttonEnd) {
+		x += w + space;
+        y = space;
+        w = (int) (370 * widthScaling);
+        errorArea = new JTextArea(0, 0);
+        errorArea.setFont(new Font("Arial", Font.PLAIN, fontsize));
+        errorArea.setEditable (false);
+	    JPanel errorPanel = new JPanel();
+        errorPanel.add(errorArea, BorderLayout.CENTER);
+	    JScrollPane errorScroll = new JScrollPane(errorPanel, 
+                JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
+                JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+	    errorScroll.setBounds(x, y, w, Math.max(digitEnd, buttonEnd) - 2 * space);
+	    frame.add(errorScroll);
+	    errorScroll.setVisible(true);  
+	    errorScroll.setBackground(Color.WHITE);
+	    errorScroll.setVisible(true);  
+	    x += w + space;
+	}
+	
+	public void addInstructionScroll(int digitEnd, int buttonEnd) {
+        w = (int) (550 * widthScaling);
+		instructionArea = new JTextArea(0, 0);
+        instructionArea.setFont(new Font("Arial", Font.PLAIN, fontsize));
+        instructionArea.setEditable (false);
+	    JPanel instructionPanel = new JPanel();
+        instructionPanel.add(instructionArea, BorderLayout.CENTER);
+	    JScrollPane instructionScroll = new JScrollPane(instructionPanel, 
+                JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
+                JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+	    instructionScroll.setBounds(x, y, w, Math.max(digitEnd, buttonEnd) - 2 * space);
+	    frame.add(instructionScroll);
+	    instructionPanel.setVisible(true);  
+	    instructionPanel.setBackground(Color.WHITE);
+	    instructionScroll.setVisible(true);  
+        x += w + 2 * space;
+	}
+	
+	@Override
+	public void makeButtons() {
+	    for (int row = 0; row < rows; row++){ 
+	    	x = space;
+	    	for (int col = 0; col < cols; col++) {
+	    		int numCell = row * cols + col;
+	    	    field[numCell] = new JButton();  
+			    field[numCell].setMargin(new Insets(1,1,1,1));
+			    field[numCell].setFont(new Font("Arial", Font.PLAIN, numberFontsize));
+			    field[numCell].setBounds(x, y, w, h);
+			    field[numCell].setUI(new MetalButtonUI() {
+    			    protected Color getDisabledTextColor() {
+    			        return Color.CYAN;
+    			    }
+    			});
+			    field[numCell].addKeyListener(keyListener);
+			    field[numCell].addActionListener(makeActionListener(numCell));
+			    frame.add(field[numCell]);
+		    	x += w;
+		    }
+		    y += h;
+	    }
+	    x = space;
+	    y += space;
+	}
+
+	public abstract ActionListener makeDigitActionListener(int numCell);
+	
+	public int makeDigitButtons() {
+		x = space;
+	    y += space;
+		digitButtons = new JButton[cols + 1];
+		for (int row = 0; row < cols + 1; row++) {
+			digitButtons[row] = new JButton(String.valueOf(row));  
+			digitButtons[row].setMargin(new Insets(1,1,1,1));
+			if (row != selectedDigit) {
+				digitButtons[row].setBackground(Color.WHITE);
+			} else {
+				digitButtons[row].setBackground(Color.CYAN);
+			}
+			digitButtons[row].setBounds(x, y, w, h);
+			digitButtons[row].setFont(new Font("Arial", Font.PLAIN, numberFontsize));
+	        if (row == 0) {
+	        	digitButtons[row].setForeground(Color.RED);
+	        }
+	        int digit = row;
+	        digitButtons[row].addActionListener(makeDigitActionListener(digit));
+	        digitButtons[row].addKeyListener(keyListener);
+	        frame.add(digitButtons[row]);
+	        x += w;
+		}
+		return y + h + space;
+	}
+	
+	@Override
+	public JButton makeAButton(String title, int xPosition, int yPosition, int widthButton, int heightButton, ActionListener actionListerToAdd) {
+		JButton newButton = new JButton(title);  
+		newButton.setMargin(new Insets(1,1,1,1));
+		newButton.setBounds(xPosition, yPosition, widthButton, heightButton);
+		newButton.setFont(new Font("Arial", Font.PLAIN, fontsize));
+		newButton.addActionListener(actionListerToAdd);
+		newButton.addKeyListener(keyListener);
+		frame.add(newButton);
+		return newButton;
 	}
 }

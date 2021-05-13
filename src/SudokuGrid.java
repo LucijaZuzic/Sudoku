@@ -2,6 +2,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.Toolkit;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
@@ -56,6 +57,7 @@ public abstract class SudokuGrid {
 	int w = (int) (60 * widthScaling);
 	int h = (int) (60 * heightScaling);
 	int numberFontsize = (int) (24 * heightScaling);
+	int guessFontsize = (int) (12 * heightScaling);
 	int fontsize = (int) (16 * heightScaling);
 	boolean diagonalOn = false;
 	
@@ -79,125 +81,89 @@ public abstract class SudokuGrid {
 	    }
 	  }
 	
-	 public void writeToFile() {
+	public String lineForUserInput() {
+        String lineUserInput = "";
+        for (int row = 0; row < rows; row++) {
+        	for (int col = 0; col < cols; col++) {
+        		lineUserInput += String.valueOf(userInput[row * cols + col]);
+        	}
+        	lineUserInput += "\n";
+        }
+        return lineUserInput;
+	}
+	
+	public String lineForBorder() {
+		String lineBorder = "";
+        for (int row = 0; row < rows; row++) {
+        	for (int col = 0; col < cols; col++) {
+        		lineBorder += String.valueOf(border[row * cols + col]);
+        	}
+        	lineBorder += "\n";
+        }
+        return lineBorder;
+	}
+	
+	public String lineForDiagonal() {
+        String lineDiagonal = "";
+        if (diagonalOn) {
+        	lineDiagonal = "Yes\n";
+        } else {
+        	lineDiagonal = "No\n";
+        }
+        return lineDiagonal;
+	}
+
+	public String lineForRelationship() {
+		String lineRelationship = "";
+		for(String relationshipCell : sizeRelationships){
+        	lineRelationship += relationshipCell + "\n";
+		}
+        for (int row = 0; row < rows; row++) {
+        	for (int col = 0; col < cols; col++) {
+        		int numCell = row * cols + cols;
+        		for (int rowOffset = -1; rowOffset <= 1; rowOffset++) {
+        			for (int colOffset = -1; colOffset <= 1; colOffset++) {
+        		        int newCell = (numCell / cols + rowOffset) * cols + numCell % cols + colOffset;
+        				if (!neighbourCheck(numCell, newCell)) {
+        					continue;
+        				}
+        				String relationshipCell = String.valueOf(numCell) + " " + String.valueOf(newCell);
+        				if (sizeRelationships.contains(relationshipCell)) {
+        				}
+        			}
+        		}
+        	}
+        }
+        return lineRelationship;
+	}
+	
+	 public void writeToFile(String filename) {
 		  try {
-	        FileWriter myWriter = new FileWriter(testFile());
-	        String lineUserInput = "";
-	        for (int row = 0; row < rows; row++) {
-	        	for (int col = 0; col < cols; col++) {
-	        		lineUserInput += String.valueOf(userInput[row * cols + col]);
-	        	}
-	        	lineUserInput += "\n";
-	        }
-	        String lineBorder = "";
-	        for (int row = 0; row < rows; row++) {
-	        	for (int col = 0; col < cols; col++) {
-	        		lineBorder += String.valueOf(border[row * cols + col]);
-	        	}
-	        	lineBorder += "\n";
-	        }
-	        String lineDiagonal = "";
-	        if (diagonalOn) {
-	        	lineDiagonal = "Yes\n";
+	        FileWriter myWriter;
+	        if (filename == "") {
+	    	  myWriter = new FileWriter(testFile());
 	        } else {
-	        	lineDiagonal = "No\n";
+	    	  myWriter = new FileWriter(filename);
 	        }
-	        String lineRelationship = "";
-	        for (int row = 0; row < rows; row++) {
-	        	for (int col = 0; col < cols; col++) {
-	        		int largerCell = row * cols + col;
-	        		int rightCell = largerCell + 1;
-					int leftCell = largerCell - 1;
-					int bottomCell = largerCell + cols;
-					int topCell = largerCell - cols;
-					String relationshipRightCell = String.valueOf(largerCell) + " " + String.valueOf(rightCell);
-					String relationshipLeftCell = String.valueOf(largerCell) + " " + String.valueOf(leftCell);
-					String relationshipBottomCell = String.valueOf(largerCell) + " " + String.valueOf(bottomCell);
-					String relationshipTopCell = String.valueOf(largerCell) + " " + String.valueOf(topCell);
-					if (sizeRelationships.contains(relationshipTopCell)) {
-						lineRelationship += relationshipTopCell + "\n";
-					}
-					if (sizeRelationships.contains(relationshipRightCell)) {
-						lineRelationship += relationshipRightCell + "\n";
-					}
-					if (sizeRelationships.contains(relationshipLeftCell)) {
-						lineRelationship += relationshipLeftCell + "\n";
-					}
-					if (sizeRelationships.contains(relationshipBottomCell)) {
-						lineRelationship += relationshipBottomCell + "\n";
-					}
-					if (sizeRelationships.contains(relationshipTopCell)) {
-						lineRelationship += relationshipTopCell + "\n";
-					}
-	        	}
-	        }
-	        myWriter.write(lineUserInput + lineBorder + lineDiagonal + lineRelationship);
+	        myWriter.write(lineForUserInput() + lineForBorder() + lineForDiagonal() + lineForRelationship());
 	        myWriter.close();
-			InformationBox.infoBox("Zagonetka je uspješno spremljena.", "Spremanje datoteke");
+	        if (filename == "") {
+	        	InformationBox.infoBox("Zagonetka je uspješno spremljena.", "Spremanje datoteke");
+	        }
 	      } catch (IOException e) {
 	        //System.out.println("An error occurred.");
 	        e.printStackTrace();
 	      }
 	  }
 	 
-	 public int readFile() {
-		    try {
-		      File myObj = new File(testFile());
-		      java.util.Scanner myReader = new java.util.Scanner(myObj);
-	          int lineNum = 0;
-	          int newCols = 0;
-	          ArrayList<String> data = new ArrayList<String>();
-		      while (myReader.hasNextLine()) {
-		    	    data.add(myReader.nextLine());
-				    lineNum++;
-		      }
-		      myReader.close(); 
-		      newCols = data.get(0).length();
-		      if (lineNum < cols * 2 || lineNum == 0) {
-				  InformationBox.infoBox("Sadržaj datoteke je neispravan.", "Uèitavanje datoteke");
-		    	  return 1;
-		      }
-		      if (newCols != cols) {
-				  InformationBox.infoBox("Dimenzije zagonetke u datoteci ne odgovaraju vašem dizajnu.", "Uèitavanje datoteke");
-				  return 1;
-		      }
-		      rows = newCols;
-		      cols = newCols;
-	          diagonalOn = false;
-	          sizeRelationships.clear();
-		      for (int row = 0; row < lineNum; row++) {
-		        	if (row < rows) {
-			        	for (int col = 0; col < cols; col++) {
-			        		userInput[row * cols + col] = Integer.parseInt(data.get(row).substring(col, col + 1));
-			        	}
-		        	} 
-		        	if (row >= rows && row < rows * 2) {
-		        		for (int col = 0; col < cols; col++) {
-			        		border[(row - rows) * cols + col] = Integer.parseInt(data.get(row).substring(col, col + 1));
-		        		}
-		        	}
-		        	if (row == rows * 2) {
-		        		String reply = data.get(row).replace("\n", "");
-		        		if (reply.compareTo("Yes") == 0) {
-		        			diagonalOn = true;
-		        		}
-		        	}
-		        	if (row > rows * 2) {
-		        		String relationship = data.get(row).replace("\n", "");
-		        		sizeRelationships.add(relationship);
-		        	}
-		      }
-		      return 0;
-		    } catch (FileNotFoundException e) {
-		      //System.out.println("An error occurred.");
-		      e.printStackTrace();
-		      return 1;
-		    }
-	}
-	 
 	 public int readFile(String filename) {
 		    try {
-		      File myObj = new File(filename);
+		      File myObj;
+		      if (filename == "") {
+			      myObj = new File(testFile());
+		      } else {
+		    	  myObj = new File(filename);
+		      }
 		      java.util.Scanner myReader = new java.util.Scanner(myObj);
 	          int lineNum = 0;
 	          int newCols = 0;
@@ -208,13 +174,13 @@ public abstract class SudokuGrid {
 		      }
 		      myReader.close(); 
 		      newCols = data.get(0).length();
-		      if (lineNum < cols * 2 || lineNum == 0) {
-				  InformationBox.infoBox("Sadržaj datoteke je neispravan.", "Uèitavanje datoteke");
-		    	  return 1;
-		      }
 		      if (newCols != cols) {
 				  InformationBox.infoBox("Dimenzije zagonetke u datoteci ne odgovaraju vašem dizajnu.", "Uèitavanje datoteke");
 				  return 1;
+		      }
+		      if (lineNum < cols * 2 || lineNum == 0) {
+				  InformationBox.infoBox("Sadržaj datoteke je neispravan.", "Uèitavanje datoteke");
+		    	  return 1;
 		      }
 		      rows = newCols;
 		      cols = newCols;
@@ -310,190 +276,66 @@ public abstract class SudokuGrid {
 	
 	
 	public String returnColour(int centerCell) {
-	    String colorButton = "";
-        if (border[centerCell] == 3) {
-    	    colorButton = "light_gray";
-    	}
-        if (border[centerCell] == 2) {
-    	    colorButton = "dark_gray";
-    	}
-    	if (border[centerCell] == 1) {
-    	    colorButton = "black";
-    	}
-        if (border[centerCell] == 0) {
-    	    colorButton = "gray";
-    	}
-        if (border[centerCell] == -1) {
-    	    colorButton = "gray";
-    	}
-		return colorButton;
+	    String[] buttonColours = {"gray", "black", "dark_gray", "light_gray"};
+		return buttonColours[border[centerCell]];
+	}
+	
+	public int relationshipSmallerCheck(int neighbourCell, int centerCell) {
+		if (!neighbourCheck(centerCell, neighbourCell)) {
+			return 0;
+		}
+		String relationshipSmaller = String.valueOf(neighbourCell) + " " + String.valueOf(centerCell);
+		if (sizeRelationships.contains(relationshipSmaller)) {
+			return 1;
+		} else {
+			return 0;
+		}
+	}
+	
+	public int relationshipLargerCheck(int neighbourCell, int centerCell) {
+		if (!neighbourCheck(centerCell, neighbourCell)) {
+			return 0;
+		}
+		String relationshipLarger = String.valueOf(centerCell) + " " + String.valueOf(neighbourCell);
+		if (sizeRelationships.contains(relationshipLarger)) {
+			return 1;
+		} else {
+			return 0;
+		}
 	}
 	
 	public void setBackground(int row, int col, String colorButton) {
 		int centerCell = row * cols + col;
-		int leftBorderRelationship = 0;
-	    int rightBorderRelationship = 0;
-	    int topBorderRelationship = 0;
-	    int bottomBorderRelationship = 0;
-	    for (int rowOffset = -1; rowOffset < 2; rowOffset++){ 
-	    	for (int colOffset = -1; colOffset < 2; colOffset++) {
-	    		int neighbourCell = (row + rowOffset) * cols + col + colOffset;
-	    		if (Math.abs(rowOffset) == Math.abs(colOffset)) {
-	    			continue;
-	    		}
-	    		if (row + rowOffset < 0) {
-	    			continue;
-	    		}
-	    		if (row + rowOffset >= rows) {
-	    			continue;
-	    		}
-	    		if (col + colOffset < 0) {
-	    			continue;
-	    		}
-	    		if (col + colOffset >= cols) {
-	    			continue;
-	    		}
-				String relationshipSmaller = String.valueOf(neighbourCell) + " " + String.valueOf(centerCell);
-
-	    		if (sizeRelationships.contains(relationshipSmaller)) {
-		    		if (colOffset == -1) {
-		    			leftBorderRelationship = 1;
-		    		}
-		    		if (colOffset == 1) {
-		    			rightBorderRelationship = 1;
-		    		}
-		    		if (rowOffset == -1) {
-		    			topBorderRelationship = 1;
-		    		}
-		    		if (rowOffset == 1) {
-		    			bottomBorderRelationship = 1;
-		    		}
-	    		} 
-	    	}
-	    }
+		int leftBorderRelationship = relationshipSmallerCheck(centerCell - 1, centerCell);
+	    int rightBorderRelationship = relationshipSmallerCheck(centerCell + 1, centerCell);
+	    int topBorderRelationship = relationshipSmallerCheck(centerCell - cols, centerCell);
+	    int bottomBorderRelationship = relationshipSmallerCheck(centerCell + cols, centerCell);
 	    String path = "src/images/" + colorButton + "/arrow" + String.valueOf(leftBorderRelationship) + String.valueOf(rightBorderRelationship) + String.valueOf(topBorderRelationship) + String.valueOf(bottomBorderRelationship) + ".png";
 	    ImageIcon imageIcon = new ImageIcon(new ImageIcon(path).getImage().getScaledInstance(field[centerCell].getWidth(), field[centerCell].getHeight(), Image.SCALE_DEFAULT));
 	    field[centerCell].setIcon(imageIcon);
 	    field[centerCell].setDisabledIcon(imageIcon);
+	    field[centerCell].setHorizontalTextPosition(JButton.CENTER);
+	    field[centerCell].setVerticalTextPosition(JButton.CENTER);
 	}
 	
-	public int floodFill(int row, int col, int val) {
-		int retVal = 1;
+	public int getBorderThickness(int centerCell, int neighbourCell) {
+		if (!neighbourCheck(centerCell, neighbourCell)) {
+			return 4;
+		}
+		String relationshipSmaller = String.valueOf(neighbourCell) + " " + String.valueOf(centerCell);
+		String relationshipLarger = String.valueOf(centerCell) + " " + String.valueOf(neighbourCell);
+		if (border[neighbourCell] != border[centerCell] && !sizeRelationships.contains(relationshipSmaller) && !sizeRelationships.contains(relationshipLarger)) {
+			return 3;
+		}
+		return 1;
+	}
+	
+	public void setBorder(int row, int col) {
 	    int centerCell = row * cols + col;
-	    int leftBorder = 1;
-	    int rightBorder = 1;
-	    int topBorder = 1;
-	    int bottomBorder = 1;
-	    int leftBorderRelationship = 0;
-	    int rightBorderRelationship = 0;
-	    int topBorderRelationship = 0;
-	    int bottomBorderRelationship = 0;
-	    String colorButton = "";
-		boxNumber[centerCell] = val;
-        if (border[centerCell] == 3) {
-    		field[centerCell].setBackground(Color.LIGHT_GRAY);
-    	    colorButton = "light_gray";
-    	}
-        if (border[centerCell] == 2) {
-    		field[centerCell].setBackground(Color.DARK_GRAY);
-    	    colorButton = "dark_gray";
-    	}
-    	if (border[centerCell] == 1) {
-    		field[centerCell].setBackground(Color.BLACK);
-    	    colorButton = "black";
-    	}
-        if (border[centerCell] == 0) {
-    		field[centerCell].setBackground(Color.GRAY);
-    	    colorButton = "gray";
-    	}
-        if (border[centerCell] == -1) {
-    		field[centerCell].setBackground(Color.RED);
-    	}
-	    for (int rowOffset = -1; rowOffset < 2; rowOffset++){ 
-	    	for (int colOffset = -1; colOffset < 2; colOffset++) {
-	    		int neighbourCell = (row + rowOffset) * cols + col + colOffset;
-	    		if (Math.abs(rowOffset) == Math.abs(colOffset)) {
-	    			continue;
-	    		}
-	    		if (row + rowOffset < 0) {
-	    			topBorder = 4;
-	    			continue;
-	    		}
-	    		if (row + rowOffset >= rows) {
-	    			bottomBorder = 4;
-	    			continue;
-	    		}
-	    		if (col + colOffset < 0) {
-	    			leftBorder = 4;
-	    			continue;
-	    		}
-	    		if (col + colOffset >= cols) {
-	    			rightBorder = 4;
-	    			continue;
-	    		}
-				String relationshipSmaller = String.valueOf(neighbourCell) + " " + String.valueOf(centerCell);
-				String relationshipLarger = String.valueOf(centerCell) + " " + String.valueOf(neighbourCell);
-	    		if (sizeRelationships.contains(relationshipSmaller)) {
-		    		if (colOffset == -1) {
-		    			leftBorderRelationship = 1;
-		    		}
-		    		if (colOffset == 1) {
-		    			rightBorderRelationship = 1;
-		    		}
-		    		if (rowOffset == -1) {
-		    			topBorderRelationship = 1;
-		    		}
-		    		if (rowOffset == 1) {
-		    			bottomBorderRelationship = 1;
-		    		}
-	    		} 
-	    		if (border[neighbourCell] != border[centerCell]) {
-		    		if (colOffset == -1) {
-			    		if (!sizeRelationships.contains(relationshipSmaller) && !sizeRelationships.contains(relationshipLarger)) {
-			    			leftBorder = 3;
-			    		}
-		    			continue;
-		    		}
-		    		if (colOffset == 1) {
-			    		if (!sizeRelationships.contains(relationshipSmaller) && !sizeRelationships.contains(relationshipLarger)) {
-			    			rightBorder = 3;
-			    		}
-		    			continue;
-		    		}
-		    		if (rowOffset == -1) {
-			    		if (!sizeRelationships.contains(relationshipSmaller) && !sizeRelationships.contains(relationshipLarger)) {
-			    			topBorder = 3;
-			    		}
-		    			continue;
-		    		}
-		    		if (rowOffset == 1) {
-			    		if (!sizeRelationships.contains(relationshipSmaller) && !sizeRelationships.contains(relationshipLarger)) {
-			    			bottomBorder = 3;
-			    		}
-		    			continue;
-		    		}
-	    		}
-	    		if (boxNumber[neighbourCell] != -1) {
-		    		if (colOffset == -1) {
-		    			leftBorder = 1;
-		    			continue;
-		    		}
-		    		if (colOffset == 1) {
-		    			rightBorder = 1;
-		    			continue;
-		    		}
-		    		if (rowOffset == -1) {
-		    			topBorder = 1;
-		    			continue;
-		    		}
-		    		if (rowOffset == 1) {
-		    			bottomBorder = 1;
-		    			continue;
-		    		}
-	    		}
-	    		retVal += floodFill(row + rowOffset, col + colOffset, val);
-	    	}
-	    }
+	    int leftBorder = getBorderThickness(centerCell, centerCell - 1);
+	    int rightBorder = getBorderThickness(centerCell, centerCell + 1);
+	    int topBorder = getBorderThickness(centerCell, centerCell - cols);
+	    int bottomBorder = getBorderThickness(centerCell, centerCell + cols);
 	    MatteBorder boxLimits = BorderFactory.createMatteBorder(topBorder, leftBorder, bottomBorder, rightBorder, Color.WHITE);
 	    Border emptyBorder = BorderFactory.createEmptyBorder(7 - topBorder, 7 - leftBorder, 7 - bottomBorder, 7 - rightBorder);
 	    CompoundBorder basicBorder = new CompoundBorder(boxLimits, emptyBorder);
@@ -507,13 +349,23 @@ public abstract class SudokuGrid {
 		    	field[centerCell].setBorder(basicBorder);
 	    	}
 	    }
-
-	    String path = "src/images/" + colorButton + "/arrow" + String.valueOf(leftBorderRelationship) + String.valueOf(rightBorderRelationship) + String.valueOf(topBorderRelationship) + String.valueOf(bottomBorderRelationship) + ".png";
-	    ImageIcon imageIcon = new ImageIcon(new ImageIcon(path).getImage().getScaledInstance(field[centerCell].getWidth(), field[centerCell].getHeight(), Image.SCALE_DEFAULT));
-	    field[centerCell].setIcon(imageIcon);
-	    field[centerCell].setDisabledIcon(imageIcon);
-	    field[centerCell].setHorizontalTextPosition(JButton.CENTER);
-	    field[centerCell].setVerticalTextPosition(JButton.CENTER);
+	}
+	
+	public int floodFill(int row, int col, int val) {
+		int retVal = 1;
+	    int centerCell = row * cols + col;
+	    setBackground(row, col, returnColour(centerCell));
+	    setBorder(row, col);
+	    boxNumber[centerCell] = val;
+	    for (int rowOffset = -1; rowOffset <= 1; rowOffset++){ 
+	    	for (int colOffset = -1; colOffset <= 1; colOffset++) {
+	    		int neighbourCell = (row + rowOffset) * cols + col + colOffset;
+	    		if (!neighbourCheck(centerCell, neighbourCell) || border[neighbourCell] != border[centerCell] || boxNumber[neighbourCell] != -1) {
+	    			continue;
+	    		}
+	    		retVal += floodFill(row + rowOffset, col + colOffset, val);
+	    	}
+	    }
 	    return retVal;
 	}
 	
@@ -543,13 +395,13 @@ public abstract class SudokuGrid {
 	    		int sizeOfBox = floodFill(row, col, boxNum);
 	    	    if (sizeOfBox > rows) {
 	    	    	if (showBoxMsg) {
-	    	    		InformationBox.infoBox(String.valueOf(boxNumber[numCell]) + ". kutija je prevelika.", "Stvaranje kutije");	
+	    	    		InformationBox.infoBox(String.valueOf(boxNumber[numCell] + 1) + ". kutija je prevelika.", "Stvaranje kutije");	
 	    	    	}
 	    	    	retVal = false;
 	    	    }
 	    	    if (sizeOfBox < rows) {
 	    	    	if (showBoxMsg) {
-	    	    		InformationBox.infoBox(String.valueOf(boxNumber[numCell]) + ". kutija je premalena", "Stvaranje kutije");	
+	    	    		InformationBox.infoBox(String.valueOf(boxNumber[numCell] + 1) + ". kutija je premalena", "Stvaranje kutije");	
 	    	    	}
 	    	    	retVal = false;
 	    	    }
@@ -570,190 +422,77 @@ public abstract class SudokuGrid {
 	    }
 	    return retVal;
 	}
-
-	/*public int breakingRelationship(int numCell, int val) {
-		int rightCell = numCell + 1;
-		if (rightCell < rows * cols) {
-			String relationshipRightCell = String.valueOf(numCell) + " " + String.valueOf(rightCell);
-			String relationshipReverseRightCell = String.valueOf(rightCell) + " " + String.valueOf(numCell);
-			if (sizeRelationships.contains(relationshipRightCell) && (temporary[rightCell] > val || val == 1)) {
-				return 1;
-			} 
-			if (sizeRelationships.contains(relationshipReverseRightCell)  && ((temporary[rightCell] < val && temporary[rightCell] != 0) || val == 9)) {
-				return 1;
-			} 
-		}
-		int leftCell = numCell - 1;
-		if (leftCell >= 0) {
-			String relationshipLeftCell = String.valueOf(numCell) + " " + String.valueOf(leftCell);
-			String relationshipReverseLeftCell = String.valueOf(leftCell) + " " + String.valueOf(numCell);
-			if (sizeRelationships.contains(relationshipLeftCell)  && (temporary[leftCell] > val || val == 1)) {
-				return 1;
-			} 
-			if (sizeRelationships.contains(relationshipReverseLeftCell) && ((temporary[leftCell] < val && temporary[leftCell] != 0) || val == 9)) {
-				return 1;
-			} 
-		}
-		int bottomCell = numCell + cols;
-		if (bottomCell < rows * cols) {
-			String relationshipBottomCell = String.valueOf(numCell) + " " + String.valueOf(bottomCell);
-			String relationshipReverseBottomCell = String.valueOf(bottomCell) + " " + String.valueOf(numCell);
-			if (sizeRelationships.contains(relationshipBottomCell) && (temporary[bottomCell] > val || val == 1)) {
-				return 1;
-			} 
-			if (sizeRelationships.contains(relationshipReverseBottomCell) && ((temporary[bottomCell] < val && temporary[bottomCell] != 0) || val == 9)) {
-				return 1;
-			} 
-		}
-		int topCell = numCell - cols;
-		if (topCell >= 0) {
-			String relationshipTopCell = String.valueOf(numCell) + " " + String.valueOf(topCell);
-			String relationshipReverseTopCell = String.valueOf(topCell) + " " + String.valueOf(numCell);
-			if (sizeRelationships.contains(relationshipTopCell) && (temporary[topCell] > val || val == 1)) {
-				return 1;
-			} 
-			if (sizeRelationships.contains(relationshipReverseTopCell) && ((temporary[topCell] < val && temporary[topCell] != 0) || val == 9)) {
-				return 1;
-			} 
-		}
-		return 0;
-	}*/
 	
 	
-	/*public boolean isTreeSource(int numCell) {
+	public boolean isTreeSource(int numCell) {
 		boolean isSource = false;
-		int rightCell = numCell + 1;
-		if (rightCell < rows * cols) {
-			String relationshipRightCell = String.valueOf(numCell) + " " + String.valueOf(rightCell);
-			if (sizeRelationships.contains(relationshipRightCell)) {
-				isSource = true;
-			} 
-			relationshipRightCell = String.valueOf(rightCell) + " " + String.valueOf(numCell);
-			if (sizeRelationships.contains(relationshipRightCell)) {
-				return false;
-			} 
-		}
-		int leftCell = numCell - 1;
-		if (leftCell >= 0) {
-			String relationshipLeftCell = String.valueOf(numCell) + " " + String.valueOf(leftCell);
-			if (sizeRelationships.contains(relationshipLeftCell)) {
-				isSource = true;
-			} 
-			relationshipLeftCell = String.valueOf(leftCell) + " " + String.valueOf(numCell);
-			if (sizeRelationships.contains(relationshipLeftCell)) {
-				return false;
-			} 
-		}
-		int bottomCell = numCell + cols;
-		if (bottomCell < rows * cols) {
-			String relationshipBottomCell = String.valueOf(numCell) + " " + String.valueOf(bottomCell);
-			if (sizeRelationships.contains(relationshipBottomCell)) {
-				isSource = true;
-			} 
-			relationshipBottomCell = String.valueOf(bottomCell) + " " + String.valueOf(numCell);
-			if (sizeRelationships.contains(relationshipBottomCell)) {
-				return false;
-			} 
-		}
-		int topCell = numCell - cols;
-		if (topCell >= 0) {
-			String relationshipTopCell = String.valueOf(numCell) + " " + String.valueOf(topCell);
-			if (sizeRelationships.contains(relationshipTopCell)) {
-				isSource = true;
-			} 
-			relationshipTopCell = String.valueOf(topCell) + " " + String.valueOf(numCell);
-			if (sizeRelationships.contains(relationshipTopCell)) {
-				return false;
-			} 
+		for (int rowOffset = -1; rowOffset <= 1; rowOffset++) {
+			for (int colOffset = -1; colOffset <= 1; colOffset++) {
+		        int newCell = (numCell / cols + rowOffset) * cols + numCell % cols + colOffset;
+		        if (relationshipLargerCheck(newCell, numCell) == 1) {
+		        	isSource = true;
+		        }
+		        if (relationshipSmallerCheck(newCell, numCell) == 1) {
+		        	return false;
+		        }
+			}
 		}
 		return isSource;
-	}*/
+	}
+	
+	public boolean isTreeEnd(int numCell) {
+		boolean isEnd = false;
+		for (int rowOffset = -1; rowOffset <= 1; rowOffset++) {
+			for (int colOffset = -1; colOffset <= 1; colOffset++) {
+		        int newCell = (numCell / cols + rowOffset) * cols + numCell % cols + colOffset;
+		        if (relationshipLargerCheck(newCell, numCell) == 1) {
+					return false;
+		        }
+		        if (relationshipSmallerCheck(newCell, numCell) == 1) {
+					isEnd = true;
+		        }
+			}
+		}
+		return isEnd;
+	}
 
 	public int isInTree(int numCell) {
-		int rightCell = numCell + 1;
-		if (rightCell < rows * cols) {
-			String relationshipRightCell = String.valueOf(numCell) + " " + String.valueOf(rightCell);
-			if (sizeRelationships.contains(relationshipRightCell)) {
-				return 1;
-			} 
-			relationshipRightCell = String.valueOf(rightCell) + " " + String.valueOf(numCell);
-			if (sizeRelationships.contains(relationshipRightCell)) {
-				return 1;
-			} 
-		}
-		int leftCell = numCell - 1;
-		if (leftCell >= 0) {
-			String relationshipLeftCell = String.valueOf(numCell) + " " + String.valueOf(leftCell);
-			if (sizeRelationships.contains(relationshipLeftCell)) {
-				return 1;
-			} 
-			relationshipLeftCell = String.valueOf(leftCell) + " " + String.valueOf(numCell);
-			if (sizeRelationships.contains(relationshipLeftCell)) {
-				return 1;
-			} 
-		}
-		int bottomCell = numCell + cols;
-		if (bottomCell < rows * cols) {
-			String relationshipBottomCell = String.valueOf(numCell) + " " + String.valueOf(bottomCell);
-			if (sizeRelationships.contains(relationshipBottomCell)) {
-				return 1;
-			} 
-			relationshipBottomCell = String.valueOf(bottomCell) + " " + String.valueOf(numCell);
-			if (sizeRelationships.contains(relationshipBottomCell)) {
-				return 1;
-			} 
-		}
-		int topCell = numCell - cols;
-		if (topCell >= 0) {
-			String relationshipTopCell = String.valueOf(numCell) + " " + String.valueOf(topCell);
-			if (sizeRelationships.contains(relationshipTopCell)) {
-				return 1;
-			} 
-			relationshipTopCell = String.valueOf(topCell) + " " + String.valueOf(numCell);
-			if (sizeRelationships.contains(relationshipTopCell)) {
-				return 1;
-			} 
+		for (int rowOffset = -1; rowOffset <= 1; rowOffset++) {
+			for (int colOffset = -1; colOffset <= 1; colOffset++) {
+		        int newCell = (numCell / cols + rowOffset) * cols + numCell % cols + colOffset;
+		        if (relationshipLargerCheck(newCell, numCell) == 1) {
+					return 1;
+		        }
+		        if (relationshipSmallerCheck(newCell, numCell) == 1) {
+					return 1;
+		        }
+			}
 		}
 		return 0;
 	}
 	
-	public int getTreeSize(int numCell) {
+	public int getTreeSize(int numCell, Set<Integer> visited) {
+		visited.add(numCell);
 		int treeSize = 1;
-		int rightCell = numCell + 1;
-		if (rightCell < rows * cols) {
-			String relationshipRightCell = String.valueOf(numCell) + " " + String.valueOf(rightCell);
-			if (sizeRelationships.contains(relationshipRightCell)) {
-				treeSize += getTreeSize(rightCell);
-			} 
-		}
-		int leftCell = numCell - 1;
-		if (leftCell >= 0) {
-			String relationshipLeftCell = String.valueOf(numCell) + " " + String.valueOf(leftCell);
-			if (sizeRelationships.contains(relationshipLeftCell)) {
-				treeSize += getTreeSize(leftCell);
-			} 
-		}
-		int bottomCell = numCell + cols;
-		if (bottomCell < rows * cols) {
-			String relationshipBottomCell = String.valueOf(numCell) + " " + String.valueOf(bottomCell);
-			if (sizeRelationships.contains(relationshipBottomCell)) {
-				treeSize += getTreeSize(bottomCell);
-			} 
-		}
-		int topCell = numCell - cols;
-		if (topCell >= 0) {
-			String relationshipTopCell = String.valueOf(numCell) + " " + String.valueOf(topCell);
-			if (sizeRelationships.contains(relationshipTopCell)) {
-				treeSize += getTreeSize(topCell);
-			} 
+		for (int rowOffset = -1; rowOffset <= 1; rowOffset++) {
+			for (int colOffset = -1; colOffset <= 1; colOffset++) {
+		        int newCell = (numCell / cols + rowOffset) * cols + numCell % cols + colOffset;
+		        if (relationshipLargerCheck(newCell, numCell) == 1) {
+		        	if (!visited.contains(newCell)) {
+						treeSize += getTreeSize(newCell, visited);
+					}
+		        }
+			}
 		}
 		return treeSize;
 	}
 
 
-	public int setMaxPossibility(int numCell) {
+	public int setMaxPossibility(int numCell, Set<Integer> visited) {
+		visited.add(numCell);
 		int numChanged = 0;
-		int tree = getTreeSize(numCell);
+		Set<Integer> visitedNew = new HashSet<Integer>();
+		int tree = getTreeSize(numCell, visitedNew);
 		if (tree == 1) {
 			return 0;
 		}
@@ -772,57 +511,26 @@ public abstract class SudokuGrid {
 		if (temporary[numCell] != 0) {
 			maxPossibility = temporary[numCell] - 1;
 		}
-		int rightCell = numCell + 1;
-		if (rightCell < rows * cols) {
-			String relationshipRightCell = String.valueOf(numCell) + " " + String.valueOf(rightCell);
-			if (sizeRelationships.contains(relationshipRightCell)) {
-				for (int val = maxPossibility; val < cols; val++) {
-					if (possibilities[rightCell][val] == 1) {
-						possibilities[rightCell][val] = 0;
-						numChanged++;
-					}
+		for (int rowOffset = -1; rowOffset <= 1; rowOffset++) {
+			for (int colOffset = -1; colOffset <= 1; colOffset++) {
+		        int newCell = (numCell / cols + rowOffset) * cols + numCell % cols + colOffset;
+				if (neighbourCheck(numCell, newCell)) {
+					String relationshipCell = String.valueOf(numCell) + " " + String.valueOf(newCell);
+					if (sizeRelationships.contains(relationshipCell)) {
+						for (int val = maxPossibility; val < cols; val++) {
+							if (possibilities[newCell][val] == 1) {
+								possibilities[newCell][val] = 0;
+								numChanged++;
+							}
+						}
+						if (visited.contains(newCell)) {
+							return 0;
+						} else {
+							numChanged += setMaxPossibility(newCell, visited);
+						}
+					} 
 				}
-				numChanged += setMaxPossibility(rightCell);
-			} 
-		}
-		int leftCell = numCell - 1;
-		if (leftCell >= 0) {
-			String relationshipLeftCell = String.valueOf(numCell) + " " + String.valueOf(leftCell);
-			if (sizeRelationships.contains(relationshipLeftCell)) {
-				for (int val = maxPossibility; val < cols; val++) {
-					if (possibilities[leftCell][val] == 1) {
-						possibilities[leftCell][val] = 0;
-						numChanged++;
-					}
-				}
-				numChanged += setMaxPossibility(leftCell);
-			} 
-		}
-		int bottomCell = numCell + cols;
-		if (bottomCell < rows * cols) {
-			String relationshipBottomCell = String.valueOf(numCell) + " " + String.valueOf(bottomCell);
-			if (sizeRelationships.contains(relationshipBottomCell)) {
-				for (int val = maxPossibility; val < cols; val++) {
-					if (possibilities[bottomCell][val] == 1) {
-						possibilities[bottomCell][val] = 0;
-						numChanged++;
-					}
-				}
-				numChanged += setMaxPossibility(bottomCell);
-			} 
-		}
-		int topCell = numCell - cols;
-		if (topCell >= 0) {
-			String relationshipTopCell = String.valueOf(numCell) + " " + String.valueOf(topCell);
-			if (sizeRelationships.contains(relationshipTopCell)) {
-				for (int val = maxPossibility; val < cols; val++) {
-					if (possibilities[topCell][val] == 1) {
-						possibilities[topCell][val] = 0;
-						numChanged++;
-					}
-				}
-				numChanged += setMaxPossibility(topCell);
-			} 
+			}
 		}
 		if (numChanged > 0) {
 			//InformationBox.infoBox(String.valueOf(numCell) + ": "+ String.valueOf(maxPossibility), "max possibility");
@@ -832,8 +540,20 @@ public abstract class SudokuGrid {
 		}
 	}
 
-
-	public int setMinPossibility(int numCell) {
+	public boolean neighbourCheck(int numCell, int newCell) {
+		int rightCell = numCell + 1;
+		int leftCell = numCell - 1;
+		int bottomCell = numCell + cols;
+		int topCell = numCell - cols;
+		if ((newCell >= 0 && newCell < rows * cols) && (newCell == rightCell || newCell == leftCell || newCell == bottomCell || newCell == topCell) && (newCell / cols == numCell / cols || newCell % cols == numCell % cols)) {
+			return true;
+		}
+		return false;
+	}
+	
+	
+	public int setMinPossibility(int numCell, Set<Integer> visited) {
+		visited.add(numCell);
 		int numChanged = 0;
 		int minPossibility = 0;
 		for (int val = 0; val < cols; val++) {
@@ -845,57 +565,26 @@ public abstract class SudokuGrid {
 		if (temporary[numCell] != 0) {
 			minPossibility = temporary[numCell] - 1;
 		}
-		int rightCell = numCell + 1;
-		if (rightCell < rows * cols) {
-			String relationshipRightCell = String.valueOf(rightCell) + " " + String.valueOf(numCell);
-			if (sizeRelationships.contains(relationshipRightCell)) {
-				for (int val = 0; val <= minPossibility; val++) {
-					if (possibilities[rightCell][val] == 1) {
-						possibilities[rightCell][val] = 0;
-						numChanged++;
-					}
+		for (int rowOffset = -1; rowOffset <= 1; rowOffset++) {
+			for (int colOffset = -1; colOffset <= 1; colOffset++) {
+		        int newCell = (numCell / cols + rowOffset) * cols + numCell % cols + colOffset;
+				if (neighbourCheck(numCell, newCell)) {
+					String relationshipCell = String.valueOf(newCell) + " " + String.valueOf(numCell);
+					if (sizeRelationships.contains(relationshipCell)) {
+						for (int val = 0; val <= minPossibility; val++) {
+							if (possibilities[newCell][val] == 1) {
+								possibilities[newCell][val] = 0;
+								numChanged++;
+							}
+						}
+						if (visited.contains(newCell)) {
+							return 0;
+						} else {
+							numChanged += setMinPossibility(newCell, visited);
+						}
+					} 
 				}
-				numChanged += setMinPossibility(rightCell);
-			} 
-		}
-		int leftCell = numCell - 1;
-		if (leftCell >= 0) {
-			String relationshipLeftCell = String.valueOf(leftCell) + " " + String.valueOf(numCell);
-			if (sizeRelationships.contains(relationshipLeftCell)) {
-				for (int val = 0; val <= minPossibility; val++) {
-					if (possibilities[leftCell][val] == 1) {
-						possibilities[leftCell][val] = 0;
-						numChanged++;
-					}
-				}
-				numChanged += setMinPossibility(leftCell);
-			} 
-		}
-		int bottomCell = numCell + cols;
-		if (bottomCell < rows * cols) {
-			String relationshipBottomCell = String.valueOf(bottomCell) + " " + String.valueOf(numCell);
-			if (sizeRelationships.contains(relationshipBottomCell)) {
-				for (int val = 0; val <= minPossibility; val++) {
-					if (possibilities[bottomCell][val] == 1) {
-						possibilities[bottomCell][val] = 0;
-						numChanged++;
-					}
-				}
-				numChanged += setMinPossibility(bottomCell);
-			} 
-		}
-		int topCell = numCell - cols;
-		if (topCell >= 0) {
-			String relationshipTopCell = String.valueOf(topCell) + " " + String.valueOf(numCell);
-			if (sizeRelationships.contains(relationshipTopCell)) {
-				for (int val = 0; val <= minPossibility; val++) {
-					if (possibilities[topCell][val] == 1) {
-						possibilities[topCell][val] = 0;
-						numChanged++;
-					}
-				}
-				numChanged += setMinPossibility(topCell);
-			} 
+			}
 		}
 		if (numChanged > 0) {
 			//InformationBox.infoBox(String.valueOf(numCell) + ": "+ String.valueOf(minPossibility), "min possibility");
@@ -929,6 +618,7 @@ public abstract class SudokuGrid {
 		cols = constructCols;
 		xLim = rowLimit;
 		yLim = colLimit;
+		guessFontsize = (int) (h / (Math.sqrt(cols) + 1) * heightScaling);
 		field = new JButton[constructRows * constructCols];
 		solution = new int[constructRows * constructCols];
 		temporary = new int[constructRows * constructCols];
@@ -936,6 +626,23 @@ public abstract class SudokuGrid {
 		border = new int[constructRows * constructCols];
 		boxNumber = new int[constructRows * constructCols];
 		sizeRelationships = new HashSet<String>();
+	    for (int row = 0; row < rows; row++){ 
+	    	for (int col = 0; col < cols; col++) {
+	    		int numCell = row * cols + col;
+	    		int box = (row / yLim) * (cols / xLim) + (col / xLim);
+		    	if (((box % (cols / xLim) % 2 == 0) && (box / (cols / xLim) % 2  == 0)) || 
+		    		((box % (cols / xLim) % 2 != 0) && (box / (cols / xLim) % 2  == 1))) {
+	        		border[numCell] = 1;
+		    	} else {
+	        		border[numCell] = 0;
+		    	}
+	    	}
+	    }
 	}
+	
+
+	public abstract ActionListener makeActionListener(int numCell);
+    public abstract void makeButtons();
+    public abstract JButton makeAButton(String title, int xPosition, int yPosition, int widthButton, int heightButton, ActionListener actionListerToAdd);
 	
 }
