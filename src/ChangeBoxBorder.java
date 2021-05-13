@@ -168,7 +168,7 @@ public class ChangeBoxBorder extends SudokuGrid {
 	}
 	
 	@Override
-	public void makeButtons() {
+	public int makeButtons() {
 	    for (int row = 0; row < rows; row++){ 
 	    	x = space;
 	    	for (int col = 0; col < cols; col++) {
@@ -176,7 +176,7 @@ public class ChangeBoxBorder extends SudokuGrid {
 	    	    field[numCell] = new JButton();  
 			    field[numCell].setMargin(new Insets(1,1,1,1));
 			    field[numCell].setFont(new Font("Arial", Font.PLAIN, numberFontsize));
-			    field[numCell].setBounds(x, y, w, h);
+			    field[numCell].setBounds(x, y, wNumber, hNumber);
 			    field[numCell].setUI(new MetalButtonUI() {
     			    protected Color getDisabledTextColor() {
     			        return Color.CYAN;
@@ -184,11 +184,12 @@ public class ChangeBoxBorder extends SudokuGrid {
     			});
 			    field[numCell].addActionListener(makeActionListener(numCell));
 			    frame.add(field[numCell]);
-		    	x += w;
+		    	x += wNumber;
 		    }
-		    y += h;
+		    y += hNumber;
 	    }
 	    y += space;
+	    return space + wNumber * cols;
 	}
 	
 	@Override
