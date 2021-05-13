@@ -3230,7 +3230,7 @@ public abstract class Sudoku extends SudokuGrid {
 	public void addErrorScroll(int digitEnd, int buttonEnd) {
 		x += w + space;
         y = space;
-        w = (int) (370 * widthScaling);
+        w = (int) (250 * widthScaling);
         errorArea = new JTextArea(0, 0);
         errorArea.setFont(new Font("Arial", Font.PLAIN, fontsize));
         errorArea.setEditable (false);
@@ -3248,7 +3248,7 @@ public abstract class Sudoku extends SudokuGrid {
 	}
 	
 	public void addInstructionScroll(int digitEnd, int buttonEnd) {
-        w = (int) (550 * widthScaling);
+        w = (int) (500 * widthScaling);
 		instructionArea = new JTextArea(0, 0);
         instructionArea.setFont(new Font("Arial", Font.PLAIN, fontsize));
         instructionArea.setEditable (false);
@@ -3266,7 +3266,7 @@ public abstract class Sudoku extends SudokuGrid {
 	}
 	
 	@Override
-	public void makeButtons() {
+	public int makeButtons() {
 	    for (int row = 0; row < rows; row++){ 
 	    	x = space;
 	    	for (int col = 0; col < cols; col++) {
@@ -3274,7 +3274,7 @@ public abstract class Sudoku extends SudokuGrid {
 	    	    field[numCell] = new JButton();  
 			    field[numCell].setMargin(new Insets(1,1,1,1));
 			    field[numCell].setFont(new Font("Arial", Font.PLAIN, numberFontsize));
-			    field[numCell].setBounds(x, y, w, h);
+			    field[numCell].setBounds(x, y, wNumber, hNumber);
 			    field[numCell].setUI(new MetalButtonUI() {
     			    protected Color getDisabledTextColor() {
     			        return Color.CYAN;
@@ -3283,12 +3283,13 @@ public abstract class Sudoku extends SudokuGrid {
 			    field[numCell].addKeyListener(keyListener);
 			    field[numCell].addActionListener(makeActionListener(numCell));
 			    frame.add(field[numCell]);
-		    	x += w;
+		    	x += wNumber;
 		    }
-		    y += h;
+		    y += hNumber;
 	    }
 	    x = space;
 	    y += space;
+	    return space + wNumber * cols;
 	}
 
 	public abstract ActionListener makeDigitActionListener(int numCell);
@@ -3305,8 +3306,8 @@ public abstract class Sudoku extends SudokuGrid {
 			} else {
 				digitButtons[row].setBackground(Color.CYAN);
 			}
-			digitButtons[row].setBounds(x, y, w, h);
-			digitButtons[row].setFont(new Font("Arial", Font.PLAIN, numberFontsize));
+			digitButtons[row].setBounds(x, y, wDigit, hDigit);
+			digitButtons[row].setFont(new Font("Arial", Font.PLAIN, digitFontsize));
 	        if (row == 0) {
 	        	digitButtons[row].setForeground(Color.RED);
 	        }
@@ -3314,9 +3315,9 @@ public abstract class Sudoku extends SudokuGrid {
 	        digitButtons[row].addActionListener(makeDigitActionListener(digit));
 	        digitButtons[row].addKeyListener(keyListener);
 	        frame.add(digitButtons[row]);
-	        x += w;
+	        x += wDigit;
 		}
-		return y + h + space;
+		return y + hDigit + space;
 	}
 	
 	@Override

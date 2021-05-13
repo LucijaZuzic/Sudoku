@@ -56,8 +56,13 @@ public abstract class SudokuGrid {
 	int y = space;
 	int w = (int) (60 * widthScaling);
 	int h = (int) (60 * heightScaling);
+	int wNumber = (int) (90 * widthScaling);
+	int hNumber = (int) (90 * heightScaling);
+	int wDigit = (int) (40 * widthScaling);
+	int hDigit = (int) (40 * heightScaling);
 	int numberFontsize = (int) (24 * heightScaling);
 	int guessFontsize = (int) (12 * heightScaling);
+	int digitFontsize = (int) (24 * heightScaling);
 	int fontsize = (int) (16 * heightScaling);
 	boolean diagonalOn = false;
 	
@@ -336,19 +341,13 @@ public abstract class SudokuGrid {
 	    int rightBorder = getBorderThickness(centerCell, centerCell + 1);
 	    int topBorder = getBorderThickness(centerCell, centerCell - cols);
 	    int bottomBorder = getBorderThickness(centerCell, centerCell + cols);
-	    MatteBorder boxLimits = BorderFactory.createMatteBorder(topBorder, leftBorder, bottomBorder, rightBorder, Color.WHITE);
+	    MatteBorder boxLimits = BorderFactory.createMatteBorder(topBorder, leftBorder, bottomBorder, rightBorder, Color.WHITE);	
+	    if (diagonalOn && (row == col || row + col + 1 == cols)) {
+	    	boxLimits = BorderFactory.createMatteBorder(3, 3, 3, 3, Color.MAGENTA);	
+	    }
 	    Border emptyBorder = BorderFactory.createEmptyBorder(7 - topBorder, 7 - leftBorder, 7 - bottomBorder, 7 - rightBorder);
 	    CompoundBorder basicBorder = new CompoundBorder(boxLimits, emptyBorder);
-	    MatteBorder diagonalBorder = BorderFactory.createMatteBorder(3, 3, 3, 3, Color.MAGENTA);
-	    if (!diagonalOn) {
-	    	field[centerCell].setBorder(basicBorder);
-	    } else {
-	    	if (row == col || row + col + 1 == cols) {
-		    	field[centerCell].setBorder(new CompoundBorder(basicBorder, diagonalBorder));
-	    	} else {
-		    	field[centerCell].setBorder(basicBorder);
-	    	}
-	    }
+		field[centerCell].setBorder(basicBorder);
 	}
 	
 	public int floodFill(int row, int col, int val) {
@@ -618,7 +617,23 @@ public abstract class SudokuGrid {
 		cols = constructCols;
 		xLim = rowLimit;
 		yLim = colLimit;
-		guessFontsize = (int) (h / (Math.sqrt(cols) + 1) * heightScaling);
+		wNumber = (int) (800 / cols * widthScaling);
+		hNumber = wNumber;
+		wDigit = (int) (wNumber - wNumber / cols);
+		int size = 0;
+		numberFontsize = (int) (wNumber / 2);
+		guessFontsize = 1;
+		while (size / wNumber <= hNumber / guessFontsize) {
+			size = guessFontsize;
+			for (int col = 0; col < cols; col++) {
+				size += (String.valueOf(col + 1).length() + 1) * guessFontsize;
+			}
+			guessFontsize++;
+			if (size / wNumber > hNumber / guessFontsize) {
+				guessFontsize--;
+				break;
+			}
+		}
 		field = new JButton[constructRows * constructCols];
 		solution = new int[constructRows * constructCols];
 		temporary = new int[constructRows * constructCols];
@@ -642,7 +657,7 @@ public abstract class SudokuGrid {
 	
 
 	public abstract ActionListener makeActionListener(int numCell);
-    public abstract void makeButtons();
+    public abstract int makeButtons();
     public abstract JButton makeAButton(String title, int xPosition, int yPosition, int widthButton, int heightButton, ActionListener actionListerToAdd);
 	
 }

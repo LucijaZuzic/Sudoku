@@ -498,12 +498,12 @@ public class CreateSudoku extends Sudoku {
 		frame = new JFrame("Stvori sudoku");  
 	    frame.setDefaultCloseOperation (JFrame.DISPOSE_ON_CLOSE);
 	    frame.addKeyListener(keyListener);
-	    makeButtons();
+	    int returnX = makeButtons();
 	    int digitEnd = makeDigitButtons();
 	    h = h / 2;
 	    w = (int) (200 * widthScaling);
 	    y = space;
-	    x += space;
+	    x = returnX + space;
 	 	makeAButton("Prikaži korake", x, y, w, h, new ActionListener(){  
 	        public void actionPerformed(ActionEvent e) {  
 		        	try {
@@ -637,6 +637,12 @@ public class CreateSudoku extends Sudoku {
 	 	makeAButton("Riješi zagonetku", x, y, w, h, new ActionListener(){  
 	        public void actionPerformed(ActionEvent e) {  
 		        	try {
+		        		boolean correct = checkIfCorrect();
+		        	    // Ako zagonetka nije ispravno zadana, ne možemo ju rješavati
+		            	if (!correct) {
+		        			difficulty.setText("U zagonetki ima grešaka");
+		            		return;
+		            	}
 	        			@SuppressWarnings("unused")
 						SolveSudoku SolveSudoku = new SolveSudoku(rows, cols, xLim, yLim, border, boxNumber, diagonalOn, sizeRelationships, userInput);
 					} catch (Exception e1) {

@@ -806,12 +806,12 @@ public class SolveSudoku extends Sudoku {
 		frame = new JFrame("Riješi sudoku");  
 	    frame.setDefaultCloseOperation (JFrame.DISPOSE_ON_CLOSE);
 	    frame.addKeyListener(keyListener);
-	    makeButtons();
+	    int returnX = makeButtons();
 	    int digitEnd = makeDigitButtons();
 		h = 2 * space;
-		w = (int) (200 * widthScaling);
-		x += space;
-		y = space;
+	    w = (int) (200 * widthScaling);
+	    y = space;
+	    x = returnX + space;
 		
 		makeAButton("Prikaži korake", x, y, w, h, new ActionListener(){  
 	        public void actionPerformed(ActionEvent e) {  
