@@ -144,7 +144,13 @@ public abstract class Sudoku extends SudokuGrid {
 			    	    			}
 		    		    		}
 			    		    	temporary[row * cols + col] = val + 1;
-		    		    		field[row * cols + col].setText(String.valueOf(val + 1));
+		    		    		if (val + 1 < 10) {
+		    		    			field[row * cols + col].setText(String.valueOf(val + 1));
+		    		    		} else {
+		    		    			char c = 'A';
+		    		    			c += val - 9;
+		    		    			field[row * cols + col].setText("" + c);
+		    		    		}
 		    		    		// Ažuriramo moguæe vrijednosti ostalih æelija
 		    		    		fixPencilmarks();
 		    		    		break;
@@ -1914,7 +1920,13 @@ public abstract class Sudoku extends SudokuGrid {
 		    		
 	    			}
 			    	temporary[row * cols + colToClear] = val;
-		    		field[row * cols + colToClear].setText(String.valueOf(val));
+		    		if (val < 10) {
+		    			field[row * cols + colToClear].setText(String.valueOf(val));
+		    		} else {
+		    			char c = 'A';
+		    			c += val - 10;
+		    			field[row * cols + colToClear].setText("" + c);
+		    		}
 		    		// Ažuriramo moguæe vrijednosti ostalih æelija
 		    		fixPencilmarks();
 			    	// Ako smo postavili sve æelije, prekidamo rješavanje
@@ -1981,7 +1993,13 @@ public abstract class Sudoku extends SudokuGrid {
     	    			}
 		    		}
 	    			temporary[rowToClear * cols + col] = val;
-		    		field[rowToClear * cols + col].setText(String.valueOf(val));
+		    		if (val < 10) {
+		    			field[rowToClear * cols + col].setText(String.valueOf(val));
+		    		} else {
+		    			char c = 'A';
+		    			c += val - 10;
+		    			field[rowToClear * cols + col].setText("" + c);
+		    		}
 		    		// Ažuriramo moguæe vrijednosti ostalih æelija
 			    	fixPencilmarks();
 			    	// Ako smo postavili sve æelije, prekidamo rješavanje
@@ -2050,7 +2068,13 @@ public abstract class Sudoku extends SudokuGrid {
     	    			}
 		    		}
 	    			temporary[cellToClear] = val;
-		    		field[cellToClear].setText(String.valueOf(val));
+		    		if (val < 10) {
+		    			field[cellToClear].setText(String.valueOf(val));
+		    		} else {
+		    			char c = 'A';
+		    			c += val - 10;
+		    			field[cellToClear].setText("" + c);
+		    		}
 		    		// Ažuriramo moguæe vrijednosti ostalih æelija
 			    	fixPencilmarks();
 			    	// Ako smo postavili sve æelije, prekidamo rješavanje
@@ -2116,7 +2140,13 @@ public abstract class Sudoku extends SudokuGrid {
 	    	    			}
 			    		}
 		    			temporary[cellToClear] = val;
-			    		field[cellToClear].setText(String.valueOf(val));
+			    		if (val < 10) {
+			    			field[cellToClear].setText(String.valueOf(val));
+			    		} else {
+			    			char c = 'A';
+			    			c += val - 10;
+			    			field[cellToClear].setText("" + c);
+			    		}
 			    		// Ažuriramo moguæe vrijednosti ostalih æelija
 				    	fixPencilmarks();
 				    	// Ako smo postavili sve æelije, prekidamo rješavanje
@@ -2180,7 +2210,13 @@ public abstract class Sudoku extends SudokuGrid {
 	    	    			}
 			    		}
 		    			temporary[cellToClear] = val;
-			    		field[cellToClear].setText(String.valueOf(val));
+			    		if (val < 10) {
+			    			field[cellToClear].setText(String.valueOf(val));
+			    		} else {
+			    			char c = 'A';
+			    			c += val - 10;
+			    			field[cellToClear].setText("" + c);
+			    		}
 			    		// Ažuriramo moguæe vrijednosti ostalih æelija
 				    	fixPencilmarks();
 				    	// Ako smo postavili sve æelije, prekidamo rješavanje
@@ -2822,7 +2858,13 @@ public abstract class Sudoku extends SudokuGrid {
 		    	for (int val = 0; val < cols; val++) {
 		    		if (possibilities[row * cols + col][val] == 1 || temporary[row * cols + col] == val + 1) {
 		    			numberOptions++;
-		    			text += String.valueOf(val + 1) + " ";
+		    			if (val + 1 < 10) {
+		    				text += String.valueOf(val + 1) + " ";
+		    			} else {
+		    				char c = 'A';
+		    				c += val - 9;
+		    				text += c + " ";
+		    			}
 		    		}
 			    }
 		    	if (numberOptions != 0) {
@@ -2910,8 +2952,20 @@ public abstract class Sudoku extends SudokuGrid {
 			return false;
 		}
 		// S vrha stoga vraæamo položaj uklonjenih æelija i vrijednosti koje su bile zapisane u njima
-	    field[lastRemovedPosOriginal.peek()].setText(String.valueOf(lastRemovedValOriginal.peek()));
-	    field[lastRemovedPosSymetric.peek()].setText(String.valueOf(lastRemovedValSymetric.peek()));
+		if (lastRemovedValOriginal.peek() < 10) {
+		    field[lastRemovedPosOriginal.peek()].setText(String.valueOf(lastRemovedValOriginal.peek()));
+		} else {
+			char c = 'A';
+			c += lastRemovedValOriginal.peek() - 10;
+			field[lastRemovedPosOriginal.peek()].setText("" + c);
+		}
+		if (lastRemovedValSymetric.peek() < 10) {
+		    field[lastRemovedPosSymetric.peek()].setText(String.valueOf(lastRemovedValSymetric.peek()));
+		} else {
+			char c = 'A';
+			c += lastRemovedValSymetric.peek() - 10;
+			field[lastRemovedPosSymetric.peek()].setText("" + c);
+		}
 		userInput[lastRemovedPosOriginal.peek()] = lastRemovedValOriginal.peek();
     	// Ažuriramo broj korištenja znamenke koju smo vratili
     	numUseDigit[lastRemovedValOriginal.peek()]++;
@@ -3230,9 +3284,9 @@ public abstract class Sudoku extends SudokuGrid {
 	public void addErrorScroll(int digitEnd, int buttonEnd) {
 		x += w + space;
         y = space;
-        w = (int) (250 * widthScaling);
+        w = (int) (280 * widthScaling);
         errorArea = new JTextArea(0, 0);
-        errorArea.setFont(new Font("Arial", Font.PLAIN, fontsize));
+        errorArea.setFont(new Font("Arial", Font.PLAIN, fontsizeTextArea));
         errorArea.setEditable (false);
 	    JPanel errorPanel = new JPanel();
         errorPanel.add(errorArea, BorderLayout.CENTER);
@@ -3250,7 +3304,7 @@ public abstract class Sudoku extends SudokuGrid {
 	public void addInstructionScroll(int digitEnd, int buttonEnd) {
         w = (int) (500 * widthScaling);
 		instructionArea = new JTextArea(0, 0);
-        instructionArea.setFont(new Font("Arial", Font.PLAIN, fontsize));
+        instructionArea.setFont(new Font("Arial", Font.PLAIN, fontsizeTextArea));
         instructionArea.setEditable (false);
 	    JPanel instructionPanel = new JPanel();
         instructionPanel.add(instructionArea, BorderLayout.CENTER);
@@ -3299,7 +3353,15 @@ public abstract class Sudoku extends SudokuGrid {
 	    y += space;
 		digitButtons = new JButton[cols + 1];
 		for (int row = 0; row < cols + 1; row++) {
-			digitButtons[row] = new JButton(String.valueOf(row));  
+			String text = "";
+			if (row < 10) {
+				text += String.valueOf(row);
+			} else {
+				char c = 'A';
+				c += row - 10;
+				text += c;
+			}
+			digitButtons[row] = new JButton(text);  
 			digitButtons[row].setMargin(new Insets(1,1,1,1));
 			if (row != selectedDigit) {
 				digitButtons[row].setBackground(Color.WHITE);

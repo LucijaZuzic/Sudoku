@@ -20,7 +20,13 @@ public class CreateSudoku extends Sudoku {
 			    	int numCell = row * cols + col;
 		    		userInput[numCell] = temporary[numCell];
 		    		solution[numCell] = temporary[numCell];
-		    		field[numCell].setText(String.valueOf(userInput[numCell]));
+    	    		if (userInput[numCell] < 10) {
+    	    			field[numCell].setText(String.valueOf(userInput[numCell]));
+    	    		} else {
+    	    			char c = 'A';
+    	    			c += userInput[numCell] - 10;
+    	    			field[numCell].setText("" + c);
+    	    		}
     	        	field[numCell].setForeground(Color.WHITE);
 		    	}
 		    }
@@ -46,7 +52,13 @@ public class CreateSudoku extends Sudoku {
 		    	int numCell = row * cols + col;
 	    		userInput[numCell] = temporary[numCell];
 	    		solution[numCell] = temporary[numCell];
-	    		field[numCell].setText(String.valueOf(userInput[numCell]));
+	    		if (userInput[numCell] < 10) {
+	    			field[numCell].setText(String.valueOf(userInput[numCell]));
+	    		} else {
+	    			char c = 'A';
+	    			c += userInput[numCell] - 10;
+	    			field[numCell].setText("" + c);
+	    		}
 	        	field[numCell].setForeground(Color.WHITE);
 	    	}
 	    }
@@ -95,7 +107,13 @@ public class CreateSudoku extends Sudoku {
 				    			if (val == selectedDigit - 1) {
 				    				text += "<b><i>";
 				    			}
-				    			text += String.valueOf(val + 1);
+				    			if (val + 1 < 10) {
+				    				text += String.valueOf(val + 1) + " ";
+				    			} else {
+				    				char c = 'A';
+				    				c += val - 9;
+				    				text += c + " ";
+				    			}
 				    			if (val == selectedDigit - 1) {
 				    				text += "</b></i>";
 				    			}
@@ -153,7 +171,13 @@ public class CreateSudoku extends Sudoku {
 		    	int numCell = row * cols + col;
 	    		userInput[numCell] = temporary[numCell];
 	    		solution[numCell] = temporary[numCell];
-	    		field[numCell].setText(String.valueOf(userInput[numCell]));
+	    		if (userInput[numCell] < 10) {
+	    			field[numCell].setText(String.valueOf(userInput[numCell]));
+	    		} else {
+	    			char c = 'A';
+	    			c += userInput[numCell] - 10;
+	    			field[numCell].setText("" + c);
+	    		}
 	    	}
 	    }
 	    assume();
@@ -184,7 +208,13 @@ public class CreateSudoku extends Sudoku {
 		    	int numCell = row * cols + col;
 	    		userInput[numCell] = constructUserInput[numCell];
 	    		solution[numCell] = 0;
-	    		field[numCell].setText(String.valueOf(userInput[numCell]));
+	    		if (userInput[numCell] < 10) {
+	    			field[numCell].setText(String.valueOf(userInput[numCell]));
+	    		} else {
+	    			char c = 'A';
+	    			c += userInput[numCell] - 10;
+	    			field[numCell].setText("" + c);
+	    		}
 	    	}
 	    }
 	    assume();
@@ -431,7 +461,13 @@ public class CreateSudoku extends Sudoku {
 		    	for (int val = 1; val <= cols; val++) {
 		    		if (possibilities[numCell][val - 1] == 1) {
 		    			numberOptions++;
-		    			text += String.valueOf(val) + " ";
+		    			if (val < 10) {
+		    				text += String.valueOf(val) + " ";
+		    			} else {
+		    				char c = 'A';
+		    				c += val - 10;
+		    				text += c + " ";
+		    			}
 		    		}
 			    }
 		    	if (numberOptions != 0) {
@@ -462,7 +498,13 @@ public class CreateSudoku extends Sudoku {
 	        		userInput[numCell] = selectedDigit;
 				    field[numCell].setFont(new Font("Arial", Font.PLAIN, numberFontsize));
 	        		if (selectedDigit != 0) {
-				    	field[numCell].setText(String.valueOf(selectedDigit));
+        	    		if (selectedDigit < 10) {
+	    	    			field[numCell].setText(String.valueOf(selectedDigit));
+	    	    		} else {
+	    	    			char c = 'A';
+	    	    			c += selectedDigit - 10;
+	    	    			field[numCell].setText("" + c);
+	    	    		}
 	        		}
 	        		assume();
 	        		highlightCell(numCell);
@@ -611,7 +653,13 @@ public class CreateSudoku extends Sudoku {
 		        	    	for (int col = 0; col < cols; col++) {
 		        		    	int numCell = row * cols + col;
 		        	    		solution[numCell] = 0;
-		        	    		field[numCell].setText(String.valueOf(userInput[numCell]));
+		        	    		if (userInput[numCell] < 10) {
+			    	    			field[numCell].setText(String.valueOf(userInput[numCell]));
+			    	    		} else {
+			    	    			char c = 'A';
+			    	    			c += userInput[numCell] - 10;
+			    	    			field[numCell].setText("" + c);
+			    	    		}
 		        	    	}
 		        	    }
 		        		checkBoxes();
