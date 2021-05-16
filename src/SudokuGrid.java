@@ -64,6 +64,7 @@ public abstract class SudokuGrid {
 	int guessFontsize = (int) (12 * heightScaling);
 	int digitFontsize = (int) (24 * heightScaling);
 	int fontsize = (int) (16 * heightScaling);
+	int fontsizeTextArea = (int) (12 * heightScaling);
 	boolean diagonalOn = false;
 	
 	boolean showBoxMsg = true;
@@ -90,7 +91,13 @@ public abstract class SudokuGrid {
         String lineUserInput = "";
         for (int row = 0; row < rows; row++) {
         	for (int col = 0; col < cols; col++) {
-        		lineUserInput += String.valueOf(userInput[row * cols + col]);
+        		if (userInput[row * cols + col] < 10) {
+        			lineUserInput += String.valueOf(userInput[row * cols + col]);
+        		} else {
+        			char c = 'A';
+        			c += userInput[row * cols + col] - 10;
+        			lineUserInput += c;
+        		}
         	}
         	lineUserInput += "\n";
         }
@@ -101,7 +108,13 @@ public abstract class SudokuGrid {
 		String lineBorder = "";
         for (int row = 0; row < rows; row++) {
         	for (int col = 0; col < cols; col++) {
-        		lineBorder += String.valueOf(border[row * cols + col]);
+        		if (border[row * cols + col] < 10) {
+        			lineBorder += String.valueOf(border[row * cols + col]);
+        		} else {
+        			char c = 'A';
+        			c += border[row * cols + col] - 10;
+        			lineBorder += c;
+        		}
         	}
         	lineBorder += "\n";
         }
@@ -194,12 +207,22 @@ public abstract class SudokuGrid {
 		      for (int row = 0; row < lineNum; row++) {
 		        	if (row < rows) {
 			        	for (int col = 0; col < cols; col++) {
-			        		userInput[row * cols + col] = Integer.parseInt(data.get(row).substring(col, col + 1));
+			        		char c = data.get(row).substring(col, col + 1).charAt(0);
+			        		if (c >= '0' && c <= '9') {
+			        			userInput[row * cols + col] = Integer.parseInt("" + c);
+			        		} else {
+			        			userInput[row * cols + col] = c - 'A' + 10;
+			        		}
 			        	}
 		        	} 
 		        	if (row >= rows && row < rows * 2) {
 		        		for (int col = 0; col < cols; col++) {
-			        		border[(row - rows) * cols + col] = Integer.parseInt(data.get(row).substring(col, col + 1));
+			        		char c = data.get(row).substring(col, col + 1).charAt(0);
+			        		if (c >= '0' && c <= '9') {
+			        			border[(row - rows) * cols + col] = Integer.parseInt("" + c);
+			        		} else {
+			        			border[(row - rows) * cols + col] = c - 'A' + 10;
+			        		}
 		        		}
 		        	}
 		        	if (row == rows * 2) {
@@ -620,20 +643,8 @@ public abstract class SudokuGrid {
 		wNumber = (int) (800 / cols * widthScaling);
 		hNumber = wNumber;
 		wDigit = (int) (wNumber - wNumber / cols);
-		int size = 0;
 		numberFontsize = (int) (wNumber / 2);
-		guessFontsize = 1;
-		while (size / wNumber <= hNumber / guessFontsize) {
-			size = guessFontsize;
-			for (int col = 0; col < cols; col++) {
-				size += (String.valueOf(col + 1).length() + 1) * guessFontsize;
-			}
-			guessFontsize++;
-			if (size / wNumber > hNumber / guessFontsize) {
-				guessFontsize--;
-				break;
-			}
-		}
+		guessFontsize = (int) Math.min(wNumber / (Math.sqrt(cols) + 2), hNumber / (Math.sqrt(rows) + 2));
 		field = new JButton[constructRows * constructCols];
 		solution = new int[constructRows * constructCols];
 		temporary = new int[constructRows * constructCols];

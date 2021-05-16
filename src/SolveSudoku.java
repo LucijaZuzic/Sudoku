@@ -84,7 +84,13 @@ public class SolveSudoku extends Sudoku {
 		    	int numCell = row * cols + col;
 	    		userInput[numCell] = temporary[numCell];
 	    		solution[numCell] = temporary[numCell];
-	    		field[numCell].setText(String.valueOf(userInput[numCell]));
+	    		if (userInput[numCell] < 10) {
+	    			field[numCell].setText(String.valueOf(userInput[numCell]));
+	    		} else {
+	    			char c = 'A';
+	    			c += userInput[numCell] - 10;
+	    			field[numCell].setText("" + c);
+	    		}
 	    	}
 	    }
 		options = new int[constructRows * constructCols][constructRows];
@@ -173,7 +179,13 @@ public class SolveSudoku extends Sudoku {
 		    	int numCell = row * cols + col;
 	    		userInput[numCell] = constructUserInput[numCell];
 	    		solution[numCell] = 0;
-	    		field[numCell].setText(String.valueOf(userInput[numCell]));
+	    		if (userInput[numCell] < 10) {
+	    			field[numCell].setText(String.valueOf(userInput[numCell]));
+	    		} else {
+	    			char c = 'A';
+	    			c += userInput[numCell] - 10;
+	    			field[numCell].setText("" + c);
+	    		}
 	    	}
 	    }
 		options = new int[constructRows * constructCols][constructRows];
@@ -457,7 +469,13 @@ public class SolveSudoku extends Sudoku {
     	userInput[numCell] = result[numCell];
 		field[numCell].setEnabled(false);
 		field[numCell].setBackground(Color.BLUE);
-    	field[numCell].setText(String.valueOf(userInput[numCell]));
+		if (userInput[numCell] < 10) {
+			field[numCell].setText(String.valueOf(userInput[numCell]));
+		} else {
+			char c = 'A';
+			c += userInput[numCell] - 10;
+			field[numCell].setText("" + c);
+		}
 	    field[numCell].setFont(new Font("Arial", Font.PLAIN, numberFontsize));
     	hints.add(numCell);
     	oldHints.add(numCell);
@@ -486,7 +504,13 @@ public class SolveSudoku extends Sudoku {
     	userInput[numCell] = result[numCell];
 		field[numCell].setEnabled(false);
 		field[numCell].setBackground(Color.BLUE);
-    	field[numCell].setText(String.valueOf(userInput[numCell]));
+		if (userInput[numCell] < 10) {
+			field[numCell].setText(String.valueOf(userInput[numCell]));
+		} else {
+			char c = 'A';
+			c += userInput[numCell] - 10;
+			field[numCell].setText("" + c);
+		}
 	    field[numCell].setFont(new Font("Arial", Font.PLAIN, numberFontsize));
     	hints.add(numCell);
     	oldHints.add(numCell);
@@ -551,7 +575,13 @@ public class SolveSudoku extends Sudoku {
 	    		}
 	    		if (userInput[numCell] != result[numCell]) {
 	    			if (userInput[numCell] == 0) {
-	    	        	field[numCell].setText(String.valueOf(result[numCell]));
+	    	    		if (userInput[numCell] < 10) {
+	    	    			field[numCell].setText(String.valueOf(result[numCell]));
+	    	    		} else {
+	    	    			char c = 'A';
+	    	    			c += result[numCell] - 10;
+	    	    			field[numCell].setText("" + c);
+	    	    		}
 	    	        	field[numCell].setForeground(Color.MAGENTA);
 	    			} else {
 	    	        	field[numCell].setForeground(Color.RED);
@@ -607,7 +637,13 @@ public class SolveSudoku extends Sudoku {
 		    	for (int val = 1; val <= cols; val++) {
 		    		if (possibilities[numCell][val - 1] == 1) {
 		    			numberOptions++;
-		    			text += String.valueOf(val) + " ";
+		    			if (val < 10) {
+		    				text += String.valueOf(val) + " ";
+		    			} else {
+		    				char c = 'A';
+		    				c += val - 10;
+		    				text += c + " ";
+		    			}
 		    			options[numCell][val - 1] = 1;
 		    		} else {
 		    			options[numCell][val - 1] = 0;
@@ -661,7 +697,13 @@ public class SolveSudoku extends Sudoku {
 				    			if (val == selectedDigit - 1) {
 				    				text += "<b><i>";
 				    			}
-				    			text += String.valueOf(val + 1);
+				    			if (val + 1 < 10) {
+				    				text += String.valueOf(val + 1) + " ";
+				    			} else {
+				    				char c = 'A';
+				    				c += val - 9;
+				    				text += c + " ";
+				    			}
 				    			if (val == selectedDigit - 1) {
 				    				text += "</b></i>";
 				    			}
@@ -711,7 +753,13 @@ public class SolveSudoku extends Sudoku {
 		        		userInput[numCell] = selectedDigit;
 		        		field[numCell].setFont(new Font("Arial", Font.PLAIN, numberFontsize));
 		        		if (selectedDigit != 0) {
-		        			field[numCell].setText(String.valueOf(selectedDigit));
+		    	    		if (selectedDigit < 10) {
+		    	    			field[numCell].setText(String.valueOf(selectedDigit));
+		    	    		} else {
+		    	    			char c = 'A';
+		    	    			c += selectedDigit - 10;
+		    	    			field[numCell].setText("" + c);
+		    	    		}
 		        		} else {
 		        			field[numCell].setText("");
 		        		}
@@ -750,7 +798,13 @@ public class SolveSudoku extends Sudoku {
 				    			if (val == selectedDigit - 1) {
 				    				text += "<b><i>";
 				    			}
-				    			text += String.valueOf(val + 1);
+				    			if (val + 1 < 10) {
+				    				text += String.valueOf(val + 1) + " ";
+				    			} else {
+				    				char c = 'A';
+				    				c += val - 9;
+				    				text += c + " ";
+				    			}
 				    			if (val == selectedDigit - 1) {
 				    				text += "</b></i>";
 				    			}
