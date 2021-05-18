@@ -3,7 +3,7 @@
   realizations="true" associations="true" dependencies="false" nesting-relationships="true" router="FAN">  
   <class id="1" language="java" name="ChangeBoxBorder" project="Sudoku" file="/Sudoku/src/ChangeBoxBorder.java" 
     binary="false" corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="1096" y="-62"/>    
+    <position height="-1" width="-1" x="1101" y="-196"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
@@ -12,7 +12,7 @@
   </class>  
   <class id="2" language="java" name="ChooseSize" project="Sudoku" file="/Sudoku/src/ChooseSize.java" binary="false" 
     corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="270" y="-94"/>    
+    <position height="-1" width="-1" x="243" y="-313"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
@@ -21,7 +21,7 @@
   </class>  
   <class id="3" language="java" name="CreateSudoku" project="Sudoku" file="/Sudoku/src/CreateSudoku.java" binary="false" 
     corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="329" y="98"/>    
+    <position height="-1" width="-1" x="333" y="-104"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
@@ -30,7 +30,7 @@
   </class>  
   <interface id="4" language="java" name="InformationBox" project="Sudoku" file="/Sudoku/src/InformationBox.java" 
     binary="false" corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="431" y="-99"/>    
+    <position height="-1" width="-1" x="408" y="-307"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
@@ -39,7 +39,7 @@
   </interface>  
   <class id="5" language="java" name="ScoreTask" project="Sudoku" file="/Sudoku/src/ScoreTask.java" binary="false" 
     corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="337" y="293"/>    
+    <position height="-1" width="-1" x="320" y="100"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
@@ -48,7 +48,7 @@
   </class>  
   <class id="6" language="java" name="SolveSudoku" project="Sudoku" file="/Sudoku/src/SolveSudoku.java" binary="false" 
     corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="344" y="758"/>    
+    <position height="-1" width="-1" x="323" y="603"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
@@ -66,7 +66,7 @@
   </class>  
   <class id="8" language="java" name="SudokuGrid" project="Sudoku" file="/Sudoku/src/SudokuGrid.java" binary="false" 
     corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="1093" y="778"/>    
+    <position height="-1" width="-1" x="1115" y="656"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
@@ -74,33 +74,33 @@
     </display>  
   </class>  
   <generalization id="9">    
-    <end type="SOURCE" refId="6"/>    
-    <end type="TARGET" refId="7"/>  
-  </generalization>  
-  <generalization id="10">    
-    <end type="SOURCE" refId="7"/>    
-    <end type="TARGET" refId="8"/>  
-  </generalization>  
-  <generalization id="11">    
-    <end type="SOURCE" refId="3"/>    
-    <end type="TARGET" refId="7"/>  
-  </generalization>  
-  <generalization id="12">    
     <end type="SOURCE" refId="1"/>    
     <end type="TARGET" refId="8"/>  
   </generalization>  
-  <association id="13">    
+  <association id="10">    
     <end type="SOURCE" refId="5" navigable="false">      
-      <attribute id="14" name="solveSudoku">        
-        <position height="0" width="0" x="-5" y="185"/>      
+      <attribute id="11" name="solveSudoku">        
+        <position height="0" width="0" x="-26" y="30"/>      
       </attribute>      
-      <multiplicity id="15" minimum="0" maximum="1">        
-        <position height="0" width="0" x="-5" y="185"/>      
+      <multiplicity id="12" minimum="0" maximum="1">        
+        <position height="0" width="0" x="-26" y="30"/>      
       </multiplicity>    
     </end>    
     <end type="TARGET" refId="6" navigable="true"/>    
     <display labels="true" multiplicity="true"/>  
   </association>  
+  <generalization id="13">    
+    <end type="SOURCE" refId="6"/>    
+    <end type="TARGET" refId="7"/>  
+  </generalization>  
+  <generalization id="14">    
+    <end type="SOURCE" refId="7"/>    
+    <end type="TARGET" refId="8"/>  
+  </generalization>  
+  <generalization id="15">    
+    <end type="SOURCE" refId="3"/>    
+    <end type="TARGET" refId="7"/>  
+  </generalization>  
   <classifier-display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
     sort-features="false" accessors="true" visibility="true">    
     <attributes public="true" package="true" protected="true" private="true" static="true"/>    
