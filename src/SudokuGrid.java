@@ -64,7 +64,7 @@ public abstract class SudokuGrid {
 	int guessFontsize = (int) (12 * heightScaling);
 	int digitFontsize = (int) (24 * heightScaling);
 	int fontsize = (int) (16 * heightScaling);
-	int fontsizeTextArea = (int) (12 * heightScaling);
+	int fontsizeTextArea = (int) (16 * heightScaling);
 	boolean diagonalOn = false;
 	
 	boolean showBoxMsg = true;
@@ -249,8 +249,6 @@ public abstract class SudokuGrid {
 			if (InformationBox.yesNoBox("Želite li pristupiti zadnjoj korištenoj datoteci?", "Uèitavanje")) {
 				return lastUsedPath;
 			}
-		} else {
-			
 		}
 		JFrame frame = new JFrame();
 		int x = 15;
@@ -300,8 +298,23 @@ public abstract class SudokuGrid {
 		return newFile;
 	 }
 	
-	
-	
+	public void initPencilmarks() {
+		possibilities = new int[rows * cols][rows];
+	    for (int row = 0; row < rows; row++){
+	    	for (int col = 0; col < cols; col++) {
+	    		if (temporary[row * cols + col] != 0) {
+			    	for (int val = 0; val < cols; val++) {
+			    		possibilities[row * cols + col][val] = 0;
+				    }
+		    		possibilities[row * cols + col][temporary[row * cols + col] - 1] = 1;
+	    		} else {
+			    	for (int val = 0; val < cols; val++) {
+			    		possibilities[row * cols + col][val] = 1;
+				    }
+	    		}
+	    	}
+	    }
+	}
 	
 	public String returnColour(int centerCell) {
 	    String[] buttonColours = {"gray", "black", "dark_gray", "light_gray"};
@@ -350,9 +363,10 @@ public abstract class SudokuGrid {
 		if (!neighbourCheck(centerCell, neighbourCell)) {
 			return 4;
 		}
-		String relationshipSmaller = String.valueOf(neighbourCell) + " " + String.valueOf(centerCell);
-		String relationshipLarger = String.valueOf(centerCell) + " " + String.valueOf(neighbourCell);
-		if (border[neighbourCell] != border[centerCell] && !sizeRelationships.contains(relationshipSmaller) && !sizeRelationships.contains(relationshipLarger)) {
+		//String relationshipSmaller = String.valueOf(neighbourCell) + " " + String.valueOf(centerCell);
+		//String relationshipLarger = String.valueOf(centerCell) + " " + String.valueOf(neighbourCell);
+		//if (border[neighbourCell] != border[centerCell] && !sizeRelationships.contains(relationshipSmaller) && !sizeRelationships.contains(relationshipLarger)) {
+		if (border[neighbourCell] != border[centerCell]) {
 			return 3;
 		}
 		return 1;
@@ -501,7 +515,7 @@ public abstract class SudokuGrid {
 		        int newCell = (numCell / cols + rowOffset) * cols + numCell % cols + colOffset;
 		        if (relationshipLargerCheck(newCell, numCell) == 1) {
 		        	if (!visited.contains(newCell)) {
-						treeSize += getTreeSize(newCell, visited);
+						treeSize = Math.max(treeSize, getTreeSize(newCell, visited));
 					}
 		        }
 			}
@@ -515,9 +529,6 @@ public abstract class SudokuGrid {
 		int numChanged = 0;
 		Set<Integer> visitedNew = new HashSet<Integer>();
 		int tree = getTreeSize(numCell, visitedNew);
-		if (tree == 1) {
-			return 0;
-		}
 		for (int val = 0; val < tree - 1; val++) {
 			if (possibilities[numCell][val] == 1) {
 				possibilities[numCell][val] = 0;
