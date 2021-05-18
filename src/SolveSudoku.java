@@ -16,9 +16,9 @@ import javax.swing.JLabel;
 
 public class SolveSudoku extends Sudoku {
 
-	int[] backup;
+	int[] backup  = new int[rows * cols];
 	int[][] options;
-	int mode = 1;
+	int mode = 0;
 	int[] result;
 	int numErrors = 0;
 	int penalty = 0;
@@ -45,18 +45,20 @@ public class SolveSudoku extends Sudoku {
 	    }
 	}
 	
-	public SolveSudoku(int constructRows, int constructCols, int rowLimit, int colLimit, int[] constructBorder, int[] constructBoxNumber, boolean setDiagonalOn, Set<String> setSizeRelationships, int constructMinDifficulty, int constructMaxDifficulty) {
+	public SolveSudoku(int constructRows, int constructCols, int rowLimit, int colLimit, int[] constructBorder, int[] constructBoxNumber, boolean setDiagonalOn, Set<String> setSizeRelationships, int constructMinDifficulty, int constructMaxDifficulty, boolean askUser) {
 		super(constructRows, constructCols, rowLimit, colLimit, setDiagonalOn, setSizeRelationships);
-		errorWarn = InformationBox.yesNoBox("Želite li da se prikazuju greške?", "Prikaži greške");
-		setAssumed = InformationBox.yesNoBox("Želite li da se automatski postave bilješke?", "Postavi bilješke");
-		if (setAssumed == false) {
-			if(InformationBox.yesNoBox("Želite li da se ukljuèi pisanje bilješki?","Ukljuèi bilješke")){
-				mode = 1;
+		if (askUser) {
+			errorWarn = InformationBox.yesNoBox("Želite li da se prikazuju greške?", "Prikaži greške");
+			setAssumed = InformationBox.yesNoBox("Želite li da se automatski postave bilješke?", "Postavi bilješke");
+			if (setAssumed == false) {
+				if(InformationBox.yesNoBox("Želite li da se ukljuèi pisanje bilješki?","Ukljuèi bilješke")){
+					mode = 1;
+				} else {
+					mode = 0;
+				}
 			} else {
 				mode = 0;
 			}
-		} else {
-			mode = 0;
 		}
 		border = constructBorder;
 		boxNumber = constructBoxNumber;
@@ -122,7 +124,6 @@ public class SolveSudoku extends Sudoku {
 	    		break;
 	    	}
 	    }
-		backup = new int[constructRows * constructCols];
 	    for (int row = 0; row < rows; row++){ 
 	    	for (int col = 0; col < cols; col++) {
 		    	int numCell = row * cols + col;
@@ -158,18 +159,20 @@ public class SolveSudoku extends Sudoku {
 	    frame.requestFocus();
 	}
 	
-	public SolveSudoku(int constructRows, int constructCols, int rowLimit, int colLimit, int[] constructBorder, int[] constructBoxNumber, boolean setDiagonalOn, Set<String> setSizeRelationships, int[] constructUserInput) {
+	public SolveSudoku(int constructRows, int constructCols, int rowLimit, int colLimit, int[] constructBorder, int[] constructBoxNumber, boolean setDiagonalOn, Set<String> setSizeRelationships, int[] constructUserInput, boolean askUser) {
 		super(constructRows, constructCols, rowLimit, colLimit, setDiagonalOn, setSizeRelationships);
-		errorWarn = InformationBox.yesNoBox("Želite li da se prikazuju greške?", "Prikaži greške");
-		setAssumed = InformationBox.yesNoBox("Želite li da se automatski postave bilješke?", "Postavi bilješke");
-		if (setAssumed == false) {
-			if(InformationBox.yesNoBox("Želite li da se ukljuèi pisanje bilješki?","Ukljuèi bilješke")){
-				mode = 1;
+		if (askUser) {
+			errorWarn = InformationBox.yesNoBox("Želite li da se prikazuju greške?", "Prikaži greške");
+			setAssumed = InformationBox.yesNoBox("Želite li da se automatski postave bilješke?", "Postavi bilješke");
+			if (setAssumed == false) {
+				if(InformationBox.yesNoBox("Želite li da se ukljuèi pisanje bilješki?","Ukljuèi bilješke")){
+					mode = 1;
+				} else {
+					mode = 0;
+				}
 			} else {
 				mode = 0;
 			}
-		} else {
-			mode = 0;
 		}
 		border = constructBorder;
 		boxNumber = constructBoxNumber;
@@ -237,172 +240,8 @@ public class SolveSudoku extends Sudoku {
 
 	boolean incorrect[] = new boolean[rows * cols];
 
-    @Override
-	public boolean checkIfCorrect() {
-		String errorText = "";
-	    for (int row = 0; row < rows; row++){ 
-	    	for (int col = 0; col < cols; col++) {
-		    	int numCell = row * cols + col;
-		    	temporary[numCell] = userInput[numCell];
-		    	incorrect[numCell] = false;
-	    	}
-	    }
-		possibilities = new int[rows * cols][rows];
-	    for (int row = 0; row < rows; row++){
-	    	for (int col = 0; col < cols; col++) {
-	    		if (temporary[row * cols + col] != 0) {
-			    	for (int val = 0; val < cols; val++) {
-			    		possibilities[row * cols + col][val] = 0;
-				    }
-		    		possibilities[row * cols + col][temporary[row * cols + col] - 1] = 1;
-	    		} else {
-			    	for (int val = 0; val < cols; val++) {
-			    		possibilities[row * cols + col][val] = 1;
-				    }
-	    		}
-	    	}
-	    }
-		fixPencilmarks();
-		boolean correct = true;
-		for (int val = 1; val <= rows; val++) {
-			int[] usedRows = new int[rows];
-			int[] usedCols = new int[cols];
-			int[] usedBoxes = new int[rows];
-		    int usedFirstDiagonal = 0;
-		    int usedSecondDiagonal = 0;
-		    for (int row = 0; row < rows; row++){
-		    	for (int col = 0; col < cols; col++) {
-		    		usedRows[row] = 0;
-		    		usedCols[col] = 0;
-		    		usedBoxes[row] = 0;
-			    }
-		    }
-		    for (int row = 0; row < rows; row++){
-		    	for (int col = 0; col < cols; col++) {
-		    		boolean status = false;
-		    		if (temporary[row * cols + col] == val) {
-		    			usedRows[row]++;
-			    		usedCols[col]++;
-			    		usedBoxes[boxNumber[row * cols + col]]++;
-			    		if (row == col && diagonalOn) {
-			    			usedFirstDiagonal++;
-			    		}
-			    		if (row == cols - 1 - col  && diagonalOn) {
-			    			usedSecondDiagonal++;
-			    		}
-			    		if (usedRows[row] > 1) {
-			    			errorText += val + ": " + "(" + (row + 1) + ", " + (col + 1) + ") Broj " + val + " veæ postoji u retku " + (row + 1) + ".\n";
-			    			correct = false;
-			    			status = true;
-			    			incorrect[row * cols + col] = true;
-			    		}
-			    		if (usedCols[col] > 1) {
-			    			errorText += val + ": " + "(" + (row + 1) + ", " + (col + 1) + ") Broj " + val + " veæ postoji u stupcu " + (col + 1) + ".\n";
-			    			correct = false;
-			    			status = true;
-			    			incorrect[row * cols + col] = true;
-			    		}
-			    		if (usedBoxes[boxNumber[row * cols + col]] > 1) {
-			    			errorText += val + ": " + "(" + (row + 1) + ", " + (col + 1) + ") Broj " + val + " veæ postoji u kutiji " + (boxNumber[row * cols + col] + 1) + ".\n";
-			    			correct = false;
-			    			status = true;
-			    			incorrect[row * cols + col] = true;
-			    		}
-			    		if (row == col  && usedFirstDiagonal > 1 && diagonalOn) {
-			    			errorText += val + ": " + "(" + (row + 1) + ", " + (col + 1) + ") Broj " + val + " veæ postoji u rastuæoj dijagonali.\n";
-			    			correct = false;
-			    			status = true;
-			    			incorrect[row * cols + col] = true;
-			    		}
-			    		if (row == cols - 1 - col  && usedSecondDiagonal > 1 && diagonalOn) {
-			    			errorText += val + ": " + "(" + (row + 1) + ", " + (col + 1) + ") Broj " + val + " veæ postoji u padajuæoj dijagonali.\n";
-			    			correct = false;
-			    			status = true;
-			    			incorrect[row * cols + col] = true;
-			    		}
-			    		for (int rowOffset = -1; rowOffset <= 1; rowOffset++) {
-			    			for (int colOffset = -1; colOffset <= 1; colOffset++) {
-			    				int numCell = row * cols + col;
-			    		        int newCell = (numCell / cols + rowOffset) * cols + numCell % cols + colOffset;
-			    				if (neighbourCheck(numCell, newCell)) {
-			    					String relationshipCell = String.valueOf(row * cols + col) + " " + String.valueOf(newCell);
-					    			if (sizeRelationships.contains(relationshipCell) && temporary[row * cols + col] <= temporary[newCell]) {
-						    			errorText += val + ": " + "(" + (row + 1) + ", " + (col + 1) + ") Broj " + val + " nije veæi od broja " + temporary[newCell] + " u æeliji (" + (row + 1) + ", " + (col + 2) + ").\n";
-						    			correct = false;
-						    			status = true;
-						    			incorrect[row * cols + col] = true;
-						    			incorrect[newCell] = true;
-					    			} 
-					    			relationshipCell = String.valueOf(newCell) + " " + String.valueOf(row * cols + col);
-					    			if (sizeRelationships.contains(relationshipCell) && temporary[newCell] != 0 && temporary[row * cols + col] >= temporary[newCell]) {
-						    			errorText += val + ": " + "(" + (row + 1) + ", " + (col + 1) + ") Broj " + val + " nije manji od broja " + temporary[newCell] + " u æeliji (" + (row + 1) + ", " + (col + 2) + ").\n";
-						    			correct = false;
-						    			status = true;
-						    			incorrect[row * cols + col] = true;
-						    			incorrect[newCell] = true;
-					    			} 
-			    				}
-			    			}
-			    		}
-			    		if (status) {
-			    			for (int sameCol = 0; sameCol < rows; sameCol++) {
-				    			int numCell = sameCol * cols + col;
-				    			if (temporary[numCell] == val && backup[numCell] == 0) {
-				    				incorrect[numCell] = true;
-				    			}
-				    		}
-				    		for (int sameRow = 0; sameRow < cols; sameRow++) {
-				    			int numCell = row * cols + sameRow;
-				    			if (temporary[numCell] == val && backup[numCell] == 0) {
-				    				incorrect[numCell] = true;
-				    			}
-				    		}
-						    for (int x = (row / yLim) * (cols / xLim); x < (row / yLim + 1) * (cols / xLim); x++){
-						    	for (int y = (col / xLim) * (cols / xLim); y < (col / xLim + 1) * (cols / xLim); y++) {
-					    			int numCell = x * cols + y;
-						    		if (temporary[numCell] == val && backup[numCell] == 0) {
-					    				incorrect[numCell] = true;
-						    		}
-						    	}
-						    }
-						    if (row == col && diagonalOn) {
-						    	for (int diagonally = 0; diagonally < cols; diagonally++) {
-						    		int numCell = diagonally * cols + diagonally;
-						    		if (temporary[numCell] == val && backup[numCell] == 0) {
-					    				incorrect[numCell] = true;
-						    		}
-						    	}
-						    }
-						    if (row == cols - 1 - col && diagonalOn) {
-						    	for (int diagonally = 0; diagonally < cols; diagonally++) {
-						    		int numCell = diagonally * cols + cols - 1 - diagonally;
-						    		if (temporary[numCell] == val && backup[numCell] == 0) {
-					    				incorrect[numCell] = true;
-						    		}
-						    	}
-						    }
-			    		}
-		    		}
-			    }
-		    }
-		}
-	    for (int row = 0; row < rows; row++){
-	    	for (int col = 0; col < cols; col++) {
-	    		int numPossibilities = 0;
-	    		if (temporary[row * cols + col] == 0) {
-			    	for (int val = 0; val < cols; val++) {
-			    		if (possibilities[row * cols + col][val] == 1) {
-			    			numPossibilities++;
-			    		}
-				    }
-			    	if (numPossibilities == 0) {
-		    			errorText += "Æelija (" + (row + 1) + ", " + (col + 1) + ") nema moguæih vrijednosti.\n";
-	    				incorrect[row * cols + col] = true;
-		    			correct = false;
-			    	}
-	    		}
-	    	}
-	    }
+	@Override
+	public int countIncorrect(boolean[] incorrect, boolean correct) {
 		int localnumErrors = 0;
 	    for (int row = 0; row < rows; row++){
 	    	for (int col = 0; col < cols; col++) {
@@ -423,9 +262,7 @@ public class SolveSudoku extends Sudoku {
 	    	//penalty += localnumErrors - numErrors;
 	    	penalty++;
 	    }
-		if (errorWarn) {
-			errorArea.setText(errorText);
-		} else {
+		if (!errorWarn) {
 			errorArea.setText("Greške se ne prikazuju.");
 		}
 	    numErrors = localnumErrors;
@@ -434,7 +271,7 @@ public class SolveSudoku extends Sudoku {
 		} else {
 			penaltyLabel.setText("Kazneni bodovi: *");
 		}
-		return correct;
+		return localnumErrors;
 	}
 	
 	Set<Integer> hints = new HashSet<Integer>();
@@ -477,6 +314,7 @@ public class SolveSudoku extends Sudoku {
 			field[numCell].setText("" + c);
 		}
 	    field[numCell].setFont(new Font("Arial", Font.PLAIN, numberFontsize));
+		zoomArea.setText(field[numCell].getText());
     	hints.add(numCell);
     	oldHints.add(numCell);
     	numUseDigit[userInput[numCell]]++;
@@ -527,6 +365,9 @@ public class SolveSudoku extends Sudoku {
 	int emptyNum = 0;
 	int correctNum = 0;
 	Set<Integer> oldHints = new HashSet<Integer>();
+	Set<Integer> oldError = new HashSet<Integer>();
+	Set<Integer> oldEmpty = new HashSet<Integer>();
+	Set<Integer> oldCorrect = new HashSet<Integer>();
 	public boolean countError() {
 		boolean hasErrors = false;
 		if (!timerStopped) {
@@ -542,12 +383,15 @@ public class SolveSudoku extends Sudoku {
 		    		if (userInput[numCell] != result[numCell]) {
 		    			if (userInput[numCell] == 0) {
 		    	        	emptyNum++;
+		    	        	oldEmpty.add(numCell);
 		    			} else {
 		    	        	errorNum++;
+		    	        	oldError.add(numCell);
 		    			}
 		    	        hasErrors = true;
 		    		} else {
 	    	        	correctNum++;
+	    	        	oldCorrect.add(numCell);
 		    		}
 		    	}	
 		    }
@@ -574,20 +418,29 @@ public class SolveSudoku extends Sudoku {
 	    			continue;
 	    		}
 	    		if (userInput[numCell] != result[numCell]) {
+    	    		if (userInput[numCell] < 10) {
+    	    			field[numCell].setText(String.valueOf(result[numCell]));
+    	    		} else {
+    	    			char c = 'A';
+    	    			c += result[numCell] - 10;
+    	    			field[numCell].setText("" + c);
+    	    		}
 	    			if (userInput[numCell] == 0) {
-	    	    		if (userInput[numCell] < 10) {
-	    	    			field[numCell].setText(String.valueOf(result[numCell]));
-	    	    		} else {
-	    	    			char c = 'A';
-	    	    			c += result[numCell] - 10;
-	    	    			field[numCell].setText("" + c);
-	    	    		}
-	    	        	field[numCell].setForeground(Color.MAGENTA);
+	    	        	field[numCell].setForeground(Color.YELLOW);
 	    			} else {
 	    	        	field[numCell].setForeground(Color.RED);
 	    			}
 	    		} else {
     	        	field[numCell].setForeground(Color.GREEN);
+	    		}
+	    		if (oldCorrect.contains(numCell)) {
+    	        	field[numCell].setForeground(Color.GREEN);
+	    		}
+	    		if (oldError.contains(numCell)) {
+    	        	field[numCell].setForeground(Color.RED);
+	    		}
+	    		if (oldEmpty.contains(numCell)) {
+    	        	field[numCell].setForeground(Color.YELLOW);
 	    		}
 	    	}	
 	    }
@@ -609,21 +462,7 @@ public class SolveSudoku extends Sudoku {
 		    	temporary[numCell] = userInput[numCell];
 	    	}
 	    }
-		possibilities = new int[rows * cols][rows];
-	    for (int row = 0; row < rows; row++){
-	    	for (int col = 0; col < cols; col++) {
-	    		if (temporary[row * cols + col] != 0) {
-			    	for (int val = 0; val < cols; val++) {
-			    		possibilities[row * cols + col][val] = 0;
-				    }
-		    		possibilities[row * cols + col][temporary[row * cols + col] - 1] = 1;
-	    		} else {
-			    	for (int val = 0; val < cols; val++) {
-			    		possibilities[row * cols + col][val] = 1;
-				    }
-	    		}
-	    	}
-	    }
+	    initPencilmarks();
 		fixPencilmarks();
 	    for (int row = 0; row < rows; row++){ 
 	    	for (int col = 0; col < cols; col++) {
@@ -631,30 +470,22 @@ public class SolveSudoku extends Sudoku {
 	    		if (userInput[numCell] != 0) {
 	    			continue;
 	    		}
-	    		String text = "<html><p style='text-align: center'><font color = yellow>";
-			    field[numCell].setFont(new Font("Arial", Font.PLAIN, guessFontsize));
-	    		int numberOptions = 0;
+	    		setAllOptions(possibilities, row, col, false);
+	    	}
+	    }
+	    for (int row = 0; row < rows; row++){ 
+	    	for (int col = 0; col < cols; col++) {
+		    	int numCell = row * cols + col;
+	    		if (userInput[numCell] != 0) {
+	    			continue;
+	    		}
 		    	for (int val = 1; val <= cols; val++) {
 		    		if (possibilities[numCell][val - 1] == 1) {
-		    			numberOptions++;
-		    			if (val < 10) {
-		    				text += String.valueOf(val) + " ";
-		    			} else {
-		    				char c = 'A';
-		    				c += val - 10;
-		    				text += c + " ";
-		    			}
 		    			options[numCell][val - 1] = 1;
 		    		} else {
 		    			options[numCell][val - 1] = 0;
 		    		}
 			    }
-		    	if (numberOptions != 0) {
-		    		text = text.substring(0, text.length() - 1) + "</font></p></html>";
-		    	} else {
-		    		text = "";
-		    	}
-        		field[numCell].setText(text);
 	    	}
 	    }
 	}
@@ -680,46 +511,23 @@ public class SolveSudoku extends Sudoku {
 			digitButtons[col].setBackground(Color.WHITE);
 		}
 		digitButtons[selectedDigit].setBackground(Color.CYAN);	
-		if (selectedDigit == 0) {
-			return;
-		}
 	    for (int row = 0; row < rows; row++){
-	    	for (int col = 0; col < cols; col++) {
-	    		if (userInput[row * cols + col] == selectedDigit || options[row * cols + col][selectedDigit - 1] == 1) {
-	    			if (userInput[row * cols + col] == selectedDigit) {
+	    	for (int col = 0; col < cols; col++) {	    							    		
+    			if (userInput[row * cols + col] != 0) {
+		    		field[row * cols + col].setFont(new Font("Arial", Font.PLAIN, numberFontsize));
+    				if (userInput[row * cols + col] == selectedDigit) {
 	    				field[row * cols + col].setFont(field[row * cols + col].getFont().deriveFont(Font.BOLD | Font.ITALIC));
-	    			} else {
-			    		String text = "<html><p style='text-align: center'><font color = yellow>";
-			    		int numberOptions = 0;
-				    	for (int val = 0; val < cols; val++) {
-				    		if (options[row * cols + col][val] == 1) {
-				    			numberOptions++;
-				    			if (val == selectedDigit - 1) {
-				    				text += "<b><i>";
-				    			}
-				    			if (val + 1 < 10) {
-				    				text += String.valueOf(val + 1) + " ";
-				    			} else {
-				    				char c = 'A';
-				    				c += val - 9;
-				    				text += c + " ";
-				    			}
-				    			if (val == selectedDigit - 1) {
-				    				text += "</b></i>";
-				    			}
-				    			text += " ";
-				    		}
-					    }
-				    	if (numberOptions != 0) {
-				    		text = text.substring(0, text.length() - 1) + "</font></p></html>";
-				    	} else {
-				    		text = "";
-				    	}
-		        		field[row * cols + col].setText(text);
-	    			}
-	    		} else {    				    			
-	    			field[row * cols + col].setFont(field[row * cols + col].getFont().deriveFont(~Font.BOLD | ~Font.ITALIC));
-	    		}
+    				} else {
+    					field[row * cols + col].setFont(field[row * cols + col].getFont().deriveFont(~Font.BOLD | ~Font.ITALIC));
+    				}
+    			} else {
+    				if (selectedDigit == 0) {
+    					continue;
+    				}
+		    		if (options[row * cols + col][selectedDigit - 1] == 1) {
+	    				setAllOptions(options, row, col, true);
+		    		}
+    			}
 	    	}
 	    }
 	}
@@ -790,33 +598,7 @@ public class SolveSudoku extends Sudoku {
 	        			}
 		        		userInput[numCell] = 0;
 		        		field[numCell].setFont(new Font("Arial", Font.PLAIN, guessFontsize));
-			    		String text = "<html><p style='text-align: center'><font color = yellow>";
-			    		int numberOptions = 0;
-				    	for (int val = 0; val < cols; val++) {
-				    		if (options[numCell][val] == 1) {
-				    			numberOptions++;
-				    			if (val == selectedDigit - 1) {
-				    				text += "<b><i>";
-				    			}
-				    			if (val + 1 < 10) {
-				    				text += String.valueOf(val + 1) + " ";
-				    			} else {
-				    				char c = 'A';
-				    				c += val - 9;
-				    				text += c + " ";
-				    			}
-				    			if (val == selectedDigit - 1) {
-				    				text += "</b></i>";
-				    			}
-				    			text += " ";
-				    		}
-					    }
-				    	if (numberOptions != 0) {
-				    		text = text.substring(0, text.length() - 1) + "</font></p></html>";
-				    	} else {
-				    		text = "";
-				    	}
-		        		field[numCell].setText(text);
+	    				setAllOptions(options, numCell / cols, numCell % cols, false);
 		        		if (setAssumed) {
 		        			assume();
 		        		}
@@ -826,6 +608,7 @@ public class SolveSudoku extends Sudoku {
 	        		if (mode == 2) {
 	        			hint(numCell);
 	        		}
+	        		zoomArea.setText(field[numCell].getText());
 	        		checkIfCorrect();
 				} catch (Exception e1) {
 
@@ -1029,6 +812,8 @@ public class SolveSudoku extends Sudoku {
 		}
 
 		y += h + space;
+		addZoomBox(x, y, w, w);
+		y += w + space;
 		w = (int) (250 * widthScaling);
         difficulty.setBounds(x, y, w, h);
         difficulty.setFont(new Font("Arial", Font.PLAIN, fontsize));
@@ -1056,7 +841,10 @@ public class SolveSudoku extends Sudoku {
 	    helpLabel.setFont(new Font("Arial", Font.PLAIN, fontsize));
 	    helpLabel.setBounds(x, y, w, h);
 	    frame.add(helpLabel);
-	    int buttonEnd = y + h + space;
+		y += h + space;
+		
+		
+	    int buttonEnd = y;
         
 		addErrorScroll(digitEnd, buttonEnd);
 		addInstructionScroll(digitEnd, buttonEnd);
@@ -1065,5 +853,4 @@ public class SolveSudoku extends Sudoku {
 	    frame.setLayout(null);  
     }
 	
-
 }

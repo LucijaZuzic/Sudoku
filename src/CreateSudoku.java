@@ -5,6 +5,8 @@ import java.awt.event.ActionListener;
 import java.util.Set;
 
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JTextField;
 
 public class CreateSudoku extends Sudoku {
 
@@ -90,46 +92,23 @@ public class CreateSudoku extends Sudoku {
 			digitButtons[val].setBackground(Color.WHITE);
 		}
 		digitButtons[selectedDigit].setBackground(Color.CYAN);
-		if (selectedDigit == 0) {
-			return;
-		}
 	    for (int row = 0; row < rows; row++){
-	    	for (int col = 0; col < cols; col++) {
-	    		if (userInput[row * cols + col] == selectedDigit || possibilities[row * cols + col][selectedDigit - 1] == 1) {
-	    			if (userInput[row * cols + col] == selectedDigit) {
+	    	for (int col = 0; col < cols; col++) {			    							    		
+    			if (userInput[row * cols + col] != 0) {
+		    		field[row * cols + col].setFont(new Font("Arial", Font.PLAIN, numberFontsize));
+    				if (userInput[row * cols + col] == selectedDigit) {
 	    				field[row * cols + col].setFont(field[row * cols + col].getFont().deriveFont(Font.BOLD | Font.ITALIC));
-	    			} else {
-			    		String text = "<html><p style='text-align: center'><font color = yellow>";
-			    		int numberOptions = 0;
-				    	for (int val = 0; val < cols; val++) {
-				    		if (possibilities[row * cols + col][val] == 1) {
-				    			numberOptions++;
-				    			if (val == selectedDigit - 1) {
-				    				text += "<b><i>";
-				    			}
-				    			if (val + 1 < 10) {
-				    				text += String.valueOf(val + 1) + " ";
-				    			} else {
-				    				char c = 'A';
-				    				c += val - 9;
-				    				text += c + " ";
-				    			}
-				    			if (val == selectedDigit - 1) {
-				    				text += "</b></i>";
-				    			}
-				    			text += " ";
-				    		}
-					    }
-				    	if (numberOptions != 0) {
-				    		text = text.substring(0, text.length() - 1) + "</font></p></html>";
-				    	} else {
-				    		text = "";
-				    	}
-		        		field[row * cols + col].setText(text);
-	    			}
-	    		} else {    				    			
-	    			field[row * cols + col].setFont(field[row * cols + col].getFont().deriveFont(~Font.BOLD | ~Font.ITALIC));
-	    		}
+    				} else {
+    					field[row * cols + col].setFont(field[row * cols + col].getFont().deriveFont(~Font.BOLD | ~Font.ITALIC));
+    				}
+    			} else {
+					if (selectedDigit == 0) {
+						continue;
+					}
+		    		if (possibilities[row * cols + col][selectedDigit - 1] == 1) {
+	    				setAllOptions(possibilities, row, col, true);
+		    		}
+    			}
 	    	}
 	    }
 	}
@@ -149,6 +128,7 @@ public class CreateSudoku extends Sudoku {
 	    		    frame.dispose();
 	    		    frame.setVisible(false);
 	    		    return;*/
+	    		    initialize();
 		    		break;
 		    	}
 			    for (int row = 0; row < rows; row++){ 
@@ -233,190 +213,24 @@ public class CreateSudoku extends Sudoku {
 	    frame.requestFocus();
 	}
 	
-    @Override
-	public boolean checkIfCorrect() {
-		String errorText = "";
-		boolean incorrect[] = new boolean[rows * cols];
-	    for (int row = 0; row < rows; row++){ 
-	    	for (int col = 0; col < cols; col++) {
-		    	int numCell = row * cols + col;
-		    	temporary[numCell] = userInput[numCell];
-		    	incorrect[numCell] = false;
-	    	}
-	    }
-		possibilities = new int[rows * cols][rows];
-	    for (int row = 0; row < rows; row++){
-	    	for (int col = 0; col < cols; col++) {
-	    		if (temporary[row * cols + col] != 0) {
-			    	for (int val = 0; val < cols; val++) {
-			    		possibilities[row * cols + col][val] = 0;
-				    }
-		    		possibilities[row * cols + col][temporary[row * cols + col] - 1] = 1;
-	    		} else {
-			    	for (int val = 0; val < cols; val++) {
-			    		possibilities[row * cols + col][val] = 1;
-				    }
-	    		}
-	    	}
-	    }
-		fixPencilmarks();
-		boolean correct = true;
-		for (int val = 1; val <= rows; val++) {
-			int[] usedRows = new int[rows];
-			int[] usedCols = new int[cols];
-			int[] usedBoxes = new int[rows];
-		    int usedFirstDiagonal = 0;
-		    int usedSecondDiagonal = 0;
-		    for (int row = 0; row < rows; row++){
-		    	for (int col = 0; col < cols; col++) {
-		    		usedRows[row] = 0;
-		    		usedCols[col] = 0;
-		    		usedBoxes[row] = 0;
-			    }
-		    }
-		    for (int row = 0; row < rows; row++){
-		    	for (int col = 0; col < cols; col++) {
-		    		boolean status = false;
-		    		if (temporary[row * cols + col] == val) {
-			    		usedRows[row]++;
-			    		usedCols[col]++;
-			    		usedBoxes[boxNumber[row * cols + col]]++;
-			    		if (row == col && diagonalOn) {
-			    			usedFirstDiagonal++;
-			    		}
-			    		if (row == cols - 1 - col  && diagonalOn) {
-			    			usedSecondDiagonal++;
-			    		}
-			    		if (usedRows[row] > 1) {
-			    			errorText += val + ": " + "(" + (row + 1) + ", " + (col + 1) + ") Broj " + val + " veæ postoji u retku " + (row + 1) + ".\n";
-			    			correct = false;
-			    			status = true;
-			    			incorrect[row * cols + col] = true;
-			    		}
-			    		if (usedCols[col] > 1) {
-			    			errorText += val + ": " + "(" + (row + 1) + ", " + (col + 1) + ") Broj " + val + " veæ postoji u stupcu " + (col + 1) + ".\n";
-			    			correct = false;
-			    			status = true;
-			    			incorrect[row * cols + col] = true;
-			    		}
-			    		if (usedBoxes[boxNumber[row * cols + col]] > 1) {
-			    			errorText += val + ": " + "(" + (row + 1) + ", " + (col + 1) + ") Broj " + val + " veæ postoji u kutiji " + (boxNumber[row * cols + col] + 1) + ".\n";
-			    			correct = false;
-			    			status = true;
-			    			incorrect[row * cols + col] = true;
-			    		}
-			    		if (row == col  && usedFirstDiagonal > 1 && diagonalOn) {
-			    			errorText += val + ": " + "(" + (row + 1) + ", " + (col + 1) + ") Broj " + val + " veæ postoji u rastuæoj dijagonali.\n";
-			    			correct = false;
-			    			status = true;
-			    			incorrect[row * cols + col] = true;
-			    		}
-			    		if (row == cols - 1 - col  && usedSecondDiagonal > 1 && diagonalOn) {
-			    			errorText += val + ": " + "(" + (row + 1) + ", " + (col + 1) + ") Broj " + val + " veæ postoji u padajuæoj dijagonali.\n";
-			    			correct = false;
-			    			status = true;
-			    			incorrect[row * cols + col] = true;
-			    		}
-			    		for (int rowOffset = -1; rowOffset <= 1; rowOffset++) {
-			    			for (int colOffset = -1; colOffset <= 1; colOffset++) {
-			    				int numCell = row * cols + col;
-			    		        int newCell = (numCell / cols + rowOffset) * cols + numCell % cols + colOffset;
-			    				if (neighbourCheck(numCell, newCell)) {
-			    					String relationshipCell = String.valueOf(row * cols + col) + " " + String.valueOf(newCell);
-					    			if (sizeRelationships.contains(relationshipCell) && temporary[row * cols + col] <= temporary[newCell]) {
-						    			errorText += val + ": " + "(" + (row + 1) + ", " + (col + 1) + ") Broj " + val + " nije veæi od broja " + temporary[newCell] + " u æeliji (" + (row + 1) + ", " + (col + 2) + ").\n";
-						    			correct = false;
-						    			status = true;
-						    			incorrect[row * cols + col] = true;
-						    			incorrect[newCell] = true;
-					    			} 
-					    			relationshipCell = String.valueOf(newCell) + " " + String.valueOf(row * cols + col);
-					    			if (sizeRelationships.contains(relationshipCell) && temporary[newCell] != 0 && temporary[row * cols + col] >= temporary[newCell]) {
-						    			errorText += val + ": " + "(" + (row + 1) + ", " + (col + 1) + ") Broj " + val + " nije manji od broja " + temporary[newCell] + " u æeliji (" + (row + 1) + ", " + (col + 2) + ").\n";
-						    			correct = false;
-						    			status = true;
-						    			incorrect[row * cols + col] = true;
-						    			incorrect[newCell] = true;
-					    			} 
-			    				}
-			    			}
-			    		}
-			    		if (status) {
-			    			for (int sameCol = 0; sameCol < rows; sameCol++) {
-				    			int numCell = sameCol * cols + col;
-				    			if (temporary[numCell] == val) {
-				    				incorrect[numCell] = true;
-				    			}
-				    		}
-				    		for (int sameRow = 0; sameRow < cols; sameRow++) {
-				    			int numCell = row * cols + sameRow;
-				    			if (temporary[numCell] == val) {
-				    				incorrect[numCell] = true;
-				    			}
-				    		}
-						    for (int x = (row / yLim) * (cols / xLim); x < (row / yLim + 1) * (cols / xLim); x++){
-						    	for (int y = (col / xLim) * (cols / xLim); y < (col / xLim + 1) * (cols / xLim); y++) {
-					    			int numCell = x * cols + y;
-						    		if (temporary[numCell] == val) {
-					    				incorrect[numCell] = true;
-						    		}
-						    	}
-						    }
-						    if (row == col && diagonalOn) {
-						    	for (int diagonally = 0; diagonally < cols; diagonally++) {
-						    		int numCell = diagonally * cols + diagonally;
-						    		if (temporary[numCell] == val) {
-					    				incorrect[numCell] = true;
-						    		}
-						    	}
-						    }
-						    if (row == cols - 1 - col && diagonalOn) {
-						    	for (int diagonally = 0; diagonally < cols; diagonally++) {
-						    		int numCell = diagonally * cols + cols - 1 - diagonally;
-						    		if (temporary[numCell] == val) {
-					    				incorrect[numCell] = true;
-						    		}
-						    	}
-						    }
-			    		}
-		    		}
-			    }
-		    }
-		}
-	    for (int row = 0; row < rows; row++){
-	    	for (int col = 0; col < cols; col++) {
-	    		int numPossibilities = 0;
-	    		if (temporary[row * cols + col] == 0) {
-			    	for (int val = 0; val < cols; val++) {
-			    		if (possibilities[row * cols + col][val] == 1) {
-			    			numPossibilities++;
-			    		}
-				    }
-			    	if (numPossibilities == 0) {
-		    			errorText += "Æelija (" + (row + 1) + ", " + (col + 1) + ") nema moguæih vrijednosti.\n";
-	    				incorrect[row * cols + col] = true;
-		    			correct = false;
-			    	}
-	    		}
-	    	}
-	    }
+	
+	
+	@Override
+	public int countIncorrect(boolean[] incorrect, boolean correct) {
+		int localnumErrors = 0;
 	    for (int row = 0; row < rows; row++){
 	    	for (int col = 0; col < cols; col++) {
     			int numCell = row * cols + col;
-    			if (temporary[numCell] != 0) {
-    			    field[numCell].setFont(new Font("Arial", Font.PLAIN, numberFontsize));
-    	    		if (incorrect[numCell]) {
-        				field[numCell].setForeground(Color.ORANGE);
-    	    		} else {
-    	    			field[numCell].setForeground(Color.WHITE);
-    	    		}
+	    		if (incorrect[numCell]) {
+	    			localnumErrors++;
+	    			field[numCell].setForeground(Color.ORANGE);
+	    		} else {
+    				field[numCell].setForeground(Color.WHITE);
 	    		}
 		    }
 	    }
-	    errorArea.setText(errorText);
-		return correct;
+		return localnumErrors;
 	}
-
 
 
 /*public void keyPressed(KeyEvent e) {
@@ -433,21 +247,7 @@ public class CreateSudoku extends Sudoku {
 		    	temporary[numCell] = userInput[numCell];
 	    	}
 	    }
-		possibilities = new int[rows * cols][rows];
-	    for (int row = 0; row < rows; row++){
-	    	for (int col = 0; col < cols; col++) {
-	    		if (temporary[row * cols + col] != 0) {
-			    	for (int val = 0; val < cols; val++) {
-			    		possibilities[row * cols + col][val] = 0;
-				    }
-		    		possibilities[row * cols + col][temporary[row * cols + col] - 1] = 1;
-	    		} else {
-			    	for (int val = 0; val < cols; val++) {
-			    		possibilities[row * cols + col][val] = 1;
-				    }
-	    		}
-	    	}
-	    }
+	    initPencilmarks();
 		fixPencilmarks();
 	    for (int row = 0; row < rows; row++){ 
 	    	for (int col = 0; col < cols; col++) {
@@ -455,27 +255,7 @@ public class CreateSudoku extends Sudoku {
 	    		if (userInput[numCell] != 0) {
 	    			continue;
 	    		}
-	    		String text = "<html><p style='text-align: center'><font color = yellow>";
-			    field[numCell].setFont(new Font("Arial", Font.PLAIN, guessFontsize));
-	    		int numberOptions = 0;
-		    	for (int val = 1; val <= cols; val++) {
-		    		if (possibilities[numCell][val - 1] == 1) {
-		    			numberOptions++;
-		    			if (val < 10) {
-		    				text += String.valueOf(val) + " ";
-		    			} else {
-		    				char c = 'A';
-		    				c += val - 10;
-		    				text += c + " ";
-		    			}
-		    		}
-			    }
-		    	if (numberOptions != 0) {
-		    		text = text.substring(0, text.length() - 1) + "</font></p></html>";
-		    	} else {
-		    		text = "";
-		    	}
-        		field[numCell].setText(text);
+	    		setAllOptions(possibilities, row, col, false);
 	    	}
 	    }
 	}
@@ -507,6 +287,7 @@ public class CreateSudoku extends Sudoku {
 	    	    		}
 	        		}
 	        		assume();
+	        		zoomArea.setText(field[numCell].getText());
 	        		highlightCell(numCell);
 					highlightDigit();
 	        		checkIfCorrect();
@@ -555,7 +336,9 @@ public class CreateSudoku extends Sudoku {
 		        	    }
 		        		isOnlyOneSolution();
 		        	    instructionArea.setText(solvingInstructions);
-		        		checkIfCorrect();
+		        	    InformationBox.infoBox("Rješavanje je dovršeno, nastavak dizajna.", "Korak po korak");
+		        	    assume();
+		        	    checkIfCorrect();
 		        		showSteps = false;
 					} catch (Exception e1) {
 		
@@ -603,6 +386,7 @@ public class CreateSudoku extends Sudoku {
 		        		for (int digit = 1; digit < cols + 1; digit++) {
 		        			checkIfDigitMaxUsed(digit);
 		        		}
+		        		highlightDigit();
 		        		checkIfCorrect();
 		        		difficulty.setText("");
 					} catch (Exception e1) {
@@ -664,6 +448,7 @@ public class CreateSudoku extends Sudoku {
 		        	    }
 		        		checkBoxes();
 		        		assume();
+		        		highlightDigit();
 		        	    checkIfCorrect();
 		        		for (int digit = 0; digit < cols + 1; digit++) {
 		        			numUseDigit[digit] = 0;
@@ -692,7 +477,7 @@ public class CreateSudoku extends Sudoku {
 		            		return;
 		            	}
 	        			@SuppressWarnings("unused")
-						SolveSudoku SolveSudoku = new SolveSudoku(rows, cols, xLim, yLim, border, boxNumber, diagonalOn, sizeRelationships, userInput);
+						SolveSudoku SolveSudoku = new SolveSudoku(rows, cols, xLim, yLim, border, boxNumber, diagonalOn, sizeRelationships, userInput, true);
 					} catch (Exception e1) {
 		
 		
@@ -700,11 +485,184 @@ public class CreateSudoku extends Sudoku {
 		        }  
 		    });
 		y += h + space;
+	    JLabel row1Label = new JLabel("Red 1: ");
+	    row1Label.setFont(new Font("Arial", Font.PLAIN, fontsize));
+	    row1Label.setBounds(x, y, w, h);
+	    frame.add(row1Label);
+	    
+	    JTextField row1Value = new JTextField(String.valueOf(rows));
+	    row1Value.setFont(new Font("Arial", Font.PLAIN, fontsize));
+	    row1Value.setBounds(x + w / 2 - h - space, y, h, h);
+	    frame.add(row1Value);
+
+	    JLabel row2Label = new JLabel("Red 2: ");
+	    row2Label.setFont(new Font("Arial", Font.PLAIN, fontsize));
+	    row2Label.setBounds(x + w / 2 + space, y, w, h);
+	    frame.add(row2Label);
+	    
+	    JTextField row2Value = new JTextField(String.valueOf(rows));
+	    row2Value.setFont(new Font("Arial", Font.PLAIN, fontsize));
+	    row2Value.setBounds(x + w - h, y, h, h);
+	    frame.add(row2Value);
+
+	    y += h + space;
+	    makeAButton("Zamjeni redove", x, y, w, h, new ActionListener(){  
+	        public void actionPerformed(ActionEvent e) {  
+		        	try {
+						if (Integer.parseInt(row1Value.getText()) == Integer.parseInt(row2Value.getText())) {
+							InformationBox.infoBox("Ne možete zamjeniti red " + row1Value.getText() + " sa samim sobom.", "Zamjena redova");
+							return;
+						}
+						if (Integer.parseInt(row1Value.getText()) > rows) {
+							InformationBox.infoBox("Prvi red je veæi od broja stupaca.", "Zamjena redova");
+							return;
+						}
+						if (Integer.parseInt(row2Value.getText()) > rows) {
+							InformationBox.infoBox("Drugi red je veæi od broja stupaca.", "Zamjena redova");
+							return;
+						}
+						if (Integer.parseInt(row1Value.getText()) < 1) {
+							InformationBox.infoBox("Prvi red je manji ili jednak 0.", "Zamjena redova");
+							return;
+						}
+						if (Integer.parseInt(row2Value.getText()) < 1) {
+							InformationBox.infoBox("Drugi red je manji ili jednak 0.", "Zamjena redova");
+							return;
+						}
+						swapRow(Integer.parseInt(row1Value.getText()) - 1, Integer.parseInt(row2Value.getText()) - 1);
+		        	    assume();
+		        	    checkIfCorrect();
+		        	    resetHighlight();
+		        	    highlightDigit();
+					} catch (Exception e1) {
+						
+					}
+		        }  
+		    });
+		y += h + space;
+	    JLabel col1Label = new JLabel("Stu. 1: ");
+	    col1Label.setFont(new Font("Arial", Font.PLAIN, fontsize));
+	    col1Label.setBounds(x, y, w, h);
+	    frame.add(col1Label);
+	    
+	    JTextField col1Value = new JTextField(String.valueOf(rows));
+	    col1Value.setFont(new Font("Arial", Font.PLAIN, fontsize));
+	    col1Value.setBounds(x + w / 2 - h - space, y, h, h);
+	    frame.add(col1Value);
+
+	    JLabel col2Label = new JLabel("Stu. 2:");
+	    col2Label.setFont(new Font("Arial", Font.PLAIN, fontsize));
+	    col2Label.setBounds(x + w / 2 + space, y, w, h);
+	    frame.add(col2Label);
+	    
+	    JTextField col2Value = new JTextField(String.valueOf(rows));
+	    col2Value.setFont(new Font("Arial", Font.PLAIN, fontsize));
+	    col2Value.setBounds(x + w - h, y, h, h);
+	    frame.add(col2Value);
+
+	    y += h + space;
+
+	    makeAButton("Zamjeni stupce", x, y, w, h, new ActionListener(){  
+	        public void actionPerformed(ActionEvent e) {  
+		        	try {
+						if (Integer.parseInt(col1Value.getText()) == Integer.parseInt(col2Value.getText())) {
+							InformationBox.infoBox("Ne možete zamjeniti stupac " + row1Value.getText() + " sa samim sobom.", "Zamjena stupaca");
+							return;
+						}
+						if (Integer.parseInt(col1Value.getText()) > cols) {
+							InformationBox.infoBox("Prvi stupac je veæi od broja stupaca.", "Zamjena stupaca");
+							return;
+						}
+						if (Integer.parseInt(col2Value.getText()) > cols) {
+							InformationBox.infoBox("Drugi stupac je veæi od broja stupaca.", "Zamjena stupaca");
+							return;
+						}
+						if (Integer.parseInt(col1Value.getText()) < 1) {
+							InformationBox.infoBox("Prvi stupac je manji ili jednak 0.", "Zamjena stupaca");
+							return;
+						}
+						if (Integer.parseInt(col2Value.getText()) < 1) {
+							InformationBox.infoBox("Drugi stupac je manji ili jednak 0.", "Zamjena stupaca");
+							return;
+						}
+						swapCol(Integer.parseInt(col1Value.getText()) - 1, Integer.parseInt(col2Value.getText()) - 1);
+		        	    assume();
+		        	    checkIfCorrect();
+		        	    resetHighlight();
+		        	    highlightDigit();
+					} catch (Exception e1) {
+		
+		
+					}
+		        }  
+		    });
+		y += h + space;
+		JLabel val1Label = new JLabel("Broj 1: ");
+		val1Label.setFont(new Font("Arial", Font.PLAIN, fontsize));
+		val1Label.setBounds(x, y, w, h);
+	    frame.add(val1Label);
+	    
+	    JTextField val1Value = new JTextField(String.valueOf(rows));
+	    val1Value.setFont(new Font("Arial", Font.PLAIN, fontsize));
+	    val1Value.setBounds(x + w / 2 - h - space, y, h, h);
+	    frame.add(val1Value);
+
+	    JLabel val2Label = new JLabel("Broj 2: ");
+	    val2Label.setFont(new Font("Arial", Font.PLAIN, fontsize));
+	    val2Label.setBounds(x + w / 2 + space, y, w, h);
+	    frame.add(val2Label);
+	    
+	    JTextField val2Value = new JTextField(String.valueOf(rows));
+	    val2Value.setFont(new Font("Arial", Font.PLAIN, fontsize));
+	    val2Value.setBounds(x + w - h, y, h, h);
+	    frame.add(val2Value);
+
+	    y += h + space;
+
+	    makeAButton("Zamjeni vrijednosti", x, y, w, h, new ActionListener(){  
+	        public void actionPerformed(ActionEvent e) {  
+		        	try {
+						if (Integer.parseInt(val1Value.getText()) == Integer.parseInt(val2Value.getText())) {
+							InformationBox.infoBox("Ne možete zamjeniti vrijednost " + val1Value.getText() + " sa samom sobom.", "Zamjena vrijednosti");
+							return;
+						}
+						if (Integer.parseInt(val1Value.getText()) > cols) {
+							InformationBox.infoBox("Prva vrijednost je veæa od broja vrijednosti.", "Zamjena vrijednosti");
+							return;
+						}
+						if (Integer.parseInt(val2Value.getText()) > cols) {
+							InformationBox.infoBox("Druga vrijednost je veæa od broja vrijednosti.", "Zamjena vrijednosti");
+							return;
+						}
+						if (Integer.parseInt(val1Value.getText()) < 1) {
+							InformationBox.infoBox("Prva vrijednost je manja ili jednaka 0.", "Zamjena vrijednosti");
+							return;
+						}
+						if (Integer.parseInt(val2Value.getText()) < 1) {
+							InformationBox.infoBox("Druga vrijednost je manja ili jednaka 0.", "Zamjena vrijednosti");
+							return;
+						}
+						swapNumbers(Integer.parseInt(val1Value.getText()), Integer.parseInt(val2Value.getText()));
+		        	    assume();
+		        	    checkIfCorrect();
+		        	    resetHighlight();
+		        	    highlightDigit();
+					} catch (Exception e1) {
+		
+		
+					}
+		        }  
+		    });
+		y += h + space;
+		addZoomBox(x, y, w, w);
+		y += w + space;
 		w = (int) (250 * widthScaling);
         difficulty.setBounds(x, y, w, h);
         difficulty.setFont(new Font("Arial", Font.PLAIN, fontsize));
         frame.add(difficulty);
-		int buttonEnd = y + h + space;
+		y += h + space;
+	    
+		int buttonEnd = y;
         
 		addErrorScroll(digitEnd, buttonEnd);
 		addInstructionScroll(digitEnd, buttonEnd);

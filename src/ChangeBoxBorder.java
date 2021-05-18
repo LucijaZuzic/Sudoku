@@ -84,21 +84,7 @@ public class ChangeBoxBorder extends SudokuGrid {
 				        					} else {
 				        						sizeRelationships.add(relationship);
 				        					    // Inicijaliziramo moguænosti za sve vrijednosti u svim æelijama na 1
-				        						possibilities = new int[rows * cols][rows];
-				        					    for (int row = 0; row < rows; row++){
-				        					    	for (int col = 0; col < cols; col++) {
-				        					    		if (temporary[row * cols + col] != 0) {
-				        							    	for (int val = 0; val < cols; val++) {
-				        							    		possibilities[row * cols + col][val] = 0;
-				        								    }
-				        						    		possibilities[row * cols + col][temporary[row * cols + col] - 1] = 1;
-				        					    		} else {
-				        							    	for (int val = 0; val < cols; val++) {
-				        							    		possibilities[row * cols + col][val] = 1;
-				        								    }
-				        					    		}
-				        					    	}
-				        					    }
+				        						initPencilmarks();
 				        					    for (int row = 0; row < rows; row++){
 				        					    	for (int col = 0; col < cols; col++) {
 				        					    		Set<Integer> visitedMax = new HashSet<Integer>();
@@ -430,7 +416,7 @@ public class ChangeBoxBorder extends SudokuGrid {
 	    	  				return;
 	    	  			}
 	        			@SuppressWarnings("unused")
-						SolveSudoku solveSudoku = new SolveSudoku(rows, cols, xLim, yLim, border, boxNumber, diagonalOn, sizeRelationships, Integer.parseInt(mini.getText()), Integer.parseInt(maksi.getText()));
+						SolveSudoku solveSudoku = new SolveSudoku(rows, cols, xLim, yLim, border, boxNumber, diagonalOn, sizeRelationships, Integer.parseInt(mini.getText()), Integer.parseInt(maksi.getText()), true);
 	        		}
 		    
 				} catch (Exception e1) {
@@ -447,7 +433,7 @@ public class ChangeBoxBorder extends SudokuGrid {
 					ChangeBoxBorder changeBoxBorder = new ChangeBoxBorder(rows, cols, xLim, yLim, false);
 					changeBoxBorder.readFile("");
 	        		@SuppressWarnings("unused")
-	        		SolveSudoku SolveSudoku = new SolveSudoku(changeBoxBorder.rows, changeBoxBorder.cols, changeBoxBorder.xLim, changeBoxBorder.yLim, changeBoxBorder.border, changeBoxBorder.boxNumber, changeBoxBorder.diagonalOn, changeBoxBorder.sizeRelationships, changeBoxBorder.userInput);
+	        		SolveSudoku SolveSudoku = new SolveSudoku(changeBoxBorder.rows, changeBoxBorder.cols, changeBoxBorder.xLim, changeBoxBorder.yLim, changeBoxBorder.border, changeBoxBorder.boxNumber, changeBoxBorder.diagonalOn, changeBoxBorder.sizeRelationships, changeBoxBorder.userInput, true);
 	        	} catch (Exception e1) {
 
 				}
@@ -511,7 +497,7 @@ public class ChangeBoxBorder extends SudokuGrid {
 	        	try {
 	        		if (checkBoxes()) {
 		        		readFile("");
-		        		@SuppressWarnings("unused")
+	        			@SuppressWarnings("unused")
 						CreateSudoku createSudoku = new CreateSudoku(currentChangeBoxBorder.rows, currentChangeBoxBorder.cols, currentChangeBoxBorder.xLim, currentChangeBoxBorder.yLim, currentChangeBoxBorder.border, currentChangeBoxBorder.boxNumber, currentChangeBoxBorder.diagonalOn, currentChangeBoxBorder.sizeRelationships, currentChangeBoxBorder.userInput, currentChangeBoxBorder.lastUsedPath);
 		        		currentChangeBoxBorder.checkBoxes();
 	        		}
