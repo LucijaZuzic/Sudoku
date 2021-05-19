@@ -651,7 +651,7 @@ public abstract class SudokuGrid {
 		cols = constructCols;
 		xLim = rowLimit;
 		yLim = colLimit;
-		wNumber = (int) (800 / cols * widthScaling);
+		wNumber = (int) (height / (cols + 4) * widthScaling);
 		hNumber = wNumber;
 		wDigit = (int) (wNumber - wNumber / cols);
 		numberFontsize = (int) (wNumber / 2);
@@ -666,6 +666,7 @@ public abstract class SudokuGrid {
 	    for (int row = 0; row < rows; row++){ 
 	    	for (int col = 0; col < cols; col++) {
 	    		int numCell = row * cols + col;
+	    		field[numCell] = new JButton("");
 	    		int box = (row / yLim) * (cols / xLim) + (col / xLim);
 		    	if (((box % (cols / xLim) % 2 == 0) && (box / (cols / xLim) % 2  == 0)) || 
 		    		((box % (cols / xLim) % 2 != 0) && (box / (cols / xLim) % 2  == 1))) {

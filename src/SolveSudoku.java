@@ -62,9 +62,9 @@ public class SolveSudoku extends Sudoku {
 		}
 		border = constructBorder;
 		boxNumber = constructBoxNumber;
-	    int retval = 1;
+	    int retVal = -1;
 	    long startGen = System.currentTimeMillis();
-	    while(retval == 1) {
+	    while(retVal == -1) {
 	    	if (System.currentTimeMillis() - startGen >= 10000) {
     		    InformationBox.infoBox("Nije moguæe ispuniti zagonetku prema zadanim kriterijima.", "Pogrešno dizajnirana zagonetka");
     		    frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
@@ -78,7 +78,9 @@ public class SolveSudoku extends Sudoku {
 		    		temporary[row * cols + col] = 0;
 			    }
 		    }
-		    retval = randomPuzzle();
+		    useGuessing = true;
+		    retVal = isOnlyOneSolution();
+		    useGuessing = false;
 	    }
 	    draw();
 	    for (int row = 0; row < rows; row++){ 
@@ -121,6 +123,13 @@ public class SolveSudoku extends Sudoku {
 	    		numReturns = 0;
 	    	}
 	    	if (solvable == 1 && System.currentTimeMillis() - startGen >= 10000) {
+	    		if (!InformationBox.yesNoBox("Zagonetka je težine " + difficultyScore + ", a zadani raspon je od " + mintargetDifficulty + " do " + maxtargetDifficulty + ".\n Želite li svejedno riješiti zagonetku?", "Upozorenje o težini")) {
+	    			frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
+	    		    frame.removeAll();
+	    		    frame.dispose();
+	    		    frame.setVisible(false);
+	    		    return;
+	    		}
 	    		break;
 	    	}
 	    }
@@ -314,7 +323,7 @@ public class SolveSudoku extends Sudoku {
 			field[numCell].setText("" + c);
 		}
 	    field[numCell].setFont(new Font("Arial", Font.PLAIN, numberFontsize));
-		zoomArea.setText(field[numCell].getText());
+		zoomArea.setText(field[numCell].getText().replace("yellow", "black"));
     	hints.add(numCell);
     	oldHints.add(numCell);
     	numUseDigit[userInput[numCell]]++;
@@ -541,6 +550,13 @@ public class SolveSudoku extends Sudoku {
 	        		if (timerStopped) {
 	        			return;
 	        		}
+	        		if (zoomMode) {
+		        		zoomArea.setText(field[numCell].getText().replace("yellow", "black"));
+						resetHighlight();
+						highlightDigit();
+						highlightCell(numCell);
+		        		return;
+	        		}
 	        		if (mode == 0)  {
         				for (int val = 0; val < cols; val++) {
         					options[numCell][val] = 0;
@@ -608,7 +624,7 @@ public class SolveSudoku extends Sudoku {
 	        		if (mode == 2) {
 	        			hint(numCell);
 	        		}
-	        		zoomArea.setText(field[numCell].getText());
+	        		zoomArea.setText(field[numCell].getText().replace("yellow", "black"));
 	        		checkIfCorrect();
 				} catch (Exception e1) {
 
@@ -813,7 +829,7 @@ public class SolveSudoku extends Sudoku {
 
 		y += h + space;
 		addZoomBox(x, y, w, w);
-		y += w + space;
+
 		w = (int) (250 * widthScaling);
         difficulty.setBounds(x, y, w, h);
         difficulty.setFont(new Font("Arial", Font.PLAIN, fontsize));
