@@ -9,62 +9,6 @@ import javax.swing.JLabel;
 import javax.swing.JTextField;
 
 public class CreateSudoku extends Sudoku {
-
-	public void fill() {
-	    boolean correct = checkIfCorrect();
-    	if (!correct) {
-    		return;
-    	}
-    	int numSols = isOnlyOneSolution();
-    	if (numSols == 1) {
-		    for (int row = 0; row < rows; row++){ 
-		    	for (int col = 0; col < cols; col++) {
-			    	int numCell = row * cols + col;
-		    		userInput[numCell] = temporary[numCell];
-		    		solution[numCell] = temporary[numCell];
-    	    		if (userInput[numCell] < 10) {
-    	    			field[numCell].setText(String.valueOf(userInput[numCell]));
-    	    		} else {
-    	    			char c = 'A';
-    	    			c += userInput[numCell] - 10;
-    	    			field[numCell].setText("" + c);
-    	    		}
-    	        	field[numCell].setForeground(Color.WHITE);
-		    	}
-		    }
-    		return;
-    	}
-	    long startGen = System.currentTimeMillis();
-	    int retVal = randomPuzzle();
-	    while (retVal == 1) {
-	    	if (System.currentTimeMillis() - startGen >= 10000) {
-    		    InformationBox.infoBox("Nije moguæe ispuniti zagonetku prema zadanim kriterijima.", "Pogrešno dizajnirana zagonetka");
-	    		break;
-	    	}
-		    for (int row = 0; row < rows; row++){ 
-		    	for (int col = 0; col < cols; col++) {
-			    	int numCell = row * cols + col;
-			    	temporary[numCell] = userInput[numCell];
-		    	}
-		    }
-		    retVal = randomPuzzle();
-	    } 
-	    for (int row = 0; row < rows; row++){ 
-	    	for (int col = 0; col < cols; col++) {
-		    	int numCell = row * cols + col;
-	    		userInput[numCell] = temporary[numCell];
-	    		solution[numCell] = temporary[numCell];
-	    		if (userInput[numCell] < 10) {
-	    			field[numCell].setText(String.valueOf(userInput[numCell]));
-	    		} else {
-	    			char c = 'A';
-	    			c += userInput[numCell] - 10;
-	    			field[numCell].setText("" + c);
-	    		}
-	        	field[numCell].setForeground(Color.WHITE);
-	    	}
-	    }
-	}
 	
 	public void resetHighlight() {
 		for (int row = 0; row < rows; row++){
@@ -119,8 +63,8 @@ public class CreateSudoku extends Sudoku {
 		boxNumber = constructBoxNumber;
 		if (InformationBox.yesNoBox("Želite li da se mreža automatski ispuni?", "Ukljuèi bilješke")) {
 		    long startGen = System.currentTimeMillis();
-		    int retval = 1;
-		    while(retval == 1) {
+		    int retval = -1;
+		    while(retval == -1) {
 		    	if (System.currentTimeMillis() - startGen >= 10000) {
 	    		    InformationBox.infoBox("Nije moguæe ispuniti zagonetku prema zadanim kriterijima.", "Pogrešno dizajnirana zagonetka");
 	    		    /*frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
@@ -136,7 +80,9 @@ public class CreateSudoku extends Sudoku {
 			    		temporary[row * cols + col] = 0;
 				    }
 			    }
-			    retval = randomPuzzle();
+				useGuessing = true;
+			    retval = isOnlyOneSolution();
+				useGuessing = false;
 		    }
 		} else {
 		    for (int row = 0; row < rows; row++){ 
@@ -172,6 +118,11 @@ public class CreateSudoku extends Sudoku {
 		for (int digit = 1; digit < cols + 1; digit++) {
 			checkIfDigitMaxUsed(digit);
 		}
+		// Èistimo upute za rješavanje i težinu
+		difficultyScore = 0;
+		instructionArea.setText("");
+		solvingInstructions = "";
+		difficulty.setText("");
 	    frame.setVisible(true);
 	    frame.requestFocus();
 	}
@@ -265,6 +216,13 @@ public class CreateSudoku extends Sudoku {
 		return new ActionListener(){  
 	        public void actionPerformed(ActionEvent e) {  
 	        	try {
+	        		if (zoomMode) {
+		        		zoomArea.setText(field[numCell].getText().replace("yellow", "black"));
+						resetHighlight();
+						highlightDigit();
+						highlightCell(numCell);
+		        		return;
+	        		}
 	        		if (userInput[numCell] != selectedDigit) {
 	        			numUseDigit[userInput[numCell]]--;
 	        			numUseDigit[selectedDigit]++;
@@ -287,7 +245,7 @@ public class CreateSudoku extends Sudoku {
 	    	    		}
 	        		}
 	        		assume();
-	        		zoomArea.setText(field[numCell].getText());
+	        		zoomArea.setText(field[numCell].getText().replace("yellow", "black"));
 	        		highlightCell(numCell);
 					highlightDigit();
 	        		checkIfCorrect();
@@ -330,13 +288,33 @@ public class CreateSudoku extends Sudoku {
 	 	makeAButton("Prikaži korake", x, y, w, h, new ActionListener(){  
 	        public void actionPerformed(ActionEvent e) {  
 		        	try {
+		        		useGuessing = false;
+		        	    if (InformationBox.yesNoBox("Želite li da se pri rješavanju koristi pogaðanje?", "Korak po korak")) {
+		        	    	useGuessing = true;
+		        	    }
 		        		showSteps = true;
 		        	    if (!InformationBox.stepBox("Jeste li spremni za prikaz koraka?", "Korak po korak")) {
 		        	    	showSteps = false;
 		        	    }
 		        		isOnlyOneSolution();
+		        		useGuessing = false;
 		        	    instructionArea.setText(solvingInstructions);
 		        	    InformationBox.infoBox("Rješavanje je dovršeno, nastavak dizajna.", "Korak po korak");
+		        	    if (InformationBox.yesNoBox("Želite li da se rješenje zapiše u polja?", "Korak po korak")) {
+		        	    	 for (int row = 0; row < rows; row++){ 
+			        	    	for (int col = 0; col < cols; col++) {
+			        		    	int numCell = row * cols + col;
+			        	    		userInput[numCell] = temporary[numCell];
+			        	    		if (userInput[numCell] < 10) {
+				    	    			field[numCell].setText(String.valueOf(userInput[numCell]));
+				    	    		} else {
+				    	    			char c = 'A';
+				    	    			c += userInput[numCell] - 10;
+				    	    			field[numCell].setText("" + c);
+				    	    		}
+			        	    	}
+			        	    }
+		        	    }
 		        	    assume();
 		        	    checkIfCorrect();
 		        		showSteps = false;
@@ -376,19 +354,31 @@ public class CreateSudoku extends Sudoku {
 	 	makeAButton("Nasumièmo nadopuni", x, y, w, h, new ActionListener(){  
 	        public void actionPerformed(ActionEvent e) {  
 		        	try {
-		        		fill();
-		        		for (int digit = 0; digit < cols + 1; digit++) {
-		        			numUseDigit[digit] = 0;
-		        		}
-		        		for (int cell = 0; cell < rows * cols; cell++){
-		        	    	numUseDigit[userInput[cell]]++;
+		        		showSteps = false;
+		        	    useGuessing = true;
+		        		isOnlyOneSolution();
+		        	    useGuessing = false;
+		        	    instructionArea.setText(solvingInstructions);
+		        	    for (int row = 0; row < rows; row++){ 
+		        	    	for (int col = 0; col < cols; col++) {
+		        		    	int numCell = row * cols + col;
+		        	    		userInput[numCell] = temporary[numCell];
+		        	    		if (userInput[numCell] < 10) {
+			    	    			field[numCell].setText(String.valueOf(userInput[numCell]));
+			    	    		} else {
+			    	    			char c = 'A';
+			    	    			c += userInput[numCell] - 10;
+			    	    			field[numCell].setText("" + c);
+			    	    		}
+		        	    	}
 		        	    }
-		        		for (int digit = 1; digit < cols + 1; digit++) {
-		        			checkIfDigitMaxUsed(digit);
-		        		}
-		        		highlightDigit();
-		        		checkIfCorrect();
+		        	    assume();
+		        	    difficultyScore = 0;
+		        		instructionArea.setText("");
+		        		solvingInstructions = "";
 		        		difficulty.setText("");
+		        	    checkIfCorrect();
+		        		showSteps = false;
 					} catch (Exception e1) {
 		
 					}
@@ -655,7 +645,6 @@ public class CreateSudoku extends Sudoku {
 		    });
 		y += h + space;
 		addZoomBox(x, y, w, w);
-		y += w + space;
 		w = (int) (250 * widthScaling);
         difficulty.setBounds(x, y, w, h);
         difficulty.setFont(new Font("Arial", Font.PLAIN, fontsize));

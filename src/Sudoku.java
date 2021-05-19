@@ -2,6 +2,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -18,12 +19,13 @@ import javax.swing.plaf.metal.MetalButtonUI;
 
 
 public abstract class Sudoku extends SudokuGrid {
+	boolean zoomMode = false;
 	// Gumbi za odabir znamenki
 	JButton digitButtons[];
 	// Tekstualno podruèje za prikaz greški
-	JTextArea errorArea;
+	JTextArea errorArea = new JTextArea(0, 0);
 	// Tekstualno podruèje za prikaz uputa
-	JTextArea instructionArea;
+	JTextArea instructionArea = new JTextArea(0, 0);
 	// Tekstualno podruèje za prikaz odbranog polja 
 	JButton zoomArea;
 	// Oznaka za prikaz težine
@@ -467,9 +469,14 @@ public abstract class Sudoku extends SudokuGrid {
 						    	// Ukloni moguænosti prema odnosima manje-veæe
 					    		Set<Integer> visitedMin = new HashSet<Integer>();
 								setMinPossibility(notInSet, visitedMin);
+					    		int returnValue = sequence();
 					    		// Ako nismo postavili sve æelije, pozivamo sekvencu metoda za rješavanje, ako ona uspije sve rješiti, prekidamo rješavanje
-								if (sequence() == 1) {
+								if (returnValue == 1) {
 					    			return 1;
+								}
+					    		// Ako nismo postavili sve æelije, pozivamo sekvencu metoda za rješavanje, ako otkrijemo da neka æelija sadrži nemoguæu vrijednost, prekidamo rješavanje
+								if (returnValue == -1 && useGuessing) {
+					    			return -1;
 								}
 				    			numRemoved++;
 			    			}
@@ -579,9 +586,14 @@ public abstract class Sudoku extends SudokuGrid {
 						    	// Ukloni moguænosti prema odnosima manje-veæe
 					    		Set<Integer> visitedMin = new HashSet<Integer>();
 								setMinPossibility(notInSet, visitedMin);
+					    		int returnValue = sequence();
 					    		// Ako nismo postavili sve æelije, pozivamo sekvencu metoda za rješavanje, ako ona uspije sve rješiti, prekidamo rješavanje
-								if (sequence() == 1) {
+								if (returnValue == 1) {
 					    			return 1;
+								}
+					    		// Ako nismo postavili sve æelije, pozivamo sekvencu metoda za rješavanje, ako otkrijemo da neka æelija sadrži nemoguæu vrijednost, prekidamo rješavanje
+								if (returnValue == -1 && useGuessing) {
+					    			return -1;
 								}
 			    				numRemoved++;
 			    			}
@@ -700,9 +712,14 @@ public abstract class Sudoku extends SudokuGrid {
 						    	// Ukloni moguænosti prema odnosima manje-veæe
 					    		Set<Integer> visitedMin = new HashSet<Integer>();
 								setMinPossibility(notInSet, visitedMin);
+					    		int returnValue = sequence();
 					    		// Ako nismo postavili sve æelije, pozivamo sekvencu metoda za rješavanje, ako ona uspije sve rješiti, prekidamo rješavanje
-								if (sequence() == 1) {
+								if (returnValue == 1) {
 					    			return 1;
+								}
+					    		// Ako nismo postavili sve æelije, pozivamo sekvencu metoda za rješavanje, ako otkrijemo da neka æelija sadrži nemoguæu vrijednost, prekidamo rješavanje
+								if (returnValue == -1 && useGuessing) {
+					    			return -1;
 								}
 					    		numRemoved++;
 			    			}
@@ -737,21 +754,33 @@ public abstract class Sudoku extends SudokuGrid {
 		    	if (temporary[numCell] != 0) {
 		    		continue;
 		    	}
-		    	Set<Integer> sameRow = new HashSet<Integer>();
 		    	// Tražimo ogoljeni skup u redu, s ishodištem u odreðenoj æeliji
-		    	if (nakedSetForRow(row, col, sameRow) == 1) {
+		    	Set<Integer> sameRow = new HashSet<Integer>();
+		    	int retVal = nakedSetForRow(row, col, sameRow);
+		    	if (retVal == 1 || unset == 0) {
 					return 1;
+				}
+		    	if (retVal == -1 && useGuessing) {
+					return -1;
 				}
 		    	// Tražimo ogoljeni skup u stupcu, s ishodištem u odreðenoj æeliji
 		    	Set<Integer> sameColumn = new HashSet<Integer>();
-		    	if (nakedSetForCol(row, col, sameColumn) == 1) {
+		    	retVal = nakedSetForCol(row, col, sameColumn);
+		    	if (retVal == 1 || unset == 0) {
 					return 1;
+				}
+		    	if (retVal == -1 && useGuessing) {
+					return -1;
 				}
 		    	// Tražimo ogoljeni skup u kutiji, s ishodištem u odreðenoj æeliji
 		    	Set<Integer> sameBox = new HashSet<Integer>();
-		    	if (nakedSetForBox(row, col, sameBox) == 1) {
+		    	retVal = nakedSetForBox(row, col, sameBox);
+		    	if (retVal == 1 || unset == 0) {
 					return 1;
-		    	}
+				}
+		    	if (retVal == -1 && useGuessing) {
+					return -1;
+				}
 	    	}
 	    }
 		return 0;
@@ -1044,9 +1073,14 @@ public abstract class Sudoku extends SudokuGrid {
 						    	// Ukloni moguænosti prema odnosima manje-veæe
 					    		Set<Integer> visitedMin = new HashSet<Integer>();
 								setMinPossibility(firstRow * cols + col, visitedMin);
+					    		int returnValue = sequence();
 					    		// Ako nismo postavili sve æelije, pozivamo sekvencu metoda za rješavanje, ako ona uspije sve rješiti, prekidamo rješavanje
-								if (sequence() == 1) {
-									return 1;
+								if (returnValue == 1) {
+					    			return 1;
+								}
+					    		// Ako nismo postavili sve æelije, pozivamo sekvencu metoda za rješavanje, ako otkrijemo da neka æelija sadrži nemoguæu vrijednost, prekidamo rješavanje
+								if (returnValue == -1 && useGuessing) {
+					    			return -1;
 								}
 					    		numRemoved++;
 							} 
@@ -1148,9 +1182,14 @@ public abstract class Sudoku extends SudokuGrid {
 						    	// Ukloni moguænosti prema odnosima manje-veæe
 					    		Set<Integer> visitedMin = new HashSet<Integer>();
 								setMinPossibility(row * cols + firstCol, visitedMin);
+					    		int returnValue = sequence();
 					    		// Ako nismo postavili sve æelije, pozivamo sekvencu metoda za rješavanje, ako ona uspije sve rješiti, prekidamo rješavanje
-								if (sequence() == 1) {
+								if (returnValue == 1) {
 					    			return 1;
+								}
+					    		// Ako nismo postavili sve æelije, pozivamo sekvencu metoda za rješavanje, ako otkrijemo da neka æelija sadrži nemoguæu vrijednost, prekidamo rješavanje
+								if (returnValue == -1 && useGuessing) {
+					    			return -1;
 								}
 			    				numRemoved++;
 							}
@@ -1258,9 +1297,14 @@ public abstract class Sudoku extends SudokuGrid {
 						    	// Ukloni moguænosti prema odnosima manje-veæe
 					    		Set<Integer> visitedMin = new HashSet<Integer>();
 								setMinPossibility(numCell, visitedMin);
+					    		int returnValue = sequence();
 					    		// Ako nismo postavili sve æelije, pozivamo sekvencu metoda za rješavanje, ako ona uspije sve rješiti, prekidamo rješavanje
-								if (sequence() == 1) {
+								if (returnValue == 1) {
 					    			return 1;
+								}
+					    		// Ako nismo postavili sve æelije, pozivamo sekvencu metoda za rješavanje, ako otkrijemo da neka æelija sadrži nemoguæu vrijednost, prekidamo rješavanje
+								if (returnValue == -1 && useGuessing) {
+					    			return -1;
 								}
 							    numRemoved++;
 							}
@@ -1293,8 +1337,12 @@ public abstract class Sudoku extends SudokuGrid {
 	    	// Tražimo skriveni skup koji sadrži ishodišnu vrijednost unutar definiranog reda
 			for (int val = 0; val < cols; val++) {
 				Set<Integer> sameRowValues = new HashSet<Integer>();
-				if (hiddenSetForRow(val, row, sameRowValues) == 1) {
+				int retVal = hiddenSetForRow(val, row, sameRowValues);
+				if (retVal == 1 || unset == 0) {
 		    		return 1;
+				}
+		    	if (retVal == -1 && useGuessing) {
+					return -1;
 				}
 			}
 		}
@@ -1315,8 +1363,12 @@ public abstract class Sudoku extends SudokuGrid {
 	    	// Tražimo skriveni skup koji sadrži ishodišnu vrijednost unutar definiranog stupca
 			for (int val = 0; val < cols; val++) {
 				Set<Integer> sameColValues = new HashSet<Integer>();
-				if (hiddenSetForCol(val, col, sameColValues) == 1) {
-    	    		return 1;
+				int retVal = hiddenSetForCol(val, col, sameColValues);
+				if (retVal == 1 || unset == 0) {
+		    		return 1;
+				}
+		    	if (retVal == -1 && useGuessing) {
+					return -1;
 				}
 			}
 		}
@@ -1340,8 +1392,12 @@ public abstract class Sudoku extends SudokuGrid {
 	    	// Tražimo skriveni skup koji sadrži ishodišnu vrijednost unutar definirane kutije
 			for (int val = 0; val < cols; val++) {
 				Set<Integer> sameBoxValues = new HashSet<Integer>();
-				if (hiddenSetForBox(val, box, sameBoxValues) == 1) {
-    	    		return 1;
+				int retVal = hiddenSetForBox(val, box, sameBoxValues);
+				if (retVal == 1 || unset == 0) {
+		    		return 1;
+				}
+		    	if (retVal == -1 && useGuessing) {
+					return -1;
 				}
 			}
 	    }
@@ -1443,10 +1499,15 @@ public abstract class Sudoku extends SudokuGrid {
 					    	// Ukloni moguænosti prema odnosima manje-veæe
 				    		Set<Integer> visitedMin = new HashSet<Integer>();
 							setMinPossibility(valueRow[val] * cols + col, visitedMin);
+				    		int returnValue = sequence();
 				    		// Ako nismo postavili sve æelije, pozivamo sekvencu metoda za rješavanje, ako ona uspije sve rješiti, prekidamo rješavanje
-				    		if (sequence() == 1) {
-		    	    			return 1;
-		    				}
+							if (returnValue == 1) {
+				    			return 1;
+							}
+				    		// Ako nismo postavili sve æelije, pozivamo sekvencu metoda za rješavanje, ako otkrijemo da neka æelija sadrži nemoguæu vrijednost, prekidamo rješavanje
+							if (returnValue == -1 && useGuessing) {
+				    			return -1;
+							}
 		    				numRemoved++;
 						}
 	    			}
@@ -1499,10 +1560,15 @@ public abstract class Sudoku extends SudokuGrid {
 					    	// Ukloni moguænosti prema odnosima manje-veæe
 				    		Set<Integer> visitedMin = new HashSet<Integer>();
 							setMinPossibility(row * cols + valueCol[val], visitedMin);
+				    		int returnValue = sequence();
 				    		// Ako nismo postavili sve æelije, pozivamo sekvencu metoda za rješavanje, ako ona uspije sve rješiti, prekidamo rješavanje
-				    		if (sequence() == 1) {
-		    	    			return 1;
-		    				}
+							if (returnValue == 1) {
+				    			return 1;
+							}
+				    		// Ako nismo postavili sve æelije, pozivamo sekvencu metoda za rješavanje, ako otkrijemo da neka æelija sadrži nemoguæu vrijednost, prekidamo rješavanje
+							if (returnValue == -1 && useGuessing) {
+				    			return -1;
+							}
 		    				numRemoved++;
 		    			}
 					}
@@ -1706,10 +1772,15 @@ public abstract class Sudoku extends SudokuGrid {
 						    		Set<Integer> visitedMin = new HashSet<Integer>();
 									setMinPossibility(row * cols + col, visitedMin);
 						    		numRemoved++;
+						    		int returnValue = sequence();
 						    		// Ako nismo postavili sve æelije, pozivamo sekvencu metoda za rješavanje, ako ona uspije sve rješiti, prekidamo rješavanje
-				    				if (sequence() == 1) {
-				    	    			return 1;
-				    				}
+									if (returnValue == 1) {
+						    			return 1;
+									}
+						    		// Ako nismo postavili sve æelije, pozivamo sekvencu metoda za rješavanje, ako otkrijemo da neka æelija sadrži nemoguæu vrijednost, prekidamo rješavanje
+									if (returnValue == -1 && useGuessing) {
+						    			return -1;
+									}
 								}
 							}
 						}
@@ -1816,10 +1887,15 @@ public abstract class Sudoku extends SudokuGrid {
 						    		Set<Integer> visitedMin = new HashSet<Integer>();
 									setMinPossibility(row * cols + col, visitedMin);
 						    		numRemoved++;
+						    		int returnValue = sequence();
 						    		// Ako nismo postavili sve æelije, pozivamo sekvencu metoda za rješavanje, ako ona uspije sve rješiti, prekidamo rješavanje
-				    				if (sequence() == 1) {
-				    	    			return 1;
-				    				}
+									if (returnValue == 1) {
+						    			return 1;
+									}
+						    		// Ako nismo postavili sve æelije, pozivamo sekvencu metoda za rješavanje, ako otkrijemo da neka æelija sadrži nemoguæu vrijednost, prekidamo rješavanje
+									if (returnValue == -1 && useGuessing) {
+						    			return -1;
+									}
 								}
 							}
 						}
@@ -1933,9 +2009,14 @@ public abstract class Sudoku extends SudokuGrid {
 		    		if (unset == 0) {
 		    			return 1;
 		    		}
+		    		int returnValue = sequence();
 		    		// Ako nismo postavili sve æelije, pozivamo sekvencu metoda za rješavanje, ako ona uspije sve rješiti, prekidamo rješavanje
-					if (sequence() == 1) {
+					if (returnValue == 1) {
 		    			return 1;
+					}
+		    		// Ako nismo postavili sve æelije, pozivamo sekvencu metoda za rješavanje, ako otkrijemo da neka æelija sadrži nemoguæu vrijednost, prekidamo rješavanje
+					if (returnValue == -1 && useGuessing) {
+		    			return -1;
 					}
 		    	} 
 		    }
@@ -2006,9 +2087,14 @@ public abstract class Sudoku extends SudokuGrid {
 		    		if (unset == 0) {
 		    			return 1;
 		    		}
+		    		int returnValue = sequence();
 		    		// Ako nismo postavili sve æelije, pozivamo sekvencu metoda za rješavanje, ako ona uspije sve rješiti, prekidamo rješavanje
-					if (sequence() == 1) {
+					if (returnValue == 1) {
 		    			return 1;
+					}
+		    		// Ako nismo postavili sve æelije, pozivamo sekvencu metoda za rješavanje, ako otkrijemo da neka æelija sadrži nemoguæu vrijednost, prekidamo rješavanje
+					if (returnValue == -1 && useGuessing) {
+		    			return -1;
 					}
 		    	} 
 		    }
@@ -2081,9 +2167,14 @@ public abstract class Sudoku extends SudokuGrid {
 		    		if (unset == 0) {
 		    			return 1;
 		    		}
+		    		int returnValue = sequence();
 		    		// Ako nismo postavili sve æelije, pozivamo sekvencu metoda za rješavanje, ako ona uspije sve rješiti, prekidamo rješavanje
-					if (sequence() == 1) {
+					if (returnValue == 1) {
 		    			return 1;
+					}
+		    		// Ako nismo postavili sve æelije, pozivamo sekvencu metoda za rješavanje, ako otkrijemo da neka æelija sadrži nemoguæu vrijednost, prekidamo rješavanje
+					if (returnValue == -1 && useGuessing) {
+		    			return -1;
 					}
 		    	} 
 		    }
@@ -2153,9 +2244,14 @@ public abstract class Sudoku extends SudokuGrid {
 			    		if (unset == 0) {
 			    			return 1;
 			    		}
+			    		int returnValue = sequence();
 			    		// Ako nismo postavili sve æelije, pozivamo sekvencu metoda za rješavanje, ako ona uspije sve rješiti, prekidamo rješavanje
-						if (sequence() == 1) {
+						if (returnValue == 1) {
 			    			return 1;
+						}
+			    		// Ako nismo postavili sve æelije, pozivamo sekvencu metoda za rješavanje, ako otkrijemo da neka æelija sadrži nemoguæu vrijednost, prekidamo rješavanje
+						if (returnValue == -1 && useGuessing) {
+			    			return -1;
 						}
 			    	}
 		    	}
@@ -2223,9 +2319,14 @@ public abstract class Sudoku extends SudokuGrid {
 			    		if (unset == 0) {
 			    			return 1;
 			    		}
+			    		int returnValue = sequence();
 			    		// Ako nismo postavili sve æelije, pozivamo sekvencu metoda za rješavanje, ako ona uspije sve rješiti, prekidamo rješavanje
-						if (sequence() == 1) {
+						if (returnValue == 1) {
 			    			return 1;
+						}
+			    		// Ako nismo postavili sve æelije, pozivamo sekvencu metoda za rješavanje, ako otkrijemo da neka æelija sadrži nemoguæu vrijednost, prekidamo rješavanje
+						if (returnValue == -1 && useGuessing) {
+			    			return -1;
 						}
 			    	}
 		    	}
@@ -2233,61 +2334,119 @@ public abstract class Sudoku extends SudokuGrid {
 		}
 		return 0;
 	}
+
+	boolean useGuessing = false;
 	// Sekvenca kojom se primjenjuju tehnike, prema složenosti (trošku)
 	public int sequence() {
-		int impossible = impossibleCheck();
-		if (impossible > 0) {
+		numIter++;
+		if (numIter >= 10000) {
 			return 0;
+		}
+		int impossible = impossibleCheck();
+		if (impossible > 0 && useGuessing) {
+			solvingInstructions += "Neke æelije nemaju više moguænosti.\n";
+	    	if (showSteps == true) {
+			    instructionArea.setText(solvingInstructions);
+			    print();
+	    		if (!InformationBox.stepBox( "Neke æelije nemaju više moguænosti.", "Rješavaè")) {
+	    			showSteps = false;
+	    		}
+			}
+			return -1;
 	    }
     	// Pokreæemo traženje jedine poziciju unutar reda, stupca, kutije ili rastuæe ili padajuæe dijagonale
-		if (singlePosition() == 1 || unset == 0) {
+		int retVal = singlePosition();
+		if (retVal == 1 || unset == 0) {
 			return 1;
+		}
+		if (retVal == -1 && useGuessing) {
+			return -1;
 		}
 		// Pokreæemo traženje jedino kandidata u æeliji
-		if (singleCandidate() == 1 || unset == 0) {
+		retVal = singleCandidate();
+		if (retVal == 1 || unset == 0) {
 			return 1;
 		}
+		if (retVal == -1 && useGuessing) {
+			return -1;
+		}
 		// Pokreæemo traženje linija kandidata (redova ili stupaca) u kutiji
-		if (candidateLines() == 1 || unset == 0) {
+		retVal = candidateLines();
+		if (retVal == 1 || unset == 0) {
 			return 1;
+		}
+		if (retVal == -1 && useGuessing) {
+			return -1;
 		}
 		// Pokreæemo traženje dvostrukih parova u kutijama
 		widthLimit = true;
-		if (multipleLines() == 1 || unset == 0) {
+		retVal = multipleLines();
+		if (retVal == 1 || unset == 0) {
 			return 1;
+		}
+		if (retVal == -1 && useGuessing) {
+			return -1;
 		}
 		// Pokreæemo traženje više linija kandidata (redova ili stupaca) u kutijama
 		widthLimit = false;
-		if (multipleLines() == 1 || unset == 0) {
+		retVal = multipleLines();
+		if (retVal == 1 || unset == 0) {
 			return 1;
+		}
+		if (retVal == -1 && useGuessing) {
+			return -1;
 		}
 		depthLimit = 2;
 		// Pokreæemo traženje ogoljenog para
-		if (nakedSet() == 1 || unset == 0) {
+		retVal = nakedSet();
+		if (retVal == 1 || unset == 0) {
 			return 1;
 		}
+		if (retVal == -1 && useGuessing) {
+			return -1;
+		}
 		// Pokreæemo traženje skrivenog prara
-		if (hiddenSet() == 1 || unset == 0) {
+		retVal = hiddenSet();
+		if (retVal == 1 || unset == 0) {
 			return 1;
+		}
+		if (retVal == -1 && useGuessing) {
+			return -1;
 		}
 		depthLimit = 3;
 		// Pokreæemo traženje ogoljene trojke
-		if (nakedSet() == 1 || unset == 0) {
+		retVal = nakedSet();
+		if (retVal == 1 || unset == 0) {
 			return 1;
 		}
+		if (retVal == -1 && useGuessing) {
+			return -1;
+		}
 		// Pokreæemo traženje skrivene trojke
-		if (hiddenSet() == 1 || unset == 0) {
+		retVal = hiddenSet();
+		if (retVal == 1 || unset == 0) {
 			return 1;
+		}
+		if (retVal == -1 && useGuessing) {
+			return -1;
 		}
 		Stack<Integer> cell = new Stack<Integer>();
 		chainLength = 2;
 		// Pokreæemo traženje X-krila
 		for (int val = 0; val < cols; val++) {
-			if (closedChain(cell, -1, 1, 1, val) == 1 || unset == 0) {
+			retVal = closedChain(cell, -1, 1, 1, val);
+			if (retVal == 1 || unset == 0) {
 				return 1;
 			}
-			if (closedChain(cell, -1, 1, 0, val) == 1 || unset == 0) {
+			if (retVal == -1 && useGuessing) {
+				return -1;
+			}
+			retVal = closedChain(cell, -1, 1, 0, val);
+			if (retVal == 1 || unset == 0) {
 				return 1;
+			}
+			if (retVal == -1 && useGuessing) {
+				return -1;
 			}
 		}
 		// Pokreæemo forsiranje ulanèavanjem
@@ -2297,37 +2456,72 @@ public abstract class Sudoku extends SudokuGrid {
 		for (int depth = 4; depth < cols; depth++) {
 			depthLimit = depth;
 			// Pokreæemo traženje ogoljenog skupa velièine 4 ili veæeg
-			if (nakedSet() == 1 || unset == 0) {
+			retVal = nakedSet();
+			if (retVal == 1 || unset == 0) {
 				return 1;
 			}
+			if (retVal == -1 && useGuessing) {
+				return -1;
+			}
 			// Pokreæemo traženje skrivenog skupa velièine 4 ili veæeg
-			if (hiddenSet() == 1 || unset == 0) {
+			retVal = hiddenSet();
+			if (retVal == 1 || unset == 0) {
 				return 1;
+			}
+			if (retVal == -1 && useGuessing) {
+				return -1;
 			}
 		}
 		chainLength = 3;
 		// Pokreæemo traženje sabljarke
 		for (int val = 0; val < cols; val++) {
-			if (closedChain(cell, -1, 1, 1, val) == 1 || unset == 0) {
+			retVal = closedChain(cell, -1, 1, 1, val);
+			if (retVal == 1 || unset == 0) {
 				return 1;
 			}
-			if (closedChain(cell, -1, 1, 0, val) == 1 || unset == 0) {
+			if (retVal == -1 && useGuessing) {
+				return -1;
+			}
+			retVal = closedChain(cell, -1, 1, 0, val);
+			if (retVal == 1 || unset == 0) {
 				return 1;
+			}
+			if (retVal == -1 && useGuessing) {
+				return -1;
 			}
 		}
 		for (int depth = 4; depth < cols; depth++) {
 			chainLength = depth;
 			// Pokreæemo traženje meduze
 			for (int val = 0; val < cols; val++) {
-				if (closedChain(cell, -1, 1, 1, val) == 1 || unset == 0) {
+				retVal = closedChain(cell, -1, 1, 1, val);
+				if (retVal == 1 || unset == 0) {
 					return 1;
 				}
-				if (closedChain(cell, -1, 1, 0, val) == 1 || unset == 0) {
+				if (retVal == -1 && useGuessing) {
+					return -1;
+				}
+				retVal = closedChain(cell, -1, 1, 0, val);
+				if (retVal == 1 || unset == 0) {
 					return 1;
+				}
+				if (retVal == -1 && useGuessing) {
+					return -1;
 				}
 			}
 		}
 		return 0;
+	}
+	
+	public int impossibleCheckForCell(int row, int col) {
+		int possibleVals = 0;
+		for (int val = 0; val < cols; val++) {
+			if (possibilities[row * cols + col][val] == 1) {
+				possibleVals = 1;
+				break;
+			}
+		}
+		return possibleVals;
 	}
 	public int impossibleCheck() {
 		int impossible = 0;
@@ -2335,15 +2529,8 @@ public abstract class Sudoku extends SudokuGrid {
 	    	for (int col = 0; col < cols; col++) {
 	    		if (temporary[row * cols + col] != 0) {
 	    			continue;
-	    		}
-	    		int possibleVals = 0;
-	    		for (int val = 0; val < cols; val++) {
-	    			if (possibilities[row * cols + col][val] == 1) {
-	    				possibleVals = 1;
-	    				break;
-	    			}
-	    		}
-	    		if (possibleVals == 0) {
+		    	}
+	    		if (impossibleCheckForCell(row, col) == 0) {
 	    			impossible++;
 	    		}
 	    	}
@@ -2351,12 +2538,12 @@ public abstract class Sudoku extends SudokuGrid {
 	    return impossible;
 	}
 	
-	long startSolving;
+	int numIter;
 	int[] forceVisited = new int[rows * cols];
 	// Provjeravamo rješivost zagonetke i ažuriramo upute za rješavanje i težinu
 	public int isOnlyOneSolution() {
 		// Zapisjuemo vrijeme kada smo poèeli rješavati
-		startSolving = System.currentTimeMillis();
+		numIter = 0;
 		// Postavljamo broj korištenja svih tehnika na 0
 		clt = 0;
 		dpt = 0;
@@ -2371,10 +2558,12 @@ public abstract class Sudoku extends SudokuGrid {
 		fct = 0;
 		sf4 = 0;
 		// Èistimo upute za rješavanje i težinu
-		solvingInstructions = "";
 		difficultyScore = 0;
-	    boolean correct = checkIfCorrect();
+		instructionArea.setText("");
+		solvingInstructions = "";
+		difficulty.setText("");
 	    // Ako zagonetka nije ispravno zadana, ne možemo ju rješavati
+	    boolean correct = checkIfCorrect();
     	if (!correct) {
 			difficulty.setText("U zagonetki ima grešaka");
     		return -1;
@@ -2402,12 +2591,13 @@ public abstract class Sudoku extends SudokuGrid {
 	    // Ažuriramo moguænosti svih æelija prema pravilima zagonetke
 		fixPencilmarks();
 		// Sudoku zagonetka 9 * 9 nema jedinstveno rješenje ako je zadano manje od 17 polja i ako nema dijagonale niti odnosa veæe-manje
-	    if (cols == 9 && rows * cols - unset < 17 && 0 != unset && diagonalOn == false && sizeRelationships.size() == 0) {
+	    if (cols == 9 && rows * cols - unset < 17 && 0 != unset && diagonalOn == false && sizeRelationships.size() == 0 && !useGuessing) {
 			print();
 			difficulty.setText(String.valueOf(unset) + " Zadano je premalo polja");
 			return 0;
 	    }
-		if (sequence() == 1 || unset == 0) {
+	    int returnVal = sequence();
+		if (returnVal == 1 || unset == 0) {
 			solvingInstructions += "Sva polja rješena.\n";
 	    	if (showSteps == true) {
 			    instructionArea.setText(solvingInstructions);
@@ -2416,21 +2606,27 @@ public abstract class Sudoku extends SudokuGrid {
 					showSteps = false;
 				}
 			}
-			// Ako smo postavili sve æelije bez pogaðanja, postoji jedinstveno rješenje
-			difficulty.setText(String.valueOf(difficultyScore) + " Postoji jedinstveno rješenje");
-			print();
-			return 1;
+	    	if (useGuessing == false || (useGuessing == true && !solvingInstructions.contains("Isprobavam"))) {
+				// Ako smo postavili sve æelije bez pogaðanja, postoji jedinstveno rješenje
+				difficulty.setText(String.valueOf(difficultyScore) + " Postoji jedinstveno rješenje");
+				print();
+				return 1;
+	    	} else {
+				// Ako smo postavili sve æelije s pogaðanjem, postoji više rješenja
+				difficulty.setText(String.valueOf(difficultyScore) + " Postoji verzija rješenja");
+				print();
+				return 0;
+	    	}
 		}
 		// Ako nismo postavili konaènu vrijednost u sve æelije, prebrojavamo æelije koje nemaju preostalih moguæih vrijednosti
 	    int impossible = impossibleCheck();
-		if (impossible > 0) {
+		if (impossible == -1) {
 	    	// Ako neke æelije nemaju preostalih moguæih vrijednosti, ne postoji naèin rješavanja zagonetke i ona nije ispravna
-			difficulty.setText(String.valueOf(impossible) + " Ne postoji rješenje");
+			difficulty.setText(String.valueOf(impossible) + " Polja bez moguænosti");
 			print();
-			return 0;
+			return -1;
 	    }
-    	// Ako æelije imaju jednu ili više moguæih vrijednosti, ne postoji jedinstveno rješenje, veæ više njih
-		difficulty.setText(String.valueOf(unset) + " Ne postoji jedinstveno rješenje");
+		difficulty.setText(String.valueOf(unset) + " Nedefiniranih polja");
 		print();
 		return 0;
 	}
@@ -2456,59 +2652,90 @@ public abstract class Sudoku extends SudokuGrid {
 		    for (int row = 0; row < rows; row++){
 		    	for (int col = 0; col < cols; col++) {
 		    		int countPossibilities = 0;
+		    		int[] valOrder = new int[cols];
+		        	for (int val = 0; val < cols; val++) {
+		        		valOrder[val] = -1;
+		        	}
+		        	for (int val = 0; val < cols; val++){ 
+		    	    	int pos = ThreadLocalRandom.current().nextInt(0, rows);
+		    	    	while (valOrder[pos] != -1) {
+		    	    		pos = ThreadLocalRandom.current().nextInt(0, rows);
+		    	    	}
+		    	    	valOrder[pos] = val;
+		    	    }
 		    		for (int val = 0; val < rows; val++) {
-			    		if (possibilities[row * cols + col][val] == 1 && temporary[row * cols + col] == 0) {
+			    		if (possibilities[row * cols + col][valOrder[val]] == 1 && temporary[row * cols + col] == 0) {
 			    			countPossibilities++;
 			    		}
 		    		}
-		    		if (forceVisited[row * cols + row] == 1 || countPossibilities != maxNumPossiblities) {
+		    		if (countPossibilities != maxNumPossiblities) {
 		    			continue;
 		    		}
-		    		forceVisited[row * cols + row] = 1;
+		    		if (forceVisited[row * cols + row] == 1 && !useGuessing) {
+		    			continue;
+		    		}
+		    		if (!useGuessing) {
+		    			forceVisited[row * cols + row] = 1;
+		    		}
 		    		// U polju pamtimo ishode za sve æelije ako za neku od æelija odaberemo odreðenu moguænost
 		    		int [] forcedValues = new int[rows * cols];
 		    		// Pratimo koliko puta smo uspjeli odrediti vrijednost neke æelije
 		    		int possibilityNum = 0;
 		    		for (int val = 0; val < cols; val++) {
 		    			// Za svaku od moguænosti u æeliji prouèavamo ishod ako ju odaberemo
-			    		if (possibilities[row * cols + col][val] == 1 && temporary[row * cols + col] == 0) {
-		    				String lineSolvInstr = "Isprobavam vrijednost " + String.valueOf(val + 1) + " u æeliji (" + String.valueOf(row + 1) + ", " + String.valueOf(col + 1) + ").";
-	    					solvingInstructions += lineSolvInstr + "\n";
-	    					if (showSteps == true) {
-	    		    		    instructionArea.setText(solvingInstructions);
-		    		    		print();
-		    	    			if (!InformationBox.stepBox("Isprobavam vrijednost " + String.valueOf(val + 1) + " u æeliji (" + String.valueOf(row + 1) + ", " + String.valueOf(col + 1) + ").", "Rješavaè")) {
-		    	    				showSteps = false;
-		    	    			}
-	    		    		}
+			    		if (possibilities[row * cols + col][valOrder[val]] == 1 && temporary[row * cols + col] == 0) {
 							// Èistimo moguænosti prepostavljene æelije
 				    		for (int clearVal = 0; clearVal < cols; clearVal++) {
 				    			possibilities[row * cols + col][clearVal] = 0;
 				    		}
-			    			possibilities[row * cols + col][val] = 1;
-					    	unset--;
-					    	// Pokušavamo rješiti zagonetku uz novu pretpostavku
-					    	sequence();
-		    				lineSolvInstr = "Vraæam unatrag vrijednost " + String.valueOf(val + 1) + " u æeliji (" + String.valueOf(row + 1) + ", " + String.valueOf(col + 1) + ").";
+			    			possibilities[row * cols + col][valOrder[val]] = 1;
+			    			temporary[row * cols + col] = valOrder[val] + 1;
+	    		    		if (valOrder[val] + 1 < 10) {
+	    		    			field[row * cols + col].setText(String.valueOf(valOrder[val] + 1));
+	    		    		} else {
+	    		    			char c = 'A';
+	    		    			c += valOrder[val] - 9;
+	    		    			field[row * cols + col].setText("" + c);
+	    		    		}
+	    		    		// Ažuriramo moguæe vrijednosti ostalih æelija
+	    		    		fixPencilmarks();
+	    		    		unset--;
+	    		    		String lineSolvInstr = "Isprobavam vrijednost " + String.valueOf(valOrder[val] + 1) + " u æeliji (" + String.valueOf(row + 1) + ", " + String.valueOf(col + 1) + ").";
 	    					solvingInstructions += lineSolvInstr + "\n";
 	    					if (showSteps == true) {
 	    		    		    instructionArea.setText(solvingInstructions);
 		    		    		print();
-		    	    			if (!InformationBox.stepBox("Vraæam unatrag vrijednost " + String.valueOf(val + 1) + " u æeliji (" + String.valueOf(row + 1) + ", " + String.valueOf(col + 1) + ").", "Rješavaè")) {
+		    	    			if (!InformationBox.stepBox("Isprobavam vrijednost " + String.valueOf(valOrder[val] + 1) + " u æeliji (" + String.valueOf(row + 1) + ", " + String.valueOf(col + 1) + ").", "Rješavaè")) {
+		    	    				showSteps = false;
+		    	    			}
+	    		    		}
+					    	// Pokušavamo rješiti zagonetku uz novu pretpostavku
+					    	int retval = sequence();
+					    	if ((retval == 1 || unset == 0) && useGuessing) {
+					    		return 1;
+					    	}
+		    				lineSolvInstr = "Vraæam unatrag vrijednost " + String.valueOf(valOrder[val] + 1) + " u æeliji (" + String.valueOf(row + 1) + ", " + String.valueOf(col + 1) + ").";
+	    					solvingInstructions += lineSolvInstr + "\n";
+	    					if (showSteps == true) {
+	    		    		    instructionArea.setText(solvingInstructions);
+		    		    		print();
+		    	    			if (!InformationBox.stepBox("Vraæam unatrag vrijednost " + String.valueOf(valOrder[val] + 1) + " u æeliji (" + String.valueOf(row + 1) + ", " + String.valueOf(col + 1) + ").", "Rješavaè")) {
 		    	    				showSteps = false;
 		    	    			}
 	    		    		}
 							// Nakon rješavanja s pretpostavkom vraæamo prethodno stanje
 						    for (int rowRestore = 0; rowRestore < rows; rowRestore++){
 						    	for (int colRestore = 0; colRestore < cols; colRestore++) {
-						    		if (possibilityNum == 0) {
-						    			// Ako smo pomoæu pretpostavke po prvi put dobili vrijednost u nekoj æeliji, zapisujemo ju
-						    			forcedValues[rowRestore * cols + colRestore] = temporary[rowRestore * cols + colRestore];
-						    		} else { 
-						    			// Ako smo pomoæu pretpostavki iduæi put dobili vrijednost u nekoj æeliji, zapisujemo ju ako je ista kao prehodna, a zamjenjujemo s 0 ako se razlikuju
-						    			if (forcedValues[rowRestore * cols + colRestore] != temporary[rowRestore * cols + colRestore]) {
-						    				forcedValues[rowRestore * cols + colRestore] = 0;
-						    			}
+						    		if (!useGuessing) {
+							    		if (possibilityNum == 0) {
+							    			// Ako smo pomoæu pretpostavke po prvi put dobili vrijednost u nekoj æeliji, zapisujemo ju
+							    			forcedValues[rowRestore * cols + colRestore] = temporary[rowRestore * cols + colRestore];
+							    		} else { 
+							    			// Ako smo pomoæu pretpostavki iduæi put dobili vrijednost u nekoj æeliji, zapisujemo ju ako je ista kao prehodna, a zamjenjujemo s 0 ako se razlikuju
+							    			if (forcedValues[rowRestore * cols + colRestore] != temporary[rowRestore * cols + colRestore]) {
+							    				forcedValues[rowRestore * cols + colRestore] = 0;
+							    			}
+							    		}
 						    		}
 						    		temporary[rowRestore * cols + colRestore] = backupTemporary[rowRestore * cols + colRestore];
 						    		for (int valRestore = 0; valRestore < cols; valRestore++) {
@@ -2516,137 +2743,80 @@ public abstract class Sudoku extends SudokuGrid {
 						    		}
 			    				}
 			    			}
+		    				fixPencilmarks();
 						    difficultyScore = backupDifficultyScore;
+						    if (useGuessing && retval != 1 && unset != 0) {
+				    			possibilities[row * cols + col][valOrder[val]] = 0;
+						    }
 						    unset = backupUnset;
 						    possibilityNum++;
+						    if (useGuessing) {
+						    	int impossible = impossibleCheck();
+						    	if (impossible > 0) {
+						    		return -1;
+						    	}
+						    }
 			    		}
 				    }
-		    		// Prelazimo polje gdje pamtimo zajednièke ishode pretpostavki za odreðenu æeliju
-				    for (int rowForce = 0; rowForce < rows; rowForce++){
-				    	for (int colForce = 0; colForce < cols; colForce++) {
-				    		// Ako za bilo koju vrijednost poèetne æelije neka druga æelija ima uvijek istu vrijednost, kažemo da poèetna æelija forsira njezinu vrijednost
-				    		if (forcedValues[rowForce * rows + colForce] != 0 && temporary[rowForce * rows + colForce] == 0) {
-			    				String lineSolvInstr = "Æelija (" + String.valueOf(row + 1) + ", " + String.valueOf(col + 1) + ") forsira vrijednost ";
-								// Ako smo veæ forsirali neku vrijednost pomoæu ove iste æelije, ne bodujemo to dvaput
-			    				if (!solvingInstructions.contains(lineSolvInstr)) {
-			    					if (fct == 0) {
-					    				// Kada prvi put koristimo forsiranje ulanèavanjem, trošak je 4200
-			    						difficultyScore += 4200;
-			    						fct = 1;
-			    					} else {
-					    				// Kada iduæi put koristimo forsiranje ulanèavanjem, trošak je 2100
-			    						difficultyScore += 2100;
-			    					}
-			    				}
-		    					lineSolvInstr += String.valueOf(forcedValues[rowForce * rows + colForce]) + " u æeliji (" + String.valueOf(rowForce + 1) + ", " + String.valueOf(colForce + 1) + ").\n";
-		    					// Dodajemo novi red u tekst uputa
-		    					solvingInstructions += lineSolvInstr;
-		    					// Ako se prikazuje rješavanje korak po korak otvaramo novi prozor s uputama
-			    				if (showSteps == true) {
-		    		    		    instructionArea.setText(solvingInstructions);
-			    		    		print();
-			    	    			if (!InformationBox.stepBox("Æelija (" + String.valueOf(row + 1) + ", " + String.valueOf(col + 1) + ") forsira vrijednost " + String.valueOf(forcedValues[rowForce * rows + colForce]) + " u æeliji (" + String.valueOf(rowForce + 1) + ", " + String.valueOf(colForce + 1) + ").", "Rješavaè")) {
-			    	    				showSteps = false;
-			    	    			}
-		    		    		}
-				    			for (int val = 0; val < cols; val++) {
-				    				possibilities[rowForce * rows + colForce][val] = 0;
-				    			}
-			    				possibilities[rowForce * rows + colForce][forcedValues[rowForce * rows + colForce] - 1] = 1;
-			    				temporary[rowForce * cols + colForce] = forcedValues[rowForce * rows + colForce];
-			    				unset--;
-			    				fixPencilmarks();
-						    	// Ako smo postavili sve æelije, prekidamo rješavanje
-			    				if (unset == 0) {
-			    					return 1;
-			    				} 
-							    // Ako nismo postavili sve æelije, pokreæemo sekvencu
-							    if (sequence() == 1) {
-									return 1;
-								}
-		    		    	}
-				    	}
-				    }
+		    		if (!useGuessing) {
+			    		// Prelazimo polje gdje pamtimo zajednièke ishode pretpostavki za odreðenu æeliju
+					    for (int rowForce = 0; rowForce < rows; rowForce++){
+					    	for (int colForce = 0; colForce < cols; colForce++) {
+					    		// Ako za bilo koju vrijednost poèetne æelije neka druga æelija ima uvijek istu vrijednost, kažemo da poèetna æelija forsira njezinu vrijednost
+					    		if (forcedValues[rowForce * rows + colForce] != 0 && temporary[rowForce * rows + colForce] == 0) {
+				    				String lineSolvInstr = "Æelija (" + String.valueOf(row + 1) + ", " + String.valueOf(col + 1) + ") forsira vrijednost ";
+									// Ako smo veæ forsirali neku vrijednost pomoæu ove iste æelije, ne bodujemo to dvaput
+				    				if (!solvingInstructions.contains(lineSolvInstr)) {
+				    					if (fct == 0) {
+						    				// Kada prvi put koristimo forsiranje ulanèavanjem, trošak je 4200
+				    						difficultyScore += 4200;
+				    						fct = 1;
+				    					} else {
+						    				// Kada iduæi put koristimo forsiranje ulanèavanjem, trošak je 2100
+				    						difficultyScore += 2100;
+				    					}
+				    				}
+			    					lineSolvInstr += String.valueOf(forcedValues[rowForce * rows + colForce]) + " u æeliji (" + String.valueOf(rowForce + 1) + ", " + String.valueOf(colForce + 1) + ").\n";
+			    					// Dodajemo novi red u tekst uputa
+			    					solvingInstructions += lineSolvInstr;
+			    					// Ako se prikazuje rješavanje korak po korak otvaramo novi prozor s uputama
+				    				if (showSteps == true) {
+			    		    		    instructionArea.setText(solvingInstructions);
+				    		    		print();
+				    	    			if (!InformationBox.stepBox("Æelija (" + String.valueOf(row + 1) + ", " + String.valueOf(col + 1) + ") forsira vrijednost " + String.valueOf(forcedValues[rowForce * rows + colForce]) + " u æeliji (" + String.valueOf(rowForce + 1) + ", " + String.valueOf(colForce + 1) + ").", "Rješavaè")) {
+				    	    				showSteps = false;
+				    	    			}
+			    		    		}
+					    			for (int val = 0; val < cols; val++) {
+					    				possibilities[rowForce * rows + colForce][val] = 0;
+					    			}
+				    				possibilities[rowForce * rows + colForce][forcedValues[rowForce * rows + colForce] - 1] = 1;
+				    				temporary[rowForce * cols + colForce] = forcedValues[rowForce * rows + colForce];
+				    				unset--;
+				    				fixPencilmarks();
+						    		int returnValue = sequence();
+							    	// Ako smo postavili sve æelije, prekidamo rješavanje
+				    				if (unset == 0) {
+				    					return 1;
+				    				} 
+						    		// Ako nismo postavili sve æelije, pozivamo sekvencu metoda za rješavanje, ako ona uspije sve rješiti, prekidamo rješavanje
+									if (returnValue == 1) {
+						    			return 1;
+									}
+						    		// Ako nismo postavili sve æelije, pozivamo sekvencu metoda za rješavanje, ako otkrijemo da neka æelija sadrži nemoguæu vrijednost, prekidamo rješavanje
+									if (returnValue == -1 && useGuessing) {
+						    			return -1;
+									}
+			    		    	}
+					    	}
+					    }
+		    		}
 			    }
 			}
 	    }
 	    return 0;
 	}
-	// Pokušavamo naæi varijantu rješenja pogaðanjem
-	public int guessing() {
-		// Prije nego krenemo pogaðati vrijednost u nekoj æeliji, moramo zapisati trenutno stanje zbog povratka untrag
-		int[] backupTemporary = new int[rows * cols];
-		int[][] backupPossibilities = new int[rows * cols][cols];
-		int backupUnset = unset;
-		int backupDifficultyScore = difficultyScore;
-		String backupSolvingInstructions = solvingInstructions;
-	    for (int row = 0; row < rows; row++){
-	    	for (int col = 0; col < cols; col++) {
-	    		backupTemporary[row * cols + col] =  temporary[row * cols + col];
-	    		for (int val = 0; val < cols; val++) {
-	    			backupPossibilities[row * cols + col][val] = possibilities[row * cols + col][val];
-	    		}
-			}
-		}
-	    for (int row = 0; row < rows; row++){
-	    	for (int col = 0; col < cols; col++) {
-	    		for (int val = 0; val < rows; val++) {
-		    		if (possibilities[row * cols + col][val] == 1 && temporary[row * cols + col] == 0) {
-		    			// Dodajemo liniju u tekst uputa za rješavanje
-		    			solvingInstructions += "Poèinjem pogaðati.\n";
-						solvingInstructions += "Pokušavam " + String.valueOf(val + 1) + " u æeliji (" + String.valueOf(row + 1) + ", " + String.valueOf(col + 1) + ").\n";
-						backupSolvingInstructions += "Poèinjem pogaðati.\n";
-						backupSolvingInstructions += "Pokušavam " + String.valueOf(val + 1) + " u æeliji (" + String.valueOf(row + 1) + ", " + String.valueOf(col + 1) + ").\n";
-				    	temporary[row * cols + col] = val + 1;
-						// Èistimo moguænosti pogoðene æelije
-			    		for (int clearVal = 0; clearVal < cols; clearVal++) {
-			    			possibilities[row * cols + col][clearVal] = 0;
-			    		}
-		    			possibilities[row * cols + col][val] = 1;
-				    	unset--;
-						if (sequence() == 1) {
-							// Ako je zagonetka u potpunosti rješena nakon dodavanja pogoðene vrijednosti, našli smo jedno moguæe rješenje i prekidamo rješavanje
-							return 1;
-						} else {
-							// Ako nije moguæe riješiti zagonetku nakon dodavanja pogoðene vrijednosti, vraæamo prethodno stanje
-						    for (int rowRestore = 0; rowRestore < rows; rowRestore++){
-						    	for (int colRestore = 0; colRestore < cols; colRestore++) {
-						    		temporary[rowRestore * cols + colRestore] = backupTemporary[rowRestore * cols + colRestore];
-						    		for (int valRestore = 0; valRestore < cols; valRestore++) {
-						    			possibilities[rowRestore * cols + colRestore][valRestore] = backupPossibilities[rowRestore * cols + colRestore][valRestore];
-						    		}
-			    				}
-			    			}
-						    difficultyScore = backupDifficultyScore;
-						    backupSolvingInstructions += "Povlaèim " + String.valueOf(val + 1) + " u æeliji (" + String.valueOf(row + 1) + ", " + String.valueOf(col + 1) + ").\n";
-						    solvingInstructions = backupSolvingInstructions;
-						    unset = backupUnset;
-						    possibilities[row * cols + col][val] = 0;
-							return 0;
-						} 
-		    		}
-			    }
-		    }
-		}
-	    if (unset > 0) {
-	    	// Ako niti nakon pogaðanja nije moguæe rješiti zagonetku, vraæamo prethodno stanje i javljamo da zagonetku nije moguæe rješiti 
-	    	for (int rowRestore = 0; rowRestore < rows; rowRestore++){
-		    	for (int colRestore = 0; colRestore < cols; colRestore++) {
-		    		temporary[rowRestore * cols + colRestore] = backupTemporary[rowRestore * cols + colRestore];
-		    		for (int valRestore = 0; valRestore < cols; valRestore++) {
-		    			possibilities[rowRestore * cols + colRestore][valRestore] = backupPossibilities[rowRestore * cols + colRestore][valRestore];
-		    		}
-				}
-			}
-		    difficultyScore = backupDifficultyScore;
-		    solvingInstructions = backupSolvingInstructions;
-	        unset = backupUnset;
-	    	return 0;
-	    } else {
-	    	// Ako je pogaðanjem naðena jedna varijanta rješenja, javljamo da ona postoji 
-	    	return 1;
-	    }
-	}
+
 	// Provjeravamo sadrže li æelije koje smo našli u istom redu ili stupcu kao i prethodna æelija u zatvorenom lancu dozvoljene vrijednosti za nastavak lanca
 	// cells - skup æelija koje su veæ u zatvorenom skupu, beginCell - poèetna æelija u zatvorenom lancu, direction - tražimo li nove æelije unaprijed (0) ili unatrag (1)
 	// rowOrCols - jesmo li moguæu æeliju koju želimo dodati u zatvoreni lanac našli u istom redu (0) ili u istom stupcu (1) u kojem je zadnja veæ dodana æelija
@@ -2975,250 +3145,7 @@ public abstract class Sudoku extends SudokuGrid {
 		lastRemovedValSymetric.pop();	
 		return true;
 	}
-	// Generiramo nasumiènu zagonetku
-	public int randomPuzzle() {
-		unset = 0;
-		possibilities = new int[rows * cols][rows];
-	    int[][] usedRow = new int[cols][rows];
-	    for (int row = 0; row < rows; row++){
-	    	for (int col = 0; col < cols; col++) {
-	    		usedRow[row][col] = 0;
-	    		if (temporary[row * cols + col] != 0) {
-			    	for (int val = 0; val < cols; val++) {
-			    		possibilities[row * cols + col][val] = 0;
-				    }
-		    		possibilities[row * cols + col][temporary[row * cols + col] - 1] = 1;
-		    		
-	    		} else {
-			    	for (int val = 0; val < cols; val++) {
-			    		possibilities[row * cols + col][val] = 1;
-				    }
-			    	unset++;
-	    		}
-	    	}
-	    }
-	    fixPencilmarks();
-	    for (int row = 0; row < rows; row++){ 
-	    	for (int col = 0; col < cols; col++) {
-	    		int numCell = row * cols + col;
-	    		if (temporary[numCell] != 0) {
-	    			continue;
-	    		}
-	    		if (isInTree(numCell) > 0) {
-		    	    int possible = 0;
-		    	    int firstPossible = 0;
-		    		int lastPossible = 0;
-		    		Set<Integer> possibleVals = new HashSet<Integer>();
-		    		for (int val = 1; val <= cols; val++) {
-			    		if (possibilities[numCell][val - 1] == 1 && temporary[numCell] == 0) {
-			    			if (possible == 0) {
-			    				firstPossible = val;
-			    			}
-			    			possible++;
-			    			possibleVals.add(val);
-			    			lastPossible = val;
-			    		}
-				    }
-			    	if (possible == 0) {
-				    	return 1;
-			    	}
-			    	if (possible == 1) {
-				    	temporary[row * cols + col] = lastPossible;
-				    	usedRow[lastPossible - 1][row] = 1;
-				    	fixPencilmarks();
-			    		unset--;
-			    		if (unset == 0) {
-			    			return 0;
-			    		}
-				    	continue;
-			    	}
-			    	int randomVal = ThreadLocalRandom.current().nextInt(firstPossible, lastPossible + 1);
-			    	while (!possibleVals.contains(randomVal)) {
-			    		randomVal = ThreadLocalRandom.current().nextInt(firstPossible, lastPossible + 1);
-			    	}
-			    	temporary[row * cols + col] = randomVal;
-			    	usedRow[randomVal - 1][row] = 1;
-			    	fixPencilmarks();
-		    		unset--;
-		    		if (unset == 0) {
-		    			return 0;
-		    		}
-	    		}
-	    	}
-	    }
-	    if (diagonalOn) {
-		    int[] rowOrder = new int[rows];
-		    int rowIndex = 0;
-		    for (int rowOffset = 0; rowOffset < rows / 2 + rows % 2; rowOffset++){
-		    	if (rows % 2 == 0) {
-		    		rowOrder[rowIndex] = rows / 2 - 1 - rowOffset;
-		    		rowIndex++;
-		    		rowOrder[rowIndex] = rows / 2 - rowOffset;
-		    		rowIndex++;
-		    	} else {
-		    		if (rowOffset == 0) {
-			    		rowOrder[rowIndex] = rows / 2 - rowOffset;
-			    		rowIndex++;
-		    		} else {
-			    		rowOrder[rowIndex] = rows / 2 - rowOffset;
-			    		rowIndex++;
-			    		rowOrder[rowIndex] = rows / 2 + rowOffset;
-			    		rowIndex++;
-		    		}
-		    	}
-		    }
-		    for (int rowOffset = 0; rowOffset < rows; rowOffset++) {
-		    	int row = rowOrder[rowOffset];
-	    	    for (int col = 0; col < cols; col++) {
-	    	    	if (row != col && row != cols - 1 - col) {
-	    	    		continue;
-	    	    	}
-		    	    int possible = 0;
-		    	    int firstPossible = 0;
-		    		int lastPossible = 0;
-		    		Set<Integer> possibleVals = new HashSet<Integer>();
-		    		for (int val = 1; val <= cols; val++) {
-			    		int numCell = row * cols + col;
-			    		if (possibilities[numCell][val - 1] == 1 && temporary[numCell] == 0) {
-			    			if (possible == 0) {
-			    				firstPossible = val;
-			    			}
-			    			possible++;
-			    			possibleVals.add(val);
-			    			lastPossible = val;
-			    		}
-				    }
-			    	if (possible == 0) {
-				    	return 1;
-			    	}
-			    	if (possible == 1) {
-				    	temporary[row * cols + col] = lastPossible;
-				    	usedRow[lastPossible - 1][row] = 1;
-				    	fixPencilmarks();
-			    		unset--;
-			    		if (unset == 0) {
-			    			return 0;
-			    		}
-				    	continue;
-			    	}
-			    	int randomVal = ThreadLocalRandom.current().nextInt(firstPossible, lastPossible + 1);
-			    	while (!possibleVals.contains(randomVal)) {
-			    		randomVal = ThreadLocalRandom.current().nextInt(firstPossible, lastPossible + 1);
-			    	}
-			    	temporary[row * cols + col] = randomVal;
-			    	usedRow[randomVal - 1][row] = 1;
-			    	fixPencilmarks();
-		    		unset--;
-		    		if (unset == 0) {
-		    			return 0;
-		    		}
-			    }
-			}
-		    for (int rowOffset = 0; rowOffset < rows; rowOffset++) {
-		    	int row = rowOrder[rowOffset];
-	    	    for (int col = 0; col < cols; col++) {
-	    	    	if (row == col || row == cols - 1 - col) {
-	    	    		continue;
-	    	    	}
-	    	    	int boxLeft = boxNumber[row * cols + row];
-	    	    	int boxRight = boxNumber[row * cols + cols - 1 - row];
-	    	    	int box= boxNumber[row * cols + col];
-	    	    	if (box != boxLeft && box != boxRight) {
-	    	    		continue;
-	    	    	}
-		    	    int possible = 0;
-		    	    int firstPossible = 0;
-		    		int lastPossible = 0;
-		    		Set<Integer> possibleVals = new HashSet<Integer>();
-		    		for (int val = 1; val <= cols; val++) {
-			    		int numCell = row * cols + col;
-			    		if (possibilities[numCell][val - 1] == 1 && temporary[numCell] == 0) {
-			    			if (possible == 0) {
-			    				firstPossible = val;
-			    			}
-			    			possible++;
-			    			possibleVals.add(val);
-			    			lastPossible = val;
-			    		}
-				    }
-			    	if (possible == 0) {
-				    	return 1;
-			    	}
-			    	if (possible == 1) {
-				    	temporary[row * cols + col] = lastPossible;
-				    	usedRow[lastPossible - 1][row] = 1;
-				    	fixPencilmarks();
-			    		unset--;
-			    		if (unset == 0) {
-			    			return 0;
-			    		}
-				    	continue;
-			    	}
-			    	int randomVal = ThreadLocalRandom.current().nextInt(firstPossible, lastPossible + 1);
-			    	while (!possibleVals.contains(randomVal)) {
-			    		randomVal = ThreadLocalRandom.current().nextInt(firstPossible, lastPossible + 1);
-			    	}
-			    	temporary[row * cols + col] = randomVal;
-			    	usedRow[randomVal - 1][row] = 1;
-			    	fixPencilmarks();
-		    		unset--;
-		    		if (unset == 0) {
-		    			return 0;
-		    		}
-			    }
 
-			}
-	    }
-		// Postavljamo vrijednost u odreðeni redak
-	    for (int row = 0; row < rows; row++) {
-			for (int val = 1; val <= cols; val++) {
-				// Ako je vrijednost veæ postavljena u redak, nastavljamo dalje
-				if (usedRow[val - 1][row] == 1) {
-					continue;
-				}
-	    	    int possible = 0;
-	    	    int firstPossible = 0;
-	    		int lastPossible = 0;
-	    		Set<Integer> possibleCols = new HashSet<Integer>();
-	    	    for (int col = 0; col < cols; col++) {
-		    		int numCell = row * cols + col;
-		    		if (possibilities[numCell][val - 1] == 1 && temporary[numCell] == 0) {
-		    			if (possible == 0) {
-		    				firstPossible = col;
-		    			}
-		    			possible++;
-		    			possibleCols.add(col);
-		    			lastPossible = col;
-		    		}
-			    }
-		    	// Ako vrijednost nije moguæe postaviti u red, zagonetka koju smo generirali nije ispravna i moramo krenuti isponova
-		    	if (possible == 0) {
-			    	return 1;
-		    	}
-		    	// Ako je vrijednost unutar reda moguæe postaviti samo na jednu poziciju, možemo postaviti vrijednost
-		    	if (possible == 1) {
-			    	temporary[row * cols + lastPossible] = val;
-			    	fixPencilmarks();
-		    		unset--;
-		    		if (unset == 0) {
-		    			return 0;
-		    		}
-			    	continue;
-		    	}
-		    	int randomCol = ThreadLocalRandom.current().nextInt(firstPossible, lastPossible + 1);
-		    	while (!possibleCols.contains(randomCol)) {
-		    		randomCol = ThreadLocalRandom.current().nextInt(firstPossible, lastPossible + 1);
-		    	}
-		    	temporary[row * cols + randomCol] = val;
-		    	fixPencilmarks();
-	    		unset--;
-	    		if (unset == 0) {
-	    			return 0;
-	    		}
-		    }
-		}
-		return 0;
-	}
 	public Sudoku(int constructRows, int constructCols, int rowLimit, int colLimit, boolean setDiagonalOn, Set<String> setSizeRelationships) {
 		super(constructRows, constructCols, rowLimit, colLimit);
 		diagonalOn = setDiagonalOn;
@@ -3272,7 +3199,12 @@ public abstract class Sudoku extends SudokuGrid {
 	public void addErrorScroll(int digitEnd, int buttonEnd) {
 		x += w + space;
         y = space;
-        w = (int) (280 * widthScaling);
+        w = (int) (500 * widthScaling);
+        JLabel labelError = new JLabel("Popis greški: ");
+        labelError.setFont(new Font("Arial", Font.PLAIN, fontsize));
+        labelError.setBounds(x, y, w, h);
+        frame.add(labelError);
+        y += h + space;
         errorArea = new JTextArea(0, 0);
         errorArea.setFont(new Font("Arial", Font.PLAIN, fontsizeTextArea));
         errorArea.setEditable (false);
@@ -3281,16 +3213,21 @@ public abstract class Sudoku extends SudokuGrid {
 	    JScrollPane errorScroll = new JScrollPane(errorPanel, 
                 JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
                 JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-	    errorScroll.setBounds(x, y, w, Math.max(digitEnd, buttonEnd) - 2 * space);
+	    errorScroll.setBounds(x, y, w, (Math.max(digitEnd, buttonEnd) - 5 * space - 2 * h) / 2);
 	    frame.add(errorScroll);
 	    errorScroll.setVisible(true);  
 	    errorScroll.setBackground(Color.WHITE);
 	    errorScroll.setVisible(true);  
-	    x += w + space;
+	    y += (Math.max(digitEnd, buttonEnd) - 5 * space - 2 * h) / 2 + space;
 	}
 	
 	public void addInstructionScroll(int digitEnd, int buttonEnd) {
         w = (int) (500 * widthScaling);
+        JLabel labelInstruction = new JLabel("Upute za rješavanje: ");
+        labelInstruction.setFont(new Font("Arial", Font.PLAIN, fontsize));
+        labelInstruction.setBounds(x, y, w, h);
+        frame.add(labelInstruction);
+        y += h + space;
 		instructionArea = new JTextArea(0, 0);
         instructionArea.setFont(new Font("Arial", Font.PLAIN, fontsizeTextArea));
         instructionArea.setEditable (false);
@@ -3299,7 +3236,7 @@ public abstract class Sudoku extends SudokuGrid {
 	    JScrollPane instructionScroll = new JScrollPane(instructionPanel, 
                 JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
                 JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-	    instructionScroll.setBounds(x, y, w, Math.max(digitEnd, buttonEnd) - 2 * space);
+	    instructionScroll.setBounds(x, y, w, (Math.max(digitEnd, buttonEnd) - 5 * space - 2 * h) / 2);
 	    frame.add(instructionScroll);
 	    instructionPanel.setVisible(true);  
 	    instructionPanel.setBackground(Color.WHITE);
@@ -3309,13 +3246,33 @@ public abstract class Sudoku extends SudokuGrid {
 	
 
 	public void addZoomBox(int xZoom, int yZoom, int widthZoom, int heightZoom) {
+		JLabel zoomText = new JLabel("Poveæalo ISKLJUÈENO");
+		zoomText.setBounds(xZoom, yZoom, widthZoom, h);
+		zoomText.setFont(new Font("Arial", Font.PLAIN, fontsize));
+		y += h + space;
 		zoomArea = new JButton();
 		zoomArea.setFont(new Font("Arial", Font.PLAIN, numberFontsize));
-		zoomArea.setBackground(Color.BLACK);
-		zoomArea.setForeground(Color.WHITE);
+		zoomArea.setBackground(Color.WHITE);
+		zoomArea.setForeground(Color.BLACK);
 		zoomArea.setFocusable(false);
-		zoomArea.setBounds(xZoom, yZoom, widthZoom, heightZoom);
+		zoomArea.setBounds(xZoom, yZoom + h + space, widthZoom, heightZoom);
+		zoomArea.addActionListener(new ActionListener () {
+			 public void actionPerformed(ActionEvent e) {  
+		        	try {
+		        		zoomMode = !zoomMode;
+		        		if (zoomMode) {
+		        			zoomText.setText("Poveæalo UKLJUÈENO");
+		        		} else {
+		        			zoomText.setText("Poveæalo ISKLJUÈENO");
+		        		}
+					} catch (Exception e1) {
+
+					}
+		        }  
+		});
+		y += widthZoom + space;
 	    frame.add(zoomArea);  
+	    frame.add(zoomText); 
 	}
 	
 	@Override
@@ -3394,11 +3351,14 @@ public abstract class Sudoku extends SudokuGrid {
 	} 
 	
 	public int setAllOptions(int[][] optionList, int row, int col, boolean makeBold) {
-		String text = "<html><p style='text-align: center'><font color = yellow>";
+		String text = "<html><table>";
 		int numberOptions = 0;
     	for (int val = 0; val < cols; val++) {
+			if (val % (int) Math.sqrt(cols) == 0) {
+				text += "<tr>";
+			}
+    		text += "<td style='border: none; padding: 0px; margin: 0px;'><font color = yellow>";
     		if (optionList[row * cols + col][val] == 1) {
-    			numberOptions++;
     			if (val == selectedDigit - 1 && makeBold) {
     				text += "<b><i>";
     			}
@@ -3412,11 +3372,15 @@ public abstract class Sudoku extends SudokuGrid {
     			if (val == selectedDigit - 1 && makeBold) {
     				text += "</b></i>";
     			}
-    			text += " ";
-    		}
+    			numberOptions++;
+    		} 
+    		text += "</font></td>";
+			if (val % (int) Math.sqrt(cols) == Math.sqrt(cols) - 1) {
+				text += "</tr>";
+			}
 	    }
     	if (numberOptions != 0) {
-    		text = text.substring(0, text.length() - 1) + "</font></p></html>";
+    		text = text.substring(0, text.length() - 1) + "</table></html>";
     	} else {
     		text = "";
     	}
