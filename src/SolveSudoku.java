@@ -45,8 +45,8 @@ public class SolveSudoku extends Sudoku {
 	    }
 	}
 	
-	public SolveSudoku(int constructRows, int constructCols, int rowLimit, int colLimit, int[] constructBorder, int[] constructBoxNumber, boolean setDiagonalOn, Set<String> setSizeRelationships, int constructMinDifficulty, int constructMaxDifficulty, boolean askUser) {
-		super(constructRows, constructCols, rowLimit, colLimit, setDiagonalOn, setSizeRelationships);
+	public SolveSudoku(int constructRows, int constructCols, int rowLimit, int colLimit, int[] constructBorder, int[] constructBoxNumber, boolean setDiagonalOn, boolean setWrapAorund, Set<String> setSizeRelationships, int constructMinDifficulty, int constructMaxDifficulty, boolean askUser) {
+		super(constructRows, constructCols, rowLimit, colLimit, setDiagonalOn, setWrapAorund, setSizeRelationships);
 		if (askUser) {
 			errorWarn = InformationBox.yesNoBox("Želite li da se prikazuju greške?", "Prikaži greške");
 			setAssumed = InformationBox.yesNoBox("Želite li da se automatski postave bilješke?", "Postavi bilješke");
@@ -168,8 +168,8 @@ public class SolveSudoku extends Sudoku {
 	    frame.requestFocus();
 	}
 	
-	public SolveSudoku(int constructRows, int constructCols, int rowLimit, int colLimit, int[] constructBorder, int[] constructBoxNumber, boolean setDiagonalOn, Set<String> setSizeRelationships, int[] constructUserInput, boolean askUser) {
-		super(constructRows, constructCols, rowLimit, colLimit, setDiagonalOn, setSizeRelationships);
+	public SolveSudoku(int constructRows, int constructCols, int rowLimit, int colLimit, int[] constructBorder, int[] constructBoxNumber, boolean setDiagonalOn, boolean setWrapAround, Set<String> setSizeRelationships, int[] constructUserInput, boolean askUser) {
+		super(constructRows, constructCols, rowLimit, colLimit, setDiagonalOn, setWrapAround, setSizeRelationships);
 		if (askUser) {
 			errorWarn = InformationBox.yesNoBox("Želite li da se prikazuju greške?", "Prikaži greške");
 			setAssumed = InformationBox.yesNoBox("Želite li da se automatski postave bilješke?", "Postavi bilješke");

@@ -98,6 +98,14 @@ public class ChooseSize {
 	    				yLimVal.setText("2");
 	    				return;
 	    			}
+		      		if (Integer.parseInt(row.getText()) > 25) {
+		  				InformationBox.infoBox("Najveæi broj redova u zagonetki je 25.", "Stvaranje zagonetke");
+	    				row.setText("25");
+	    				col.setText("25");
+	    				xLimVal.setText("5");
+	    				yLimVal.setText("5");
+	    				return;
+	    			}
 		      		col.setText(row.getText());
 		      		if (Integer.parseInt(row.getText()) % Integer.parseInt(xLimVal.getText()) != 0) {
 		      			InformationBox.infoBox("Broj redaka mreže mora biti djeljiv brojem redaka kutije.", "Stvaranje zagonetke");

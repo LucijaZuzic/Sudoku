@@ -1,9 +1,12 @@
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Set;
 
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
@@ -57,8 +60,8 @@ public class CreateSudoku extends Sudoku {
 	    }
 	}
 	
-	public CreateSudoku(int constructRows, int constructCols, int rowLimit, int colLimit, int[] constructBorder, int[] constructBoxNumber, boolean setDiagonalOn, Set<String> setSizeRelationships) {
-		super(constructRows, constructCols, rowLimit, colLimit, setDiagonalOn, setSizeRelationships);
+	public CreateSudoku(int constructRows, int constructCols, int rowLimit, int colLimit, int[] constructBorder, int[] constructBoxNumber, boolean setDiagonalOn, boolean setWrapAround, Set<String> setSizeRelationships) {
+		super(constructRows, constructCols, rowLimit, colLimit, setDiagonalOn, setWrapAround, setSizeRelationships);
 		border = constructBorder;
 		boxNumber = constructBoxNumber;
 		if (InformationBox.yesNoBox("Želite li da se mreža automatski ispuni?", "Ukljuèi bilješke")) {
@@ -128,8 +131,8 @@ public class CreateSudoku extends Sudoku {
 	}
 	
 
-	public CreateSudoku(int constructRows, int constructCols, int rowLimit, int colLimit, int[] constructBorder, int[] constructBoxNumber, boolean setDiagonalOn, Set<String> setSizeRelationships, int constructUserInput[], String oldLastUsedPath) {
-		super(constructRows, constructCols, rowLimit, colLimit, setDiagonalOn, setSizeRelationships);
+	public CreateSudoku(int constructRows, int constructCols, int rowLimit, int colLimit, int[] constructBorder, int[] constructBoxNumber, boolean setDiagonalOn, boolean setWrapAround, Set<String> setSizeRelationships, int constructUserInput[], String oldLastUsedPath) {
+		super(constructRows, constructCols, rowLimit, colLimit, setDiagonalOn, setWrapAround, setSizeRelationships);
 		lastUsedPath = oldLastUsedPath;
 		border = constructBorder;
 		boxNumber = constructBoxNumber;
@@ -467,7 +470,7 @@ public class CreateSudoku extends Sudoku {
 		            		return;
 		            	}
 	        			@SuppressWarnings("unused")
-						SolveSudoku SolveSudoku = new SolveSudoku(rows, cols, xLim, yLim, border, boxNumber, diagonalOn, sizeRelationships, userInput, true);
+						SolveSudoku SolveSudoku = new SolveSudoku(rows, cols, xLim, yLim, border, boxNumber, diagonalOn, wrapAround, sizeRelationships, userInput, true);
 					} catch (Exception e1) {
 		
 		
@@ -475,118 +478,7 @@ public class CreateSudoku extends Sudoku {
 		        }  
 		    });
 		y += h + space;
-	    JLabel row1Label = new JLabel("Red 1: ");
-	    row1Label.setFont(new Font("Arial", Font.PLAIN, fontsize));
-	    row1Label.setBounds(x, y, w, h);
-	    frame.add(row1Label);
-	    
-	    JTextField row1Value = new JTextField(String.valueOf(rows));
-	    row1Value.setFont(new Font("Arial", Font.PLAIN, fontsize));
-	    row1Value.setBounds(x + w / 2 - h - space, y, h, h);
-	    frame.add(row1Value);
-
-	    JLabel row2Label = new JLabel("Red 2: ");
-	    row2Label.setFont(new Font("Arial", Font.PLAIN, fontsize));
-	    row2Label.setBounds(x + w / 2 + space, y, w, h);
-	    frame.add(row2Label);
-	    
-	    JTextField row2Value = new JTextField(String.valueOf(rows));
-	    row2Value.setFont(new Font("Arial", Font.PLAIN, fontsize));
-	    row2Value.setBounds(x + w - h, y, h, h);
-	    frame.add(row2Value);
-
-	    y += h + space;
-	    makeAButton("Zamjeni redove", x, y, w, h, new ActionListener(){  
-	        public void actionPerformed(ActionEvent e) {  
-		        	try {
-						if (Integer.parseInt(row1Value.getText()) == Integer.parseInt(row2Value.getText())) {
-							InformationBox.infoBox("Ne možete zamjeniti red " + row1Value.getText() + " sa samim sobom.", "Zamjena redova");
-							return;
-						}
-						if (Integer.parseInt(row1Value.getText()) > rows) {
-							InformationBox.infoBox("Prvi red je veæi od broja stupaca.", "Zamjena redova");
-							return;
-						}
-						if (Integer.parseInt(row2Value.getText()) > rows) {
-							InformationBox.infoBox("Drugi red je veæi od broja stupaca.", "Zamjena redova");
-							return;
-						}
-						if (Integer.parseInt(row1Value.getText()) < 1) {
-							InformationBox.infoBox("Prvi red je manji ili jednak 0.", "Zamjena redova");
-							return;
-						}
-						if (Integer.parseInt(row2Value.getText()) < 1) {
-							InformationBox.infoBox("Drugi red je manji ili jednak 0.", "Zamjena redova");
-							return;
-						}
-						swapRow(Integer.parseInt(row1Value.getText()) - 1, Integer.parseInt(row2Value.getText()) - 1);
-		        	    assume();
-		        	    checkIfCorrect();
-		        	    resetHighlight();
-		        	    highlightDigit();
-					} catch (Exception e1) {
-						
-					}
-		        }  
-		    });
-		y += h + space;
-	    JLabel col1Label = new JLabel("Stu. 1: ");
-	    col1Label.setFont(new Font("Arial", Font.PLAIN, fontsize));
-	    col1Label.setBounds(x, y, w, h);
-	    frame.add(col1Label);
-	    
-	    JTextField col1Value = new JTextField(String.valueOf(rows));
-	    col1Value.setFont(new Font("Arial", Font.PLAIN, fontsize));
-	    col1Value.setBounds(x + w / 2 - h - space, y, h, h);
-	    frame.add(col1Value);
-
-	    JLabel col2Label = new JLabel("Stu. 2:");
-	    col2Label.setFont(new Font("Arial", Font.PLAIN, fontsize));
-	    col2Label.setBounds(x + w / 2 + space, y, w, h);
-	    frame.add(col2Label);
-	    
-	    JTextField col2Value = new JTextField(String.valueOf(rows));
-	    col2Value.setFont(new Font("Arial", Font.PLAIN, fontsize));
-	    col2Value.setBounds(x + w - h, y, h, h);
-	    frame.add(col2Value);
-
-	    y += h + space;
-
-	    makeAButton("Zamjeni stupce", x, y, w, h, new ActionListener(){  
-	        public void actionPerformed(ActionEvent e) {  
-		        	try {
-						if (Integer.parseInt(col1Value.getText()) == Integer.parseInt(col2Value.getText())) {
-							InformationBox.infoBox("Ne možete zamjeniti stupac " + row1Value.getText() + " sa samim sobom.", "Zamjena stupaca");
-							return;
-						}
-						if (Integer.parseInt(col1Value.getText()) > cols) {
-							InformationBox.infoBox("Prvi stupac je veæi od broja stupaca.", "Zamjena stupaca");
-							return;
-						}
-						if (Integer.parseInt(col2Value.getText()) > cols) {
-							InformationBox.infoBox("Drugi stupac je veæi od broja stupaca.", "Zamjena stupaca");
-							return;
-						}
-						if (Integer.parseInt(col1Value.getText()) < 1) {
-							InformationBox.infoBox("Prvi stupac je manji ili jednak 0.", "Zamjena stupaca");
-							return;
-						}
-						if (Integer.parseInt(col2Value.getText()) < 1) {
-							InformationBox.infoBox("Drugi stupac je manji ili jednak 0.", "Zamjena stupaca");
-							return;
-						}
-						swapCol(Integer.parseInt(col1Value.getText()) - 1, Integer.parseInt(col2Value.getText()) - 1);
-		        	    assume();
-		        	    checkIfCorrect();
-		        	    resetHighlight();
-		        	    highlightDigit();
-					} catch (Exception e1) {
-		
-		
-					}
-		        }  
-		    });
-		y += h + space;
+	   
 		JLabel val1Label = new JLabel("Broj 1: ");
 		val1Label.setFont(new Font("Arial", Font.PLAIN, fontsize));
 		val1Label.setBounds(x, y, w, h);
@@ -606,10 +498,78 @@ public class CreateSudoku extends Sudoku {
 	    val2Value.setFont(new Font("Arial", Font.PLAIN, fontsize));
 	    val2Value.setBounds(x + w - h, y, h, h);
 	    frame.add(val2Value);
-
 	    y += h + space;
-
-	    makeAButton("Zamjeni vrijednosti", x, y, w, h, new ActionListener(){  
+	    
+	    JButton rowSwap = makeAButton("", x, y, h, h, new ActionListener(){  
+	        public void actionPerformed(ActionEvent e) {  
+		        	try {
+						if (Integer.parseInt(val1Value.getText()) == Integer.parseInt(val2Value.getText())) {
+							InformationBox.infoBox("Ne možete zamjeniti red " + val1Value.getText() + " sa samim sobom.", "Zamjena redova");
+							return;
+						}
+						if (Integer.parseInt(val1Value.getText()) > rows) {
+							InformationBox.infoBox("Prvi red je veæi od broja stupaca.", "Zamjena redova");
+							return;
+						}
+						if (Integer.parseInt(val2Value.getText()) > rows) {
+							InformationBox.infoBox("Drugi red je veæi od broja stupaca.", "Zamjena redova");
+							return;
+						}
+						if (Integer.parseInt(val1Value.getText()) < 1) {
+							InformationBox.infoBox("Prvi red je manji ili jednak 0.", "Zamjena redova");
+							return;
+						}
+						if (Integer.parseInt(val2Value.getText()) < 1) {
+							InformationBox.infoBox("Drugi red je manji ili jednak 0.", "Zamjena redova");
+							return;
+						}
+						swapRow(Integer.parseInt(val1Value.getText()) - 1, Integer.parseInt(val2Value.getText()) - 1);
+		        	    assume();
+		        	    checkIfCorrect();
+		        	    resetHighlight();
+		        	    highlightDigit();
+					} catch (Exception e1) {
+						
+					}
+		        }  
+		    });
+		
+		JButton colSwap = makeAButton("", x + h + space, y , h, h, new ActionListener(){  
+	        public void actionPerformed(ActionEvent e) {  
+		        	try {
+						if (Integer.parseInt(val1Value.getText()) == Integer.parseInt(val2Value.getText())) {
+							InformationBox.infoBox("Ne možete zamjeniti stupac " + val1Value.getText() + " sa samim sobom.", "Zamjena stupaca");
+							return;
+						}
+						if (Integer.parseInt(val1Value.getText()) > cols) {
+							InformationBox.infoBox("Prvi stupac je veæi od broja stupaca.", "Zamjena stupaca");
+							return;
+						}
+						if (Integer.parseInt(val2Value.getText()) > cols) {
+							InformationBox.infoBox("Drugi stupac je veæi od broja stupaca.", "Zamjena stupaca");
+							return;
+						}
+						if (Integer.parseInt(val1Value.getText()) < 1) {
+							InformationBox.infoBox("Prvi stupac je manji ili jednak 0.", "Zamjena stupaca");
+							return;
+						}
+						if (Integer.parseInt(val2Value.getText()) < 1) {
+							InformationBox.infoBox("Drugi stupac je manji ili jednak 0.", "Zamjena stupaca");
+							return;
+						}
+						swapCol(Integer.parseInt(val1Value.getText()) - 1, Integer.parseInt(val2Value.getText()) - 1);
+		        	    assume();
+		        	    checkIfCorrect();
+		        	    resetHighlight();
+		        	    highlightDigit();
+					} catch (Exception e1) {
+		
+		
+					}
+		        }  
+		    });
+		
+		JButton valSwap = makeAButton("", x + 2 * h + 2 * space, y, h, h, new ActionListener(){  
 	        public void actionPerformed(ActionEvent e) {  
 		        	try {
 						if (Integer.parseInt(val1Value.getText()) == Integer.parseInt(val2Value.getText())) {
@@ -643,14 +603,65 @@ public class CreateSudoku extends Sudoku {
 					}
 		        }  
 		    });
-		y += h + space;
-		addZoomBox(x, y, w, w);
+	    y += h + space;
+
+	    rowSwap.setIcon(new ImageIcon(new ImageIcon("src/images/swap_rows.png").getImage().getScaledInstance(rowSwap.getWidth(), rowSwap.getHeight(), Image.SCALE_DEFAULT)));
+	    colSwap.setIcon(new ImageIcon(new ImageIcon("src/images/swap_columns.png").getImage().getScaledInstance(colSwap.getWidth(), colSwap.getHeight(), Image.SCALE_DEFAULT)));
+	    valSwap.setIcon(new ImageIcon(new ImageIcon("src/images/swap_values.png").getImage().getScaledInstance(valSwap.getWidth(), valSwap.getHeight(), Image.SCALE_DEFAULT)));
+
+		JButton transpose = makeAButton("", x, y, h, h, new ActionListener(){  
+	        public void actionPerformed(ActionEvent e) {  
+		        	try {
+		        		transpose();
+		        		assume();
+		        	    checkIfCorrect();
+		        	    resetHighlight();
+		        	    highlightDigit();
+		        	} catch (Exception e1) {
+		
+					}
+		        }  
+		    });
+		transpose.setIcon(new ImageIcon(new ImageIcon("src/images/transpose.png").getImage().getScaledInstance(transpose.getWidth(), transpose.getHeight(), Image.SCALE_DEFAULT)));
+
+		JButton vertical = makeAButton("", x + h + space, y, h, h, new ActionListener(){  
+	        public void actionPerformed(ActionEvent e) {  
+		        	try {
+		        		mirrorVertical();
+		        		assume();
+		        	    checkIfCorrect();
+		        	    resetHighlight();
+		        	    highlightDigit();
+		        	} catch (Exception e1) {
+		
+					}
+		        }  
+		    });
+	    vertical.setIcon(new ImageIcon(new ImageIcon("src/images/vertical.png").getImage().getScaledInstance(vertical.getWidth(), vertical.getHeight(), Image.SCALE_DEFAULT)));
+	    
+	    JButton horizontal = makeAButton("", x + 2 * h + 2 * space, y, h, h, new ActionListener(){  
+	        public void actionPerformed(ActionEvent e) {  
+		        	try {
+		        		mirrorHorizontal();
+		        		assume();
+		        	    checkIfCorrect();
+		        	    resetHighlight();
+		        	    highlightDigit();
+		        	} catch (Exception e1) {
+		
+					}
+		        }  
+		    });
+		horizontal.setIcon(new ImageIcon(new ImageIcon("src/images/horizontal.png").getImage().getScaledInstance(horizontal.getWidth(), horizontal.getHeight(), Image.SCALE_DEFAULT)));
+	    y += h + space;
+		
+	    addZoomBox(x, y, w, w);
+
 		w = (int) (250 * widthScaling);
         difficulty.setBounds(x, y, w, h);
         difficulty.setFont(new Font("Arial", Font.PLAIN, fontsize));
         frame.add(difficulty);
 		y += h + space;
-	    
 		int buttonEnd = y;
         
 		addErrorScroll(digitEnd, buttonEnd);

@@ -66,7 +66,7 @@ public abstract class SudokuGrid {
 	int fontsize = (int) (16 * heightScaling);
 	int fontsizeTextArea = (int) (16 * heightScaling);
 	boolean diagonalOn = false;
-	
+	boolean wrapAround = false;
 	boolean showBoxMsg = true;
 	
 
@@ -130,28 +130,22 @@ public abstract class SudokuGrid {
         }
         return lineDiagonal;
 	}
+	
+	public String lineForWrap() {
+        String lineWrap = "";
+        if (wrapAround) {
+        	lineWrap = "Yes\n";
+        } else {
+        	lineWrap = "No\n";
+        }
+        return lineWrap;
+	}
 
 	public String lineForRelationship() {
 		String lineRelationship = "";
 		for(String relationshipCell : sizeRelationships){
         	lineRelationship += relationshipCell + "\n";
 		}
-        for (int row = 0; row < rows; row++) {
-        	for (int col = 0; col < cols; col++) {
-        		int numCell = row * cols + cols;
-        		for (int rowOffset = -1; rowOffset <= 1; rowOffset++) {
-        			for (int colOffset = -1; colOffset <= 1; colOffset++) {
-        		        int newCell = (numCell / cols + rowOffset) * cols + numCell % cols + colOffset;
-        				if (!neighbourCheck(numCell, newCell)) {
-        					continue;
-        				}
-        				String relationshipCell = String.valueOf(numCell) + " " + String.valueOf(newCell);
-        				if (sizeRelationships.contains(relationshipCell)) {
-        				}
-        			}
-        		}
-        	}
-        }
         return lineRelationship;
 	}
 	
@@ -163,7 +157,7 @@ public abstract class SudokuGrid {
 	        } else {
 	    	  myWriter = new FileWriter(filename);
 	        }
-	        myWriter.write(lineForUserInput() + lineForBorder() + lineForDiagonal() + lineForRelationship());
+	        myWriter.write(lineForUserInput() + lineForBorder() + lineForDiagonal()  + lineForWrap() + lineForRelationship());
 	        myWriter.close();
 	        if (filename == "") {
 	        	InformationBox.infoBox("Zagonetka je uspješno spremljena.", "Spremanje datoteke");
@@ -203,6 +197,7 @@ public abstract class SudokuGrid {
 		      rows = newCols;
 		      cols = newCols;
 	          diagonalOn = false;
+	          wrapAround = false;
 	          sizeRelationships.clear();
 		      for (int row = 0; row < lineNum; row++) {
 		        	if (row < rows) {
@@ -231,7 +226,13 @@ public abstract class SudokuGrid {
 		        			diagonalOn = true;
 		        		}
 		        	}
-		        	if (row > rows * 2) {
+		        	if (row == rows * 2 + 1) {
+		        		String reply = data.get(row).replace("\n", "");
+		        		if (reply.compareTo("Yes") == 0) {
+		        			wrapAround = true;
+		        		}
+		        	}
+		        	if (row > rows * 2 + 1) {
 		        		String relationship = data.get(row).replace("\n", "");
 		        		sizeRelationships.add(relationship);
 		        	}
@@ -317,7 +318,7 @@ public abstract class SudokuGrid {
 	}
 	
 	public String returnColour(int centerCell) {
-	    String[] buttonColours = {"gray", "black", "dark_gray", "light_gray"};
+	    String[] buttonColours = {"black", "darker_gray", "dark_gray", "medium_gray", "gray", "light_gray", "lighter_gray"};
 		return buttonColours[border[centerCell]];
 	}
 	
@@ -347,10 +348,10 @@ public abstract class SudokuGrid {
 	
 	public void setBackground(int row, int col, String colorButton) {
 		int centerCell = row * cols + col;
-		int leftBorderRelationship = relationshipSmallerCheck(centerCell - 1, centerCell);
-	    int rightBorderRelationship = relationshipSmallerCheck(centerCell + 1, centerCell);
-	    int topBorderRelationship = relationshipSmallerCheck(centerCell - cols, centerCell);
-	    int bottomBorderRelationship = relationshipSmallerCheck(centerCell + cols, centerCell);
+		int leftBorderRelationship = relationshipSmallerCheck(normalizeNeighbour(centerCell, 0, - 1), centerCell);
+	    int rightBorderRelationship = relationshipSmallerCheck(normalizeNeighbour(centerCell, 0, 1), centerCell);
+	    int topBorderRelationship = relationshipSmallerCheck(normalizeNeighbour(centerCell, -1, 0), centerCell);
+	    int bottomBorderRelationship = relationshipSmallerCheck(normalizeNeighbour(centerCell, 1, 0), centerCell);
 	    String path = "src/images/" + colorButton + "/arrow" + String.valueOf(leftBorderRelationship) + String.valueOf(rightBorderRelationship) + String.valueOf(topBorderRelationship) + String.valueOf(bottomBorderRelationship) + ".png";
 	    ImageIcon imageIcon = new ImageIcon(new ImageIcon(path).getImage().getScaledInstance(field[centerCell].getWidth(), field[centerCell].getHeight(), Image.SCALE_DEFAULT));
 	    field[centerCell].setIcon(imageIcon);
@@ -374,10 +375,10 @@ public abstract class SudokuGrid {
 	
 	public void setBorder(int row, int col) {
 	    int centerCell = row * cols + col;
-	    int leftBorder = getBorderThickness(centerCell, centerCell - 1);
-	    int rightBorder = getBorderThickness(centerCell, centerCell + 1);
-	    int topBorder = getBorderThickness(centerCell, centerCell - cols);
-	    int bottomBorder = getBorderThickness(centerCell, centerCell + cols);
+	    int leftBorder = getBorderThickness(centerCell, normalizeNeighbour(centerCell, 0, - 1));
+	    int rightBorder = getBorderThickness(centerCell, normalizeNeighbour(centerCell, 0, 1));
+	    int topBorder = getBorderThickness(centerCell, normalizeNeighbour(centerCell, -1, 0));
+	    int bottomBorder = getBorderThickness(centerCell, normalizeNeighbour(centerCell, 1, 0));
 	    MatteBorder boxLimits = BorderFactory.createMatteBorder(topBorder, leftBorder, bottomBorder, rightBorder, Color.WHITE);	
 	    if (diagonalOn && (row == col || row + col + 1 == cols)) {
 	    	boxLimits = BorderFactory.createMatteBorder(3, 3, 3, 3, Color.MAGENTA);	
@@ -395,11 +396,11 @@ public abstract class SudokuGrid {
 	    boxNumber[centerCell] = val;
 	    for (int rowOffset = -1; rowOffset <= 1; rowOffset++){ 
 	    	for (int colOffset = -1; colOffset <= 1; colOffset++) {
-	    		int neighbourCell = (row + rowOffset) * cols + col + colOffset;
+	    		int neighbourCell = normalizeNeighbour(row * cols + col, rowOffset, colOffset);
 	    		if (!neighbourCheck(centerCell, neighbourCell) || border[neighbourCell] != border[centerCell] || boxNumber[neighbourCell] != -1) {
 	    			continue;
 	    		}
-	    		retVal += floodFill(row + rowOffset, col + colOffset, val);
+	    		retVal += floodFill(neighbourCell / cols, neighbourCell % cols, val);
 	    	}
 	    }
 	    return retVal;
@@ -495,7 +496,7 @@ public abstract class SudokuGrid {
 	public int isInTree(int numCell) {
 		for (int rowOffset = -1; rowOffset <= 1; rowOffset++) {
 			for (int colOffset = -1; colOffset <= 1; colOffset++) {
-		        int newCell = (numCell / cols + rowOffset) * cols + numCell % cols + colOffset;
+				int newCell = normalizeNeighbour(numCell, rowOffset, colOffset);
 		        if (relationshipLargerCheck(newCell, numCell) == 1) {
 					return 1;
 		        }
@@ -512,7 +513,7 @@ public abstract class SudokuGrid {
 		int treeSize = 1;
 		for (int rowOffset = -1; rowOffset <= 1; rowOffset++) {
 			for (int colOffset = -1; colOffset <= 1; colOffset++) {
-		        int newCell = (numCell / cols + rowOffset) * cols + numCell % cols + colOffset;
+				int newCell = normalizeNeighbour(numCell, rowOffset, colOffset);
 		        if (relationshipLargerCheck(newCell, numCell) == 1) {
 		        	if (!visited.contains(newCell)) {
 						treeSize = Math.max(treeSize, getTreeSize(newCell, visited));
@@ -546,7 +547,7 @@ public abstract class SudokuGrid {
 		}
 		for (int rowOffset = -1; rowOffset <= 1; rowOffset++) {
 			for (int colOffset = -1; colOffset <= 1; colOffset++) {
-		        int newCell = (numCell / cols + rowOffset) * cols + numCell % cols + colOffset;
+				int newCell = normalizeNeighbour(numCell, rowOffset, colOffset);
 				if (neighbourCheck(numCell, newCell)) {
 					String relationshipCell = String.valueOf(numCell) + " " + String.valueOf(newCell);
 					if (sizeRelationships.contains(relationshipCell)) {
@@ -574,16 +575,35 @@ public abstract class SudokuGrid {
 	}
 
 	public boolean neighbourCheck(int numCell, int newCell) {
-		int rightCell = numCell + 1;
-		int leftCell = numCell - 1;
-		int bottomCell = numCell + cols;
-		int topCell = numCell - cols;
+		int rightCell = normalizeNeighbour(numCell, 0, 1);
+		int leftCell = normalizeNeighbour(numCell, 0, -1);
+		int bottomCell = normalizeNeighbour(numCell, 1, 0);
+		int topCell = normalizeNeighbour(numCell, -1, 0);
 		if ((newCell >= 0 && newCell < rows * cols) && (newCell == rightCell || newCell == leftCell || newCell == bottomCell || newCell == topCell) && (newCell / cols == numCell / cols || newCell % cols == numCell % cols)) {
 			return true;
 		}
 		return false;
 	}
 	
+	public int normalizeNeighbour(int numCell, int rowOffset, int colOffset) {
+        int newCell = (numCell / cols + rowOffset) * cols + numCell % cols + colOffset;
+        if (!wrapAround) {
+        	return newCell;
+        }
+        if (numCell % cols == cols - 1 && colOffset == 1 && rowOffset == 0) {
+        	newCell = (numCell / cols) * cols;
+        }
+        if (numCell % cols == 0 && colOffset == -1 && rowOffset == 0) {
+        	newCell = (numCell / cols) * cols + cols - 1;
+        }
+        if (numCell / cols == rows - 1 && colOffset == 0 && rowOffset == 1) {
+        	newCell = numCell % cols;
+        }
+        if (numCell / cols == 0 && colOffset == 0 && rowOffset == -1) {
+        	newCell = (rows - 1) * cols + numCell % cols;
+        }
+		return newCell;
+	}
 	
 	public int setMinPossibility(int numCell, Set<Integer> visited) {
 		visited.add(numCell);
@@ -600,7 +620,7 @@ public abstract class SudokuGrid {
 		}
 		for (int rowOffset = -1; rowOffset <= 1; rowOffset++) {
 			for (int colOffset = -1; colOffset <= 1; colOffset++) {
-		        int newCell = (numCell / cols + rowOffset) * cols + numCell % cols + colOffset;
+				int newCell = normalizeNeighbour(numCell, rowOffset, colOffset);
 				if (neighbourCheck(numCell, newCell)) {
 					String relationshipCell = String.valueOf(newCell) + " " + String.valueOf(numCell);
 					if (sizeRelationships.contains(relationshipCell)) {
@@ -655,7 +675,7 @@ public abstract class SudokuGrid {
 		hNumber = wNumber;
 		wDigit = (int) (wNumber - wNumber / cols);
 		numberFontsize = (int) (wNumber / 2);
-		guessFontsize = (int) Math.min(wNumber / (Math.sqrt(cols) + 2), hNumber / (Math.sqrt(rows) + 2));
+		guessFontsize = (int) Math.min(wNumber / (Math.sqrt(cols) * 2), hNumber / (Math.sqrt(rows) * 2));
 		field = new JButton[constructRows * constructCols];
 		solution = new int[constructRows * constructCols];
 		temporary = new int[constructRows * constructCols];
