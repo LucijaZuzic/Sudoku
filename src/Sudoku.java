@@ -59,48 +59,47 @@ public abstract class Sudoku extends SudokuGrid {
 			    		possibilities[row * cols + col][val] = 0;
 				    }
 	    		} else {
-	    			// Ukloni moguænosti za vrijednosti koje veæ postoje u istom stupcu
-	    			for (int fullCol = 0; fullCol < cols; fullCol++) { 
-			    		if (temporary[row * cols + fullCol] != 0 && possibilities[row * cols + col][temporary[row * cols + fullCol] - 1] == 1) { 
-				    		possibilities[row * cols + col][temporary[row * cols + fullCol] - 1] = 0;
-		    				numChanged = 1;
-			    		}
-				    }
-	    			// Ukloni moguænosti za vrijednosti koje veæ postoje u istom redu
-			    	for (int fullRow = 0; fullRow < rows; fullRow++) { 
-			    		if (temporary[fullRow * cols + col] != 0 && possibilities[row * cols + col][temporary[fullRow * cols + col] - 1] == 1) { 
-			    				possibilities[row * cols + col][temporary[fullRow * cols + col] - 1] = 0;
-			    				numChanged = 1;
-			    		}
-				    }
-			    	// Ukloni moguænosti za vrijednosti koje veæ postoje u istoj kutiji
 			    	int box = boxNumber[row * cols + col];
 				    for (int fullCol = 0; fullCol < rows; fullCol++){ 
-					    for (int fullRow = 0; fullRow < cols; fullRow++){
+					    for (int fullRow = 0; fullRow < cols; fullRow++){ 
+					    	// Ukloni moguænosti za vrijednosti koje veæ postoje u istom redu
+				    		if (row == fullRow && fullCol != col && temporary[row * cols + fullCol] != 0 && possibilities[row * cols + col][temporary[row * cols + fullCol] - 1] == 1) { 
+					    		possibilities[row * cols + col][temporary[row * cols + fullCol] - 1] = 0;
+			    				numChanged = 1;
+			    				continue;
+				    		}
+				    		// Ukloni moguænosti za vrijednosti koje veæ postoje u istom stupcu
+				    		if (row != fullRow && fullCol == col && temporary[fullRow * cols + col] != 0 && possibilities[row * cols + col][temporary[fullRow * cols + col] - 1] == 1) { 
+			    				possibilities[row * cols + col][temporary[fullRow * cols + col] - 1] = 0;
+			    				numChanged = 1;
+			    				continue;
+				    		}
+					    	// Ukloni moguænosti za vrijednosti koje veæ postoje u istoj kutiji
 				    		if (temporary[fullCol * cols + fullRow] != 0 && boxNumber[fullCol * cols + fullRow] == box && possibilities[row * cols + col][temporary[fullCol * cols + fullRow] - 1] == 1) {
 			    				possibilities[row * cols + col][temporary[fullCol * cols + fullRow] - 1] = 0;
 			    				numChanged = 1;
+			    				continue;
+				    		}
+				    		// Ukloni moguænosti za vrijednosti koje veæ postoje u rastuæoj dijagonali (ako ukljuèujemo dijagonale i ako je broj na toj dijagonali)
+				    		if (fullRow == fullCol && row == col  && col != fullCol && diagonalOn) {
+				    			int diagonally = fullRow;
+				    			if (temporary[diagonally * cols + diagonally] != 0) {
+				    				possibilities[row * cols + col][temporary[diagonally * cols + diagonally] - 1] = 0;
+				    				numChanged = 1;
+				    				continue;
+					    		}
+				    		}
+				    		// Ukloni moguænosti za vrijednosti koje veæ postoje u padajuæoj dijagonali (ako ukljuèujemo dijagonale i ako je broj na toj dijagonali)
+				    		if (fullRow == cols - 1 - fullCol && row == cols - 1 - col && col != fullCol && diagonalOn) {
+				    			int diagonally = fullRow;
+				    			if (temporary[diagonally * cols + (cols - 1 - diagonally)] != 0) {
+				    				possibilities[row * cols + col][temporary[diagonally * cols + (cols - 1 - diagonally)] - 1] = 0;
+				    				numChanged = 1;
+				    				continue;
+					    		}
 				    		}
 				    	}
 				    }
-			    	// Ukloni moguænosti za vrijednosti koje veæ postoje u rastuæoj dijagonali (ako ukljuèujemo diajgonale i ako je broj na toj dijagonali)
-	    			if (row == col && diagonalOn) {
-					    for (int diagonally = 0; diagonally < cols; diagonally++){ 
-					    	if (temporary[diagonally * cols + diagonally] != 0) {
-			    				possibilities[row * cols + col][temporary[diagonally * cols + diagonally] - 1] = 0;
-			    				numChanged = 1;
-				    		}
-					    }
-	    			} 
-			    	// Ukloni moguænosti za vrijednosti koje veæ postoje u padajuæoj dijagonali (ako ukljuèujemo diajgonale i ako je broj na toj dijagonali)
-	    			if (row == cols - 1 - col && diagonalOn) {
-					    for (int diagonally = 0; diagonally < cols; diagonally++){ 
-					    	if (temporary[diagonally * cols + (cols - 1 - diagonally)] != 0) {
-			    				possibilities[row * cols + col][temporary[diagonally * cols + (cols - 1 - diagonally)] - 1] = 0;
-			    				numChanged = 1;
-				    		}
-					    }
-	    			}
 	    		}
 		    	// Ukloni moguænosti prema odnosima veæe-manje
 	    		Set<Integer> visitedMax = new HashSet<Integer>();
@@ -2338,10 +2337,6 @@ public abstract class Sudoku extends SudokuGrid {
 	boolean useGuessing = false;
 	// Sekvenca kojom se primjenjuju tehnike, prema složenosti (trošku)
 	public int sequence() {
-		numIter++;
-		if (numIter >= 10000) {
-			return 0;
-		}
 		int impossible = impossibleCheck();
 		if (impossible > 0 && useGuessing) {
 			solvingInstructions += "Neke æelije nemaju više moguænosti.\n";
@@ -2538,12 +2533,9 @@ public abstract class Sudoku extends SudokuGrid {
 	    return impossible;
 	}
 	
-	int numIter;
 	int[] forceVisited = new int[rows * cols];
 	// Provjeravamo rješivost zagonetke i ažuriramo upute za rješavanje i težinu
 	public int isOnlyOneSolution() {
-		// Zapisjuemo vrijeme kada smo poèeli rješavati
-		numIter = 0;
 		// Postavljamo broj korištenja svih tehnika na 0
 		clt = 0;
 		dpt = 0;
@@ -3015,12 +3007,15 @@ public abstract class Sudoku extends SudokuGrid {
 			for (int row = 0; row < rows; row++){ 
 		    	for (int col = 0; col < cols; col++) {
 			    	int numCell = row * cols + col;
-		    		String text = "<html><p style='text-align: center'>";
-		    		int numberOptions = 0;
+			    	String text = "<html><table>";
+					int numberOptions = 0;
 		    		// Zapisujemo sve vrijednosti za æeliju
 			    	for (int val = 0; val < cols; val++) {
-			    		if (possibilities[row * cols + col][val] == 1 || temporary[row * cols + col] == val + 1) {
-			    			numberOptions++;
+						if (val % (int) Math.sqrt(cols) == 0) {
+							text += "<tr>";
+						}
+			    		text += "<td style='border: none; padding: 0px; margin: 0px;'><font color = yellow>";
+			    		if (possibilities[numCell][val] == 1 || temporary[numCell] == val + 1) {
 			    			if (val + 1 < 10) {
 			    				text += String.valueOf(val + 1) + " ";
 			    			} else {
@@ -3028,23 +3023,42 @@ public abstract class Sudoku extends SudokuGrid {
 			    				c += val - 9;
 			    				text += c + " ";
 			    			}
-			    		}
+			    			numberOptions++;
+			    		} 
+			    		text += "</font></td>";
+						if (val % (int) Math.sqrt(cols) == Math.sqrt(cols) - 1) {
+							text += "</tr>";
+						}
 				    }
 			    	if (numberOptions != 0) {
 				    	// Ako imam više moguænosti za æeliju zapisujemo ih u HTML oznakama
-			    		text = text.substring(0, text.length() - 1) + "</p></html>";
+			    		text = text.substring(0, text.length() - 1) + "</table></html>";
 			    	} else {
 				    	// Ako nema moguænosti za æeliju zapisujemo prazan string
 			    		text = "";
 			    	}
+		    		if (temporary[numCell] != 0) {
+		    			if (temporary[numCell] < 10) {
+		        			text = String.valueOf(temporary[numCell]);
+		        		} else {
+		        			char c = 'A';
+		        			c += temporary[numCell] - 10;
+		        			text = c + "";
+		        		}
+		    		}
 		    		field[numCell].setText(text);
 		    		if (temporary[numCell] == 0) {
 			    		// Ako æelija nema definiranu konaènu vrijednost, moramo je obojati u crveno i smanjiti font
 		    			field[numCell].setForeground(Color.RED);
 		    			field[numCell].setFont(new Font("Arial", Font.PLAIN, guessFontsize));
 		    		} else {
-			    		// Ako je definirana konaèna vrijednost æelije, moramo je obojati u zeleno i poveæati font
-		    			field[numCell].setForeground(Color.GREEN);
+		    			if (userInput[numCell] == 0) {
+			    			// Ako je definirana konaèna vrijednost æelije, moramo je obojati u zeleno i poveæati font
+		    				field[numCell].setForeground(Color.GREEN);
+		    			} else { 
+		    				// Ako je æelija zadana, moramo je obojati u zeleno i poveæati font
+		    				field[numCell].setForeground(Color.WHITE);
+		    			}
 		    			field[numCell].setFont(new Font("Arial", Font.PLAIN, numberFontsize));
 		    		}
 		    	}
@@ -3146,9 +3160,10 @@ public abstract class Sudoku extends SudokuGrid {
 		return true;
 	}
 
-	public Sudoku(int constructRows, int constructCols, int rowLimit, int colLimit, boolean setDiagonalOn, Set<String> setSizeRelationships) {
+	public Sudoku(int constructRows, int constructCols, int rowLimit, int colLimit, boolean setDiagonalOn, boolean setWrapAround, Set<String> setSizeRelationships) {
 		super(constructRows, constructCols, rowLimit, colLimit);
 		diagonalOn = setDiagonalOn;
+		wrapAround = setWrapAround;
 		setSizeRelationships.forEach( relationship -> sizeRelationships.add(relationship));
 	}
 	// Uklanjamo oznaèavanje pozadine reda i stupca æelije koja je u fokusu i oznaèavanje odabrane znamenke
@@ -3246,9 +3261,23 @@ public abstract class Sudoku extends SudokuGrid {
 	
 
 	public void addZoomBox(int xZoom, int yZoom, int widthZoom, int heightZoom) {
-		JLabel zoomText = new JLabel("Poveæalo ISKLJUÈENO");
+		JButton zoomText = new JButton("Poveæaj ISKLJUÈENO");
 		zoomText.setBounds(xZoom, yZoom, widthZoom, h);
 		zoomText.setFont(new Font("Arial", Font.PLAIN, fontsize));
+		zoomText.addActionListener(new ActionListener () {
+			 public void actionPerformed(ActionEvent e) {  
+		        	try {
+		        		zoomMode = !zoomMode;
+		        		if (zoomMode) {
+		        			zoomText.setText("Poveæaj UKLJUÈENO");
+		        		} else {
+		        			zoomText.setText("Poveæaj ISKLJUÈENO");
+		        		}
+					} catch (Exception e1) {
+
+					}
+		        }  
+		});
 		y += h + space;
 		zoomArea = new JButton();
 		zoomArea.setFont(new Font("Arial", Font.PLAIN, numberFontsize));
@@ -3256,20 +3285,6 @@ public abstract class Sudoku extends SudokuGrid {
 		zoomArea.setForeground(Color.BLACK);
 		zoomArea.setFocusable(false);
 		zoomArea.setBounds(xZoom, yZoom + h + space, widthZoom, heightZoom);
-		zoomArea.addActionListener(new ActionListener () {
-			 public void actionPerformed(ActionEvent e) {  
-		        	try {
-		        		zoomMode = !zoomMode;
-		        		if (zoomMode) {
-		        			zoomText.setText("Poveæalo UKLJUÈENO");
-		        		} else {
-		        			zoomText.setText("Poveæalo ISKLJUÈENO");
-		        		}
-					} catch (Exception e1) {
-
-					}
-		        }  
-		});
 		y += widthZoom + space;
 	    frame.add(zoomArea);  
 	    frame.add(zoomText); 
@@ -3483,7 +3498,7 @@ public abstract class Sudoku extends SudokuGrid {
 		for (int rowOffset = -1; rowOffset <= 1; rowOffset++) {
 			for (int colOffset = -1; colOffset <= 1; colOffset++) {
 				int numCell = row * cols + col;
-		        int newCell = (numCell / cols + rowOffset) * cols + numCell % cols + colOffset;
+				int newCell = normalizeNeighbour(numCell, rowOffset, colOffset);
 				if (neighbourCheck(numCell, newCell)) {
 					String relationshipCell = String.valueOf(numCell) + " " + String.valueOf(newCell);
 	    			if (sizeRelationships.contains(relationshipCell) && temporary[numCell] <= temporary[newCell]) {
@@ -3618,7 +3633,36 @@ public abstract class Sudoku extends SudokuGrid {
     		}
     	}
 	}
-
+	public void transpose() {
+		int[] arrayNew = new int[cols * rows];
+    	for (int row = 0; row < rows; row++) {
+        	for (int col = 0; col < cols; col++) {
+        		arrayNew[row * cols + col] = userInput[col * cols + row];
+    		}
+    	}
+    	for (int row = 0; row < rows; row++) {
+        	for (int col = 0; col < cols; col++) {
+        		userInput[row * cols + col] = arrayNew[row * cols + col];
+	    		if (userInput[row * cols + col] < 10) {
+	    			field[row * cols + col].setText(String.valueOf(userInput[row * cols + col]));
+	    		} else {
+	    			char c = 'A';
+	    			c += userInput[row * cols + col] - 10;
+	    			field[row * cols + col].setText("" + c);
+	    		}
+    		}
+    	}
+	}
+	public void mirrorVertical() {
+    	for (int col = 0; col < cols / 2; col++) {
+    		swapCol(col, cols - 1 - col);
+    	}
+	}
+	public void mirrorHorizontal() {
+    	for (int row = 0; row < rows / 2; row++) {
+    		swapRow(row, rows - 1 - row);
+    	}
+	}
 	public void swapNumbers(int a, int b) {
     	for (int row = 0; row < rows; row++) {
     		for (int col = 0; col < cols; col++) {
