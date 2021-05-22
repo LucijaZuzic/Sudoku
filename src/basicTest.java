@@ -22,7 +22,7 @@ class basicTest {
 	String getCreateSolution(int size, String filename) {
 		  ChangeBoxBorder changeBoxBorder = new ChangeBoxBorder(size, size, 1, size, false);
 		  changeBoxBorder.readFile(filename);
-		  CreateSudoku createSudoku = new CreateSudoku(changeBoxBorder.rows, changeBoxBorder.cols, changeBoxBorder.xLim, changeBoxBorder.yLim, changeBoxBorder.border, changeBoxBorder.boxNumber, changeBoxBorder.diagonalOn, changeBoxBorder.wrapAround, changeBoxBorder.sizeRelationships, changeBoxBorder.userInput, changeBoxBorder.lastUsedPath);
+		  CreateSudoku createSudoku = new CreateSudoku(changeBoxBorder.rows, changeBoxBorder.cols, changeBoxBorder.xLim, changeBoxBorder.yLim, changeBoxBorder.border, changeBoxBorder.boxNumber, changeBoxBorder.diagonalOn, changeBoxBorder.wrapAround, changeBoxBorder.sizeRelationships, changeBoxBorder.userInput, changeBoxBorder.lastUsedPath, changeBoxBorder.sumBoxSums, changeBoxBorder.sumBoxNumber);
 		  createSudoku.frame.setVisible(false);
 		  createSudoku.checkBoxes();
 		  createSudoku.useGuessing = guess;
@@ -46,7 +46,7 @@ class basicTest {
 	String getSolveSolution(int size, String filename) {
 		  ChangeBoxBorder changeBoxBorder = new ChangeBoxBorder(size, size, 1, size, false);
 		  changeBoxBorder.readFile(filename);
-		  SolveSudoku solveSudoku = new SolveSudoku(changeBoxBorder.rows, changeBoxBorder.cols, changeBoxBorder.xLim, changeBoxBorder.yLim, changeBoxBorder.border, changeBoxBorder.boxNumber, changeBoxBorder.diagonalOn, changeBoxBorder.wrapAround, changeBoxBorder.sizeRelationships, changeBoxBorder.userInput, false);
+		  SolveSudoku solveSudoku = new SolveSudoku(changeBoxBorder.rows, changeBoxBorder.cols, changeBoxBorder.xLim, changeBoxBorder.yLim, changeBoxBorder.border, changeBoxBorder.boxNumber, changeBoxBorder.diagonalOn, changeBoxBorder.wrapAround, changeBoxBorder.sizeRelationships, changeBoxBorder.userInput, false, changeBoxBorder.sumBoxSums, changeBoxBorder.sumBoxNumber);
 		  solveSudoku.frame.setVisible(false);
 		  solveSudoku.checkBoxes();
 		  solveSudoku.useGuessing = guess;
@@ -188,6 +188,7 @@ class basicTest {
 		      assertEquals(getCorrectSolution(solutionFilename), getSolveSolution(16, testFilename));
 		}
 	}
+	
 	@Test
 	void testCaseEight() throws FileNotFoundException {
 		for (int i = 1; i < 2; i++) {
@@ -197,6 +198,7 @@ class basicTest {
 		      assertEquals(getCorrectSolution(solutionFilename), getSolveSolution(8, testFilename));
 		}
 	}
+	
 	@Test
 	void testCaseTen() throws FileNotFoundException {
 		for (int i = 1; i < 2; i++) {
@@ -206,6 +208,7 @@ class basicTest {
 		      assertEquals(getCorrectSolution(solutionFilename), getSolveSolution(10, testFilename));
 		}
 	}
+	
 	@Test
 	void testCaseFifteen() throws FileNotFoundException {
 		for (int i = 1; i < 2; i++) {
@@ -235,6 +238,7 @@ class basicTest {
 		      assertEquals(getCorrectSolution(solutionFilename), getSolveSolution(25, testFilename));
 		}
 	}
+	
 	@Test
 	void testCaseToroidal() throws FileNotFoundException {
 		for (int i = 1; i < 2; i++) {
@@ -251,6 +255,16 @@ class basicTest {
 			  String testFilename = "src/testCases/testCaseToroidalSeven" + String.valueOf(i) + ".txt";
 		      assertEquals(getCorrectSolution(solutionFilename), getCreateSolution(7, testFilename));
 		      assertEquals(getCorrectSolution(solutionFilename), getSolveSolution(7, testFilename));
+		}
+	}
+	
+	@Test
+	void testCaseKiller() throws FileNotFoundException {
+		for (int i = 1; i < 8; i++) {
+			  String solutionFilename = "src/solutions/solutionKiller" + String.valueOf(i) + ".txt";
+			  String testFilename = "src/testCases/testCaseKiller" + String.valueOf(i) + ".txt";
+		      assertEquals(getCorrectSolution(solutionFilename), getCreateSolution(9, testFilename));
+		      assertEquals(getCorrectSolution(solutionFilename), getSolveSolution(9, testFilename));
 		}
 	}
 }

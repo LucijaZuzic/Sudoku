@@ -60,10 +60,12 @@ public class CreateSudoku extends Sudoku {
 	    }
 	}
 	
-	public CreateSudoku(int constructRows, int constructCols, int rowLimit, int colLimit, int[] constructBorder, int[] constructBoxNumber, boolean setDiagonalOn, boolean setWrapAround, Set<String> setSizeRelationships) {
+	public CreateSudoku(int constructRows, int constructCols, int rowLimit, int colLimit, int[] constructBorder, int[] constructBoxNumber, boolean setDiagonalOn, boolean setWrapAround, Set<String> setSizeRelationships, int[] constructSumBoxSums, int[] constructSumBoxNumbers) {
 		super(constructRows, constructCols, rowLimit, colLimit, setDiagonalOn, setWrapAround, setSizeRelationships);
 		border = constructBorder;
 		boxNumber = constructBoxNumber;
+		sumBoxSums = constructSumBoxSums;
+		sumBoxNumber = constructSumBoxNumbers;
 		if (InformationBox.yesNoBox("Želite li da se mreža automatski ispuni?", "Ukljuèi bilješke")) {
 		    long startGen = System.currentTimeMillis();
 		    int retval = -1;
@@ -131,11 +133,13 @@ public class CreateSudoku extends Sudoku {
 	}
 	
 
-	public CreateSudoku(int constructRows, int constructCols, int rowLimit, int colLimit, int[] constructBorder, int[] constructBoxNumber, boolean setDiagonalOn, boolean setWrapAround, Set<String> setSizeRelationships, int constructUserInput[], String oldLastUsedPath) {
+	public CreateSudoku(int constructRows, int constructCols, int rowLimit, int colLimit, int[] constructBorder, int[] constructBoxNumber, boolean setDiagonalOn, boolean setWrapAround, Set<String> setSizeRelationships, int constructUserInput[], String oldLastUsedPath,  int[] constructSumBoxSums, int[] constructSumBoxNumbers) {
 		super(constructRows, constructCols, rowLimit, colLimit, setDiagonalOn, setWrapAround, setSizeRelationships);
 		lastUsedPath = oldLastUsedPath;
 		border = constructBorder;
 		boxNumber = constructBoxNumber;
+		sumBoxSums = constructSumBoxSums;
+		sumBoxNumber = constructSumBoxNumbers;
 	    draw();
 	    for (int row = 0; row < rows; row++){ 
 	    	for (int col = 0; col < cols; col++) {
@@ -441,8 +445,9 @@ public class CreateSudoku extends Sudoku {
 		        	    }
 		        		checkBoxes();
 		        		assume();
-		        		highlightDigit();
 		        	    checkIfCorrect();
+		        	    resetHighlight();
+		        	    highlightDigit();
 		        		for (int digit = 0; digit < cols + 1; digit++) {
 		        			numUseDigit[digit] = 0;
 		        		}
@@ -470,7 +475,7 @@ public class CreateSudoku extends Sudoku {
 		            		return;
 		            	}
 	        			@SuppressWarnings("unused")
-						SolveSudoku SolveSudoku = new SolveSudoku(rows, cols, xLim, yLim, border, boxNumber, diagonalOn, wrapAround, sizeRelationships, userInput, true);
+						SolveSudoku SolveSudoku = new SolveSudoku(rows, cols, xLim, yLim, border, boxNumber, diagonalOn, wrapAround, sizeRelationships, userInput, true, sumBoxSums, sumBoxNumber);
 					} catch (Exception e1) {
 		
 		

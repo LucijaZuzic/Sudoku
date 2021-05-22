@@ -27,11 +27,14 @@ public class ChangeBoxBorder extends SudokuGrid {
 	int relationshipStatus = 0;
 	int largerCell;
 	int smallerCell;
+	JButton sumButton = new JButton("");
     JButton relationshipAddButton = new JButton("");  
     JButton relationshipRemoveButton = new JButton("");  
     JButton diagonalButton = new JButton("");  
     JButton wrapAroundButton = new JButton("");
-    
+    Set<Integer> boxToAdd = new HashSet<Integer>();
+    int numberOfNextBox;
+    JTextField sumValue = new JTextField();
 	public ChangeBoxBorder(int contructRows, int constructCols, int rowLimit, int colLimit, boolean makeVisible) {
 		super(constructCols, contructRows, rowLimit, colLimit);
 	    for (int row = 0; row < rows; row++){ 
@@ -49,6 +52,52 @@ public class ChangeBoxBorder extends SudokuGrid {
 	}
     Color[] colorsOrder = {Color.BLACK, new Color (32, 32, 32), Color.DARK_GRAY, new Color (96, 96, 96), Color.GRAY,  new Color (160, 160, 160),  Color.LIGHT_GRAY};
 
+    public void clearBox(int numOfBox) {
+		sumBoxSums[numOfBox] = -1;
+    	for (int numCell = 0; numCell < rows * cols; numCell++) {
+			if (sumBoxNumber[numCell] == numOfBox) {
+				sumBoxNumber[numCell] = -1;
+			}
+		}
+    }
+    
+    public void addBox() {
+    	if (boxToAdd.size() == 0) {
+    		checkBoxes();
+	    	sumButton.setText("Dodaj kutiju sa sumom");
+	    	boxToAdd.clear();
+	    	sumValue.setEditable(true);
+	    	return;
+		}
+		int minSum = (boxToAdd.size() + 1) * boxToAdd.size() / 2;
+		int maxSum = (cols - boxToAdd.size() + 1 + cols) * boxToAdd.size() / 2;
+		int actualMaxSum = (1 + cols) * cols / 2;
+		if (boxToAdd.size() > cols) {
+			InformationBox.infoBox("Kutija sa sumom ne može imati više od " + cols + " èlanova.", "Kutija sa sumom");
+			clearBox(numberOfNextBox);
+		}
+		if (1 > Integer.parseInt(sumValue.getText())) {
+			InformationBox.infoBox("Kutija ne može imati sumu manju od 1, a upisana je suma " + sumValue.getText() + ".", "Kutija sa sumom");
+			clearBox(numberOfNextBox);
+		}
+		if (actualMaxSum < Integer.parseInt(sumValue.getText())) {
+			InformationBox.infoBox("Kutija ne može imati sumu veæu od " + actualMaxSum + ", a upisana je suma " + sumValue.getText() + ".", "Kutija sa sumom");
+			clearBox(numberOfNextBox);
+		}
+		if (minSum > Integer.parseInt(sumValue.getText())) {
+			InformationBox.infoBox("Kutija sa " + boxToAdd.size() + " èlanova ne može imati sumu manju od " + minSum + ", a upisana je suma " + sumValue.getText() + ".", "Kutija sa sumom");
+			clearBox(numberOfNextBox);
+		}
+		if (maxSum < Integer.parseInt(sumValue.getText())) {
+			InformationBox.infoBox("Kutija sa " + boxToAdd.size() + " èlanova ne može imati sumu veæu od " + maxSum + ", a upisana je suma " + sumValue.getText() + ".", "Kutija sa sumom");
+			clearBox(numberOfNextBox);
+		}
+		checkBoxes();
+    	sumButton.setText("Dodaj kutiju sa sumom");
+    	boxToAdd.clear();
+    	sumValue.setEditable(true);
+    }
+    
 	@Override
 	public ActionListener makeActionListener(int numCell) {
 		return new ActionListener(){  
@@ -146,6 +195,36 @@ public class ChangeBoxBorder extends SudokuGrid {
 		        			}
 	        			}
 	        		} 
+	        		if (mode == 9) {
+	        			if (!boxToAdd.contains(numCell)) {
+	        				if (sumBoxNumber[numCell] != -1) {	        				
+	        					InformationBox.infoBox("Æelija (" + String.valueOf(numCell / cols + 1) + ", " + String.valueOf(numCell % cols + 1) + ") je veæ u kutiji sa sumom " + sumBoxSums[sumBoxNumber[numCell]] + ".", "Kutija sa sumom");
+	        				} else {
+	        					boolean found = false;
+	        					if (boxToAdd.size() == 0) {
+	        						found = true;
+	        					} else {
+	        						for (int neighbourCell = 0; neighbourCell < rows * cols; neighbourCell++) {
+		        						if (neighbourCheck(numCell, neighbourCell) && boxToAdd.contains(neighbourCell)) {
+		        							found = true;
+		        							break;
+		        						}
+		        					}
+	        					}
+	        					if (found) {
+			        				boxToAdd.add(numCell);
+			        				sumBoxNumber[numCell] = numberOfNextBox;
+	        					} else {
+	    	        				InformationBox.infoBox("Æelija (" + String.valueOf(numCell / cols + 1) + ", " + String.valueOf(numCell % cols + 1) + ") nije susjedna niti jednoj æeliji u kutiji sa sumom " + sumValue.getText() +".", "Kutija sa sumom");		
+	        					}
+	        				}
+	        			} else {
+	        				InformationBox.infoBox("Æelija (" + String.valueOf(numCell / cols + 1) + ", " + String.valueOf(numCell % cols + 1) + ") je veæ u ovoj kutiji sa sumom " + sumValue.getText() + ".", "Kutija sa sumom");
+	        			}
+	        		}
+	        		if (mode == 10) {
+	        			clearBox(sumBoxNumber[numCell]);
+	        		}
 		        	checkBoxes();
 	        		showBoxMsg = true;
 				} catch (Exception e1) {
@@ -426,7 +505,7 @@ public class ChangeBoxBorder extends SudokuGrid {
 	    	  				return;
 	    	  			}
 	        			@SuppressWarnings("unused")
-						SolveSudoku solveSudoku = new SolveSudoku(rows, cols, xLim, yLim, border, boxNumber, diagonalOn, wrapAround, sizeRelationships, Integer.parseInt(mini.getText()), Integer.parseInt(maksi.getText()), true);
+						SolveSudoku solveSudoku = new SolveSudoku(rows, cols, xLim, yLim, border, boxNumber, diagonalOn, wrapAround, sizeRelationships, Integer.parseInt(mini.getText()), Integer.parseInt(maksi.getText()), true,  sumBoxSums, sumBoxNumber);
 	        		}
 		    
 				} catch (Exception e1) {
@@ -437,14 +516,13 @@ public class ChangeBoxBorder extends SudokuGrid {
 
 	    y += h + space;
 
-	    ChangeBoxBorder currentChangeBoxBorder = this;
 	    makeAButton("Riješi spremljeno", x, y, w, h, new ActionListener(){  
 	        public void actionPerformed(ActionEvent e) {  
 	        	try {
 	        		readFile("");
 	        		@SuppressWarnings("unused")
-	        		SolveSudoku SolveSudoku = new SolveSudoku(currentChangeBoxBorder.rows, currentChangeBoxBorder.cols, currentChangeBoxBorder.xLim, currentChangeBoxBorder.yLim, currentChangeBoxBorder.border, currentChangeBoxBorder.boxNumber, currentChangeBoxBorder.diagonalOn, currentChangeBoxBorder.wrapAround, currentChangeBoxBorder.sizeRelationships, currentChangeBoxBorder.userInput, true);
-	        		currentChangeBoxBorder.checkBoxes();
+	        		SolveSudoku SolveSudoku = new SolveSudoku(rows, cols, xLim, yLim, border, boxNumber, diagonalOn, wrapAround, sizeRelationships, userInput, true,  sumBoxSums, sumBoxNumber);
+	        		checkBoxes();
 	        		if (diagonalOn) {
 	        	    	diagonalButton.setText("Jedinstvena dijagonala");
 	        	    } else {
@@ -472,6 +550,7 @@ public class ChangeBoxBorder extends SudokuGrid {
 	    	int modeNumber = modeButtonNumber;
 	    	JButton modeButton = makeAButton("", x + modeButtonNumber * w / 7, y, w / 7, h, new ActionListener(){public void actionPerformed(ActionEvent e) {  
 		        	try {
+		        		addBox();
 		        		mode = modeNumber;
 	        	    	relationshipStatus = 0;
 	        	    	relationshipRemoveButton.setText("Pokreni uklanjanje para veæe-manje");
@@ -491,7 +570,7 @@ public class ChangeBoxBorder extends SudokuGrid {
 	        public void actionPerformed(ActionEvent e) {  
 	        	try {
 					readFile("");
-	        		currentChangeBoxBorder.checkBoxes();
+	        		checkBoxes();
 	        		if (diagonalOn) {
 	        	    	diagonalButton.setText("Jedinstvena dijagonala");
 	        	    } else {
@@ -519,6 +598,7 @@ public class ChangeBoxBorder extends SudokuGrid {
 	        }  
 	    });
 	    y -= h + space;
+        
 	    x += w + space;
 
 
@@ -528,8 +608,8 @@ public class ChangeBoxBorder extends SudokuGrid {
 	        		if (checkBoxes()) {
 		        		readFile("");
 	        			@SuppressWarnings("unused")
-						CreateSudoku createSudoku = new CreateSudoku(currentChangeBoxBorder.rows, currentChangeBoxBorder.cols, currentChangeBoxBorder.xLim, currentChangeBoxBorder.yLim, currentChangeBoxBorder.border, currentChangeBoxBorder.boxNumber, currentChangeBoxBorder.diagonalOn, currentChangeBoxBorder.wrapAround, currentChangeBoxBorder.sizeRelationships, currentChangeBoxBorder.userInput, currentChangeBoxBorder.lastUsedPath);
-		        		currentChangeBoxBorder.checkBoxes();
+						CreateSudoku createSudoku = new CreateSudoku(rows, cols, xLim, yLim, border, boxNumber, diagonalOn, wrapAround, sizeRelationships, userInput, lastUsedPath,  sumBoxSums, sumBoxNumber);
+		        		checkBoxes();
 		        		if (diagonalOn) {
 		        	    	diagonalButton.setText("Jedinstvena dijagonala");
 		        	    } else {
@@ -553,14 +633,64 @@ public class ChangeBoxBorder extends SudokuGrid {
 	        	try {
 	        		if (checkBoxes()) {
 	        			@SuppressWarnings("unused")
-						CreateSudoku createSudoku = new CreateSudoku(rows, cols, xLim, yLim, border, boxNumber, diagonalOn, wrapAround, sizeRelationships);
+						CreateSudoku createSudoku = new CreateSudoku(rows, cols, xLim, yLim, border, boxNumber, diagonalOn, wrapAround, sizeRelationships,  sumBoxSums, sumBoxNumber);
 	        		}
 	        	} catch (Exception e1) {
 
 				}
 	        }  
 	    });
-		int buttonEnd = y + h + space;
+        y += h + space;
+        
+        JLabel sumLabel = new JLabel("Suma kutije: ");
+        sumLabel.setFont(new Font("Arial", Font.PLAIN, fontsize));
+	    sumLabel.setBounds(x, y, w - h, h);
+	    frame.add(sumLabel);
+	    
+	    sumValue = new JTextField(String.valueOf(0));
+	    sumValue.setFont(new Font("Arial", Font.PLAIN, fontsize));
+	    sumValue.setBounds(x + w - h, y, h, h);
+	    frame.add(sumValue);
+
+        y += h + space;
+
+        sumButton = makeAButton("Dodaj kutiju sa sumom", x, y, w + h * 5, h, new ActionListener(){  
+	        public void actionPerformed(ActionEvent e) {  
+	        	try {
+	        		if (mode != 9) {
+		        		mode = 9;
+		    	    	relationshipAddButton.setText("Pokreni odabir para veæe-manje");
+		    	    	relationshipRemoveButton.setText("Pokreni uklanjanje para veæe-manje");
+		    	    	numberOfNextBox = getMinBoxNumber();
+		    	    	sumValue.setEditable(false);
+        				sumBoxSums[numberOfNextBox] = Integer.parseInt(sumValue.getText());
+		    	    	sumButton.setText("Prekini dodavanje kutije sa sumom");
+		    	    	boxToAdd.clear();
+	        		} else {
+		        		addBox();
+		        		mode = 0;
+		    	    }
+	        	} catch (Exception e1) {
+
+				}
+	        }  
+	    });
+        
+        y += h + space;
+        
+        makeAButton("Ukloni kutiju sa sumom", x, y, w + h * 5, h, new ActionListener(){  
+	        public void actionPerformed(ActionEvent e) {  
+	        	try {
+	        		addBox();
+		        	mode = 10;
+	        	} catch (Exception e1) {
+
+				}
+	        }  
+	    });
+        
+        y += h + space;
+		int buttonEnd = y;
 
 	    int widthOne = x + w + h * 5 + space;
 	    x -= w + space;
@@ -623,6 +753,7 @@ public class ChangeBoxBorder extends SudokuGrid {
         	    	relationshipStatus = 1;
         	    	relationshipAddButton.setText("Odaberi veæu æeliju");
         	    	relationshipRemoveButton.setText("Pokreni uklanjanje para veæe-manje");
+	        		addBox();
         	    	mode = 7;
 	        	    checkBoxes();
 				} catch (Exception e1) {
@@ -650,6 +781,7 @@ public class ChangeBoxBorder extends SudokuGrid {
         	    	relationshipStatus = 1;
         	    	relationshipRemoveButton.setText("Odaberi veæu æeliju");
         	    	relationshipAddButton.setText("Pokreni odabir para veæe-manje");
+	        		addBox();
         	    	mode = 8;
 	        	    checkBoxes();
 				} catch (Exception e1) {
