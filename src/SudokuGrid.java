@@ -22,6 +22,7 @@ import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.MatteBorder;
+import javax.swing.border.TitledBorder;
 
 public abstract class SudokuGrid {
 	JFrame frame;
@@ -31,6 +32,8 @@ public abstract class SudokuGrid {
 	int yLim = 3;
 	int[] border;
 	int[] boxNumber;
+	int[] sumBoxNumber;
+	int[] sumBoxSums;
 	JButton[] field;
 	int[] solution;
 	int[] userInput;
@@ -148,6 +151,26 @@ public abstract class SudokuGrid {
 		}
         return lineRelationship;
 	}
+	public String lineForSumBox() {
+		String lineSumBox = "SumBoxes\n";
+        for (int row = 0; row < rows; row++) {
+        	for (int col = 0; col < cols; col++) {
+        		lineSumBox += String.valueOf(row * cols + col) + " " + String.valueOf(sumBoxNumber[row * cols + col]) + "\n";
+        	}
+        }
+        return lineSumBox;
+	}
+	public String lineForSumBoxSum() {
+		String lineSumBoxSum = "";
+		for (int row = 0; row < rows; row++) {
+        	for (int col = 0; col < cols; col++) {
+        		if (sumBoxSums[row * cols + col] != -1) {
+        			lineSumBoxSum += String.valueOf((row * cols + col) + " " + sumBoxSums[row * cols + col] + "\n");
+        		} 
+        	}
+        }
+        return lineSumBoxSum;
+	}
 	
 	 public void writeToFile(String filename) {
 		  try {
@@ -157,7 +180,7 @@ public abstract class SudokuGrid {
 	        } else {
 	    	  myWriter = new FileWriter(filename);
 	        }
-	        myWriter.write(lineForUserInput() + lineForBorder() + lineForDiagonal()  + lineForWrap() + lineForRelationship());
+	        myWriter.write(lineForUserInput() + lineForBorder() + lineForDiagonal()  + lineForWrap() + lineForRelationship() + lineForSumBox() + lineForSumBoxSum());
 	        myWriter.close();
 	        if (filename == "") {
 	        	InformationBox.infoBox("Zagonetka je uspješno spremljena.", "Spremanje datoteke");
@@ -198,6 +221,7 @@ public abstract class SudokuGrid {
 		      cols = newCols;
 	          diagonalOn = false;
 	          wrapAround = false;
+	          int sumBoxesBegin = -1;
 	          sizeRelationships.clear();
 		      for (int row = 0; row < lineNum; row++) {
 		        	if (row < rows) {
@@ -232,9 +256,34 @@ public abstract class SudokuGrid {
 		        			wrapAround = true;
 		        		}
 		        	}
-		        	if (row > rows * 2 + 1) {
+		        	if (row > rows * 2 + 1 && sumBoxesBegin == -1) {
 		        		String relationship = data.get(row).replace("\n", "");
-		        		sizeRelationships.add(relationship);
+		        		if (relationship.compareTo("SumBoxes") == 0) {
+		        			sumBoxesBegin = row;
+		        			continue;
+		        		} else {
+		        			sizeRelationships.add(relationship);
+		        		}
+		        	}
+		        	if (row > rows * 2 + 1 && sumBoxesBegin != -1 && row - sumBoxesBegin <= rows * cols) {
+		        		/*for (int col = 0; col < cols; col++) {
+			        		char c = data.get(row).substring(col, col + 1).charAt(0);
+			        		if (c == '-') {
+			        			sumBoxNumber[(row - sumBoxesBegin - 1) * cols + col] = -1;
+			        			continue;
+			        		}
+			        		if (c >= '0' && c <= '9') {
+			        			sumBoxNumber[(row - sumBoxesBegin - 1) * cols + col] = Integer.parseInt("" + c);
+			        		} else {
+			        			sumBoxNumber[(row - sumBoxesBegin - 1) * cols + col] = c - 'A' + 10;
+			        		}
+		        		}*/
+		        		String relationship = data.get(row).replace("\n", "");
+		        		sumBoxNumber[Integer.parseInt(relationship.split(" ")[0])] = Integer.parseInt(relationship.split(" ")[1]);
+		        	}
+		        	if (row > rows * 2 + 1 && sumBoxesBegin != -1 && row - sumBoxesBegin > rows * cols) {
+		        		String relationship = data.get(row).replace("\n", "");
+		        		sumBoxSums[Integer.parseInt(relationship.split(" ")[0])] = Integer.parseInt(relationship.split(" ")[1]);
 		        	}
 		      }
 		      return 0;
@@ -364,13 +413,37 @@ public abstract class SudokuGrid {
 		if (!neighbourCheck(centerCell, neighbourCell)) {
 			return 4;
 		}
-		//String relationshipSmaller = String.valueOf(neighbourCell) + " " + String.valueOf(centerCell);
-		//String relationshipLarger = String.valueOf(centerCell) + " " + String.valueOf(neighbourCell);
-		//if (border[neighbourCell] != border[centerCell] && !sizeRelationships.contains(relationshipSmaller) && !sizeRelationships.contains(relationshipLarger)) {
 		if (border[neighbourCell] != border[centerCell]) {
 			return 3;
 		}
 		return 1;
+	}
+	
+	public int getMinBoxNumber() {
+		Set<Integer> usedBoxNumber = new HashSet<Integer>();
+		for (int numCell = 0; numCell < rows * cols; numCell++) {
+			if (sumBoxNumber[numCell] != -1) {
+				usedBoxNumber.add(sumBoxNumber[numCell]);
+			}
+		}
+		int retval = 0;
+		while (usedBoxNumber.contains(retval) && retval < rows * cols + 1) {
+			retval++;
+		}
+		return retval;
+	}
+	
+	public int getSumBoxBorder(int centerCell, int neighbourCell) {
+		if (sumBoxNumber[centerCell] == -1) {
+			return 0;
+		}
+		if (!neighbourCheck(centerCell, neighbourCell)) {
+			return 1;
+		}
+		if (sumBoxNumber[centerCell] != sumBoxNumber[neighbourCell]) {
+			return 1;
+		}
+		return 0;
 	}
 	
 	public void setBorder(int row, int col) {
@@ -379,12 +452,22 @@ public abstract class SudokuGrid {
 	    int rightBorder = getBorderThickness(centerCell, normalizeNeighbour(centerCell, 0, 1));
 	    int topBorder = getBorderThickness(centerCell, normalizeNeighbour(centerCell, -1, 0));
 	    int bottomBorder = getBorderThickness(centerCell, normalizeNeighbour(centerCell, 1, 0));
+	    int leftSumBorder = getSumBoxBorder(centerCell, normalizeNeighbour(centerCell, 0, - 1));
+	    int rightSumBorder = getSumBoxBorder(centerCell, normalizeNeighbour(centerCell, 0, 1));
+	    int topSumBorder = getSumBoxBorder(centerCell, normalizeNeighbour(centerCell, -1, 0));
+	    int bottomSumBorder = getSumBoxBorder(centerCell, normalizeNeighbour(centerCell, 1, 0));
 	    MatteBorder boxLimits = BorderFactory.createMatteBorder(topBorder, leftBorder, bottomBorder, rightBorder, Color.WHITE);	
 	    if (diagonalOn && (row == col || row + col + 1 == cols)) {
 	    	boxLimits = BorderFactory.createMatteBorder(3, 3, 3, 3, Color.MAGENTA);	
 	    }
 	    Border emptyBorder = BorderFactory.createEmptyBorder(7 - topBorder, 7 - leftBorder, 7 - bottomBorder, 7 - rightBorder);
 	    CompoundBorder basicBorder = new CompoundBorder(boxLimits, emptyBorder);
+	    if (sumBoxNumber[centerCell] != -1) {
+		    TitledBorder titleBorder = BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(topSumBorder, leftSumBorder, bottomSumBorder, rightSumBorder, Color.WHITE), String.valueOf(sumBoxSums[sumBoxNumber[centerCell]]));
+		    titleBorder.setTitleJustification(TitledBorder.CENTER);
+		    titleBorder.setTitleColor(Color.WHITE);
+	    	basicBorder = new CompoundBorder(basicBorder, titleBorder);
+	    }
 		field[centerCell].setBorder(basicBorder);
 	}
 	
@@ -567,7 +650,6 @@ public abstract class SudokuGrid {
 			}
 		}
 		if (numChanged > 0) {
-			//InformationBox.infoBox(String.valueOf(numCell) + ": "+ String.valueOf(maxPossibility), "max possibility");
 			return 1;
 		} else {
 			return 0;
@@ -640,29 +722,11 @@ public abstract class SudokuGrid {
 			}
 		}
 		if (numChanged > 0) {
-			//InformationBox.infoBox(String.valueOf(numCell) + ": "+ String.valueOf(minPossibility), "min possibility");
 			return 1;
 		} else {
 			return 0;
 		}
 	}
-	
-	
-	/*public int getLargerTrees() {
-	    for (int row = 0; row < rows; row++){ 
-	    	for (int col = 0; col < cols; col++) {
-	    		int numCell = row * cols + col;
-	    		if (isTreeSource(numCell)) {
-	    			int tree = getTreeSize(numCell);
-	    			if (tree > cols) {
-	    				return 1;
-	    			}
-	    		}
-	    	}
-	    }
-	    return 0;
-	}*/
-
 
 	abstract public void draw();
 	
@@ -682,11 +746,15 @@ public abstract class SudokuGrid {
 	    userInput = new int[constructRows * constructCols];
 		border = new int[constructRows * constructCols];
 		boxNumber = new int[constructRows * constructCols];
+		sumBoxNumber = new int[constructRows * constructCols];
+		sumBoxSums = new int[constructRows * constructCols];
 		sizeRelationships = new HashSet<String>();
 	    for (int row = 0; row < rows; row++){ 
 	    	for (int col = 0; col < cols; col++) {
 	    		int numCell = row * cols + col;
 	    		field[numCell] = new JButton("");
+	    		sumBoxNumber[numCell] = -1;
+	    		sumBoxSums[numCell] = -1;
 	    		int box = (row / yLim) * (cols / xLim) + (col / xLim);
 		    	if (((box % (cols / xLim) % 2 == 0) && (box / (cols / xLim) % 2  == 0)) || 
 		    		((box % (cols / xLim) % 2 != 0) && (box / (cols / xLim) % 2  == 1))) {
