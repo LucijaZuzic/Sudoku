@@ -45,7 +45,7 @@ class createTest {
 	
 	@Test
 	void testCase() throws FileNotFoundException {
-		for (int i = 1; i < 23; i++) {
+		for (int i = 1; i < 31; i++) {
 			  String solutionFilename = "src/solutions/solution" + String.valueOf(i) + ".txt";
 			  String testFilename = "src/testCases/testCase" + String.valueOf(i) + ".txt";
 		      assertEquals(getCorrectSolution(solutionFilename), getCreateSolution(9, testFilename));
@@ -87,7 +87,7 @@ class createTest {
 	
 	@Test
 	void testCaseBoxes() throws FileNotFoundException {
-		for (int i = 1; i < 6; i++) {
+		for (int i = 1; i < 7; i++) {
 			  String solutionFilename = "src/solutions/solutionBoxes" + String.valueOf(i) + ".txt";
 			  String testFilename = "src/testCases/testCaseBoxes" + String.valueOf(i) + ".txt";
 		      assertEquals(getCorrectSolution(solutionFilename), getCreateSolution(9, testFilename));
@@ -96,7 +96,7 @@ class createTest {
 	
 	@Test
 	void testCaseBoxesDiagonal() throws FileNotFoundException {
-		for (int i = 1; i < 3; i++) {
+		for (int i = 1; i < 4; i++) {
 			  String solutionFilename = "src/solutions/solutionBoxesDiagonal" + String.valueOf(i) + ".txt";
 			  String testFilename = "src/testCases/testCaseBoxesDiagonal" + String.valueOf(i) + ".txt";
 		      assertEquals(getCorrectSolution(solutionFilename), getCreateSolution(9, testFilename));
@@ -105,7 +105,7 @@ class createTest {
 	
 	@Test
 	void testCaseSix() throws FileNotFoundException {
-		for (int i = 1; i < 11; i++) {
+		for (int i = 1; i < 14; i++) {
 			  String solutionFilename = "src/solutions/solutionSix" + String.valueOf(i) + ".txt";
 			  String testFilename = "src/testCases/testCaseSix" + String.valueOf(i) + ".txt";
 		      assertEquals(getCorrectSolution(solutionFilename), getCreateSolution(6, testFilename));
@@ -177,7 +177,7 @@ class createTest {
 	
 	@Test
 	void testCaseTwentyFive() throws FileNotFoundException {
-		for (int i = 1; i < 3; i++) {
+		for (int i = 1; i < 4; i++) {
 			  String solutionFilename = "src/solutions/solutionTwentyFive" + String.valueOf(i) + ".txt";
 			  String testFilename = "src/testCases/testCaseTwentyFive" + String.valueOf(i) + ".txt";
 		      assertEquals(getCorrectSolution(solutionFilename), getCreateSolution(25, testFilename));
@@ -204,9 +204,19 @@ class createTest {
 
 	@Test
 	void testCaseKiller() throws FileNotFoundException {
-		for (int i = 1; i < 8; i++) {
+		for (int i = 1; i < 9; i++) {
 			  String solutionFilename = "src/solutions/solutionKiller" + String.valueOf(i) + ".txt";
 			  String testFilename = "src/testCases/testCaseKiller" + String.valueOf(i) + ".txt";
+		      assertEquals(getCorrectSolution(solutionFilename), getCreateSolution(9, testFilename));
+		}
+	}
+	
+
+	@Test
+	void testCaseDiagonal() throws FileNotFoundException {
+		for (int i = 1; i < 2; i++) {
+			  String solutionFilename = "src/solutions/solutionDiagonal" + String.valueOf(i) + ".txt";
+			  String testFilename = "src/testCases/testCaseDiagonal" + String.valueOf(i) + ".txt";
 		      assertEquals(getCorrectSolution(solutionFilename), getCreateSolution(9, testFilename));
 		}
 	}

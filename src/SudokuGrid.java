@@ -366,8 +366,10 @@ public abstract class SudokuGrid {
 	    }
 	}
 	
+	String[] buttonColours = {"black", "darker_gray", "dark_gray", "medium_gray", "gray", "light_gray", "lighter_gray"};
+    Color[] colorsOrder = {Color.BLACK, new Color (32, 32, 32), Color.DARK_GRAY, new Color (96, 96, 96), Color.GRAY,  new Color (160, 160, 160),  Color.LIGHT_GRAY};
+
 	public String returnColour(int centerCell) {
-	    String[] buttonColours = {"black", "darker_gray", "dark_gray", "medium_gray", "gray", "light_gray", "lighter_gray"};
 		return buttonColours[border[centerCell]];
 	}
 	
@@ -407,6 +409,20 @@ public abstract class SudokuGrid {
 	    field[centerCell].setDisabledIcon(imageIcon);
 	    field[centerCell].setHorizontalTextPosition(JButton.CENTER);
 	    field[centerCell].setVerticalTextPosition(JButton.CENTER);
+	    for (int colour = 0; colour < buttonColours.length; colour++) {
+	    	if (buttonColours[colour].compareTo(colorButton) == 0) {
+	    		field[centerCell].setBackground(colorsOrder[border[centerCell]]);
+	    		return;
+	    	}
+	    }
+	    if (colorButton.compareTo("blue") == 0) {
+    		field[centerCell].setBackground(Color.BLUE);
+    		return;
+	    }
+	    if (colorButton.compareTo("one_more_gray") == 0) {
+			field[centerCell].setBackground(new Color (119, 136, 153));
+    		return;
+	    }
 	}
 	
 	public int getBorderThickness(int centerCell, int neighbourCell) {
@@ -446,6 +462,15 @@ public abstract class SudokuGrid {
 		return 0;
 	}
 	
+	public int getFirstOccurence(int num) {
+		for (int centerCell = 0; centerCell < rows * cols; centerCell++) {
+			if (sumBoxNumber[centerCell] == num) {
+				return centerCell;
+			}
+		}
+		return -1;
+	}
+	
 	public void setBorder(int row, int col) {
 	    int centerCell = row * cols + col;
 	    int leftBorder = getBorderThickness(centerCell, normalizeNeighbour(centerCell, 0, - 1));
@@ -463,19 +488,24 @@ public abstract class SudokuGrid {
 	    Border emptyBorder = BorderFactory.createEmptyBorder(7 - topBorder, 7 - leftBorder, 7 - bottomBorder, 7 - rightBorder);
 	    CompoundBorder basicBorder = new CompoundBorder(boxLimits, emptyBorder);
 	    if (sumBoxNumber[centerCell] != -1) {
-		    TitledBorder titleBorder = BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(topSumBorder, leftSumBorder, bottomSumBorder, rightSumBorder, Color.WHITE), String.valueOf(sumBoxSums[sumBoxNumber[centerCell]]));
-		    titleBorder.setTitleJustification(TitledBorder.CENTER);
+	    	String title = "";
+	    	if (getFirstOccurence(sumBoxNumber[centerCell]) == centerCell) {
+	    		title = String.valueOf(sumBoxSums[sumBoxNumber[centerCell]]);
+	    	}
+		    TitledBorder titleBorder = BorderFactory.createTitledBorder(BorderFactory.createMatteBorder(topSumBorder, leftSumBorder, bottomSumBorder, rightSumBorder, Color.WHITE), title);
+		    //titleBorder.setTitleJustification(TitledBorder.CENTER);
 		    titleBorder.setTitleColor(Color.WHITE);
-	    	basicBorder = new CompoundBorder(basicBorder, titleBorder);
+		    titleBorder.setTitlePosition(TitledBorder.BELOW_TOP);
+		    basicBorder = new CompoundBorder(basicBorder, titleBorder);
 	    }
 		field[centerCell].setBorder(basicBorder);
 	}
-	
+
 	public int floodFill(int row, int col, int val) {
 		int retVal = 1;
 	    int centerCell = row * cols + col;
-	    setBackground(row, col, returnColour(centerCell));
 	    setBorder(row, col);
+	    setBackground(row, col, returnColour(centerCell));
 	    boxNumber[centerCell] = val;
 	    for (int rowOffset = -1; rowOffset <= 1; rowOffset++){ 
 	    	for (int colOffset = -1; colOffset <= 1; colOffset++) {
@@ -735,7 +765,7 @@ public abstract class SudokuGrid {
 		cols = constructCols;
 		xLim = rowLimit;
 		yLim = colLimit;
-		wNumber = (int) (height / (cols + 4) * widthScaling);
+		wNumber = (int) ( (height - 40) / (cols + 4) * widthScaling);
 		hNumber = wNumber;
 		wDigit = (int) (wNumber - wNumber / cols);
 		numberFontsize = (int) (wNumber / 2);
