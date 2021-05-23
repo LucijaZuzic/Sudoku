@@ -66,35 +66,35 @@ public class CreateSudoku extends Sudoku {
 		boxNumber = constructBoxNumber;
 		sumBoxSums = constructSumBoxSums;
 		sumBoxNumber = constructSumBoxNumbers;
-		if (InformationBox.yesNoBox("Želite li da se mreža automatski ispuni?", "Ukljuèi bilješke")) {
-		    long startGen = System.currentTimeMillis();
-		    int retval = -1;
-		    while(retval == -1) {
-		    	if (System.currentTimeMillis() - startGen >= 10000) {
-	    		    InformationBox.infoBox("Nije moguæe ispuniti zagonetku prema zadanim kriterijima.", "Pogrešno dizajnirana zagonetka");
-	    		    /*frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
-	    		    frame.removeAll();
-	    		    frame.dispose();
-	    		    frame.setVisible(false);
-	    		    return;*/
-	    		    initialize();
-		    		break;
-		    	}
+		if (cols <= 12) {
+			if (InformationBox.yesNoBox("Želite li da se mreža automatski ispuni?", "Ukljuèi bilješke")) {
+			    long startGen = System.currentTimeMillis();
+			    int retval = -1;
+			    while(retval == -2 || retval == -1) {
+			    	if (System.currentTimeMillis() - startGen >= 10000) {
+		    		    InformationBox.infoBox("Nije moguæe ispuniti zagonetku prema zadanim kriterijima.", "Pogrešno dizajnirana zagonetka");
+		    		    initialize();
+			    		break;
+			    	}
+				    for (int row = 0; row < rows; row++){ 
+				    	for (int col = 0; col < cols; col++) {
+				    		temporary[row * cols + col] = 0;
+					    }
+				    }
+					useGuessing = true;
+				    retval = isOnlyOneSolution();
+					useGuessing = false;
+			    }
+			} else {
 			    for (int row = 0; row < rows; row++){ 
 			    	for (int col = 0; col < cols; col++) {
 			    		temporary[row * cols + col] = 0;
 				    }
 			    }
-				useGuessing = true;
-			    retval = isOnlyOneSolution();
-				useGuessing = false;
-		    }
+			}
 		} else {
-		    for (int row = 0; row < rows; row++){ 
-		    	for (int col = 0; col < cols; col++) {
-		    		temporary[row * cols + col] = 0;
-			    }
-		    }
+		    InformationBox.infoBox("Nije moguæe stvoriti nasumiènu zagonetku veæu od 12x12.", "Prevelika zagonetka");
+		    initialize();
 		}
 	    draw();
 	    for (int row = 0; row < rows; row++){ 
@@ -113,7 +113,7 @@ public class CreateSudoku extends Sudoku {
 	    }
 	    assume();
 		checkBoxes();
-	    checkIfCorrect();
+		checkIfCorrect();
 		for (int digit = 0; digit < cols + 1; digit++) {
 			numUseDigit[digit] = 0;
 		}

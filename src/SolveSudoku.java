@@ -47,43 +47,53 @@ public class SolveSudoku extends Sudoku {
 	
 	public SolveSudoku(int constructRows, int constructCols, int rowLimit, int colLimit, int[] constructBorder, int[] constructBoxNumber, boolean setDiagonalOn, boolean setWrapAorund, Set<String> setSizeRelationships, int constructMinDifficulty, int constructMaxDifficulty, boolean askUser, int[] constructSumBoxSums, int[] constructSumBoxNumbers) {
 		super(constructRows, constructCols, rowLimit, colLimit, setDiagonalOn, setWrapAorund, setSizeRelationships);
-		if (askUser) {
-			errorWarn = InformationBox.yesNoBox("Želite li da se prikazuju greške?", "Prikaži greške");
-			setAssumed = InformationBox.yesNoBox("Želite li da se automatski postave bilješke?", "Postavi bilješke");
-			if (setAssumed == false) {
-				if(InformationBox.yesNoBox("Želite li da se ukljuèi pisanje bilješki?","Ukljuèi bilješke")){
-					mode = 1;
-				} else {
-					mode = 0;
-				}
-			} else {
-				mode = 0;
-			}
-		}
 		border = constructBorder;
 		boxNumber = constructBoxNumber;
 		sumBoxSums = constructSumBoxSums;
 		sumBoxNumber = constructSumBoxNumbers;
-	    int retVal = -1;
-	    long startGen = System.currentTimeMillis();
-	    while(retVal == -1) {
-	    	if (System.currentTimeMillis() - startGen >= 10000) {
-    		    InformationBox.infoBox("Nije moguæe ispuniti zagonetku prema zadanim kriterijima.", "Pogrešno dizajnirana zagonetka");
-    		    frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
-    		    frame.removeAll();
-    		    frame.dispose();
-    		    frame.setVisible(false);
-    		    return;
-	    	}
-		    for (int row = 0; row < rows; row++){ 
-		    	for (int col = 0; col < cols; col++) {
-		    		temporary[row * cols + col] = 0;
+		mode = 0;
+		long startGen = System.currentTimeMillis();
+		if (cols <= 12) {
+			if (askUser) {
+				errorWarn = InformationBox.yesNoBox("Želite li da se prikazuju greške?", "Prikaži greške");
+				setAssumed = InformationBox.yesNoBox("Želite li da se automatski postave bilješke?", "Postavi bilješke");
+				if (setAssumed == false) {
+					if(InformationBox.yesNoBox("Želite li da se ukljuèi pisanje bilješki?","Ukljuèi bilješke")){
+						mode = 1;
+					} else {
+						mode = 0;
+					}
+				} else {
+					mode = 0;
+				}
+			}
+		    int retVal = -1;
+		    while(retVal == -2 || retVal == -1) {
+		    	if (System.currentTimeMillis() - startGen >= 10000) {
+	    		    InformationBox.infoBox("Nije moguæe ispuniti zagonetku prema zadanim kriterijima.", "Pogrešno dizajnirana zagonetka");
+	    		    frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
+	    		    frame.removeAll();
+	    		    frame.dispose();
+	    		    frame.setVisible(false);
+	    		    return;
+		    	}
+			    for (int row = 0; row < rows; row++){ 
+			    	for (int col = 0; col < cols; col++) {
+			    		temporary[row * cols + col] = 0;
+				    }
 			    }
+			    useGuessing = true;
+			    retVal = isOnlyOneSolution();
+			    useGuessing = false;
 		    }
-		    useGuessing = true;
-		    retVal = isOnlyOneSolution();
-		    useGuessing = false;
-	    }
+		} else {
+		    InformationBox.infoBox("Nije moguæe stvoriti nasumiènu zagonetku veæu od 12x12.", "Prevelika zagonetka");
+		    frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
+		    frame.removeAll();
+		    frame.dispose();
+		    frame.setVisible(false);
+		    return;
+		}
 	    draw();
 	    for (int row = 0; row < rows; row++){ 
 	    	for (int col = 0; col < cols; col++) {
@@ -207,7 +217,17 @@ public class SolveSudoku extends Sudoku {
 		options = new int[constructRows * constructCols][constructRows];
 		result = new int[constructRows * constructCols];
 		checkBoxes();
-		isOnlyOneSolution();
+		int solvable = isOnlyOneSolution();
+		if (solvable != 1) {
+			if (askUser) {
+				InformationBox.infoBox("Zagonetka koju želite uèitati nema jedinstveno rješenje.", "Upozorenje o težini");
+			}
+			frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
+		    frame.removeAll();
+		    frame.dispose();
+		    frame.setVisible(false);
+		    return;
+    	}
 	    for (int row = 0; row < rows; row++){ 
 	    	for (int col = 0; col < cols; col++) {
 		    	int numCell = row * cols + col;
@@ -289,28 +309,7 @@ public class SolveSudoku extends Sudoku {
 	
 	Set<Integer> hints = new HashSet<Integer>();
 
-	public void hint() {
-		checkIfCorrect();
-		boolean noneEmpty = true;
-	    for (int row = 0; row < rows; row++){
-	    	for (int col = 0; col < cols; col++) {
-	        	int numCell = row * cols + col;
-	    		if (userInput[numCell] == 0 || incorrect[numCell] == true) {
-	    			noneEmpty = false;
-	    		}
-		    }
-	    }
-	    if (noneEmpty) {
-	    	return;
-	    }
-    	int randomCol = ThreadLocalRandom.current().nextInt(0, cols);
-    	int randomRow = ThreadLocalRandom.current().nextInt(0, cols);
-    	int numCell = randomRow * cols + randomCol;
-    	while (userInput[numCell] != 0 && incorrect[numCell] == false) {
-        	randomCol = ThreadLocalRandom.current().nextInt(0, cols);
-        	randomRow = ThreadLocalRandom.current().nextInt(0, cols);
-        	numCell = randomRow * cols + randomCol;
-    	}
+	public void markHint(int numCell) {
 		for (int val = 0; val < cols; val++) {
     		options[numCell][val] = 0;
 		}
@@ -339,6 +338,31 @@ public class SolveSudoku extends Sudoku {
 			assume();
 		}
 	}
+	
+	public void hint() {
+		checkIfCorrect();
+		boolean noneEmpty = true;
+	    for (int row = 0; row < rows; row++){
+	    	for (int col = 0; col < cols; col++) {
+	        	int numCell = row * cols + col;
+	    		if (userInput[numCell] == 0 || incorrect[numCell] == true) {
+	    			noneEmpty = false;
+	    		}
+		    }
+	    }
+	    if (noneEmpty) {
+	    	return;
+	    }
+    	int randomCol = ThreadLocalRandom.current().nextInt(0, cols);
+    	int randomRow = ThreadLocalRandom.current().nextInt(0, cols);
+    	int numCell = randomRow * cols + randomCol;
+    	while (userInput[numCell] != 0 && incorrect[numCell] == false) {
+        	randomCol = ThreadLocalRandom.current().nextInt(0, cols);
+        	randomRow = ThreadLocalRandom.current().nextInt(0, cols);
+        	numCell = randomRow * cols + randomCol;
+    	}
+    	markHint(numCell);
+	}
 	JButton modeButton;
 	JButton pencilButton;
 	JButton errorWarnButton;
@@ -347,32 +371,7 @@ public class SolveSudoku extends Sudoku {
     	if (userInput[numCell] != 0 && incorrect[numCell] == false) {
     		return;
     	}
-		for (int val = 0; val < cols; val++) {
-    		options[numCell][val] = 0;
-		}
-		options[numCell][result[numCell] - 1] = 1;
-    	backup[numCell] = result[numCell];
-    	userInput[numCell] = result[numCell];
-		field[numCell].setEnabled(false);
-		field[numCell].setBackground(Color.BLUE);
-		if (userInput[numCell] < 10) {
-			field[numCell].setText(String.valueOf(userInput[numCell]));
-		} else {
-			char c = 'A';
-			c += userInput[numCell] - 10;
-			field[numCell].setText("" + c);
-		}
-	    field[numCell].setFont(new Font("Arial", Font.PLAIN, numberFontsize));
-    	hints.add(numCell);
-    	oldHints.add(numCell);
-    	numUseDigit[userInput[numCell]]++;
-    	checkIfDigitMaxUsed(userInput[numCell]);
-    	helpLabel.setText("Iskorištena pomoæ: " + String.valueOf(hints.size()));
-		resetHighlight();
-		highlightDigit();
-		if (setAssumed) {
-			assume();
-		}
+    	markHint(numCell);
 	}
 	int errorNum = 0;
 	int emptyNum = 0;
@@ -628,6 +627,26 @@ public class SolveSudoku extends Sudoku {
 	        		if (mode == 2) {
 	        			hint(numCell);
 	        		}
+	        		if (mode == 3) {
+	        			stopAfterOneStep = false;
+	        			stopAfterCell = numCell;
+	        			showSteps = true;
+		        		resetHighlight();
+		        		String oldDifficultyText = difficulty.getText();
+		        	    for (int rowAll = 0; rowAll < rows; rowAll++){ 
+		        	    	for (int colAll = 0; colAll < cols; colAll++) {
+		        	    		int newCell = rowAll * cols + colAll;
+		        	    		userInput[newCell] = backup[newCell];
+		        	    	}	
+		        	    }
+		        	    checkBoxes();
+		        		isOnlyOneSolution();
+		        		markHint(numCell);
+		        		difficulty.setText(oldDifficultyText);
+		        	    instructionArea.setText(solvingInstructions);
+		        		showSteps = false;
+	        			stopAfterCell = -1;
+	        		}
 	        		zoomArea.setText(field[numCell].getText().replace("yellow", "black"));
 	        		checkIfCorrect();
 				} catch (Exception e1) {
@@ -675,9 +694,9 @@ public class SolveSudoku extends Sudoku {
 		        	try {
 		        		showSteps = true;
 		        	    errorWarn = true;
-						resetHighlight();
+		        		resetHighlight();
 		        	    showError();
-						countError();
+		        		countError();
 		        	    if (!InformationBox.stepBox("Jeste li spremni za prikaz koraka?", "Korak po korak")) {
 		        	    	showSteps = false;
 		        	    }
@@ -735,30 +754,73 @@ public class SolveSudoku extends Sudoku {
 		    });
 
 		y += h + space;
+		
+	  makeAButton("Iduæi korak", x, y, w, h, new ActionListener(){  
+	        public void actionPerformed(ActionEvent e) {  
+		        	try {
+		        		if (timerStopped) {
+		        			return;
+		        		}
+		        		stopAfterOneStep = true;
+	        			stopAfterCell = -1;
+		        		showSteps = true;
+		        		resetHighlight();
+		        		String oldDifficultyText = difficulty.getText();
+		        	    for (int row = 0; row < rows; row++){ 
+		        	    	for (int col = 0; col < cols; col++) {
+		        	    		int numCell = row * cols + col;
+		        	    		userInput[numCell] = backup[numCell];
+		        	    	}	
+		        	    }
+		        	    checkBoxes();
+		        		isOnlyOneSolution();
+		        	    for (int row = 0; row < rows; row++){ 
+		        	    	for (int col = 0; col < cols; col++) {
+		        	    		int numCell = row * cols + col;
+		        	    		if (userInput[numCell] == 0 && backup[numCell] == 0 && temporary[numCell] != 0) {
+		        	    			markHint(numCell);
+		        	    		}
+		        	    	}	
+		        	    }
+		        		difficulty.setText(oldDifficultyText);
+		        	    instructionArea.setText(solvingInstructions);
+		        		showSteps = false;
+		        		stopAfterOneStep = false;
+		        	} catch (Exception e1) {
+		
+					}
+		        }  
+		    });
+		y += h + space;
+
+        makeAButton("Rješenje polja", x, y, w, h, new ActionListener(){  
+	        public void actionPerformed(ActionEvent e) {  
+		        	try {
+		        		if (timerStopped) {
+		        			return;
+		        		}
+		        		mode = 3;
+	        			modeButton.setText("Izaði iz rješavanja");
+		        	} catch (Exception e1) {
+		
+					}
+		        }  
+		    });
+
+		y += h + space;
+		
         modeButton = makeAButton("", x, y, w, h, new ActionListener(){  
 	        public void actionPerformed(ActionEvent e) {  
 	        	try {
 	        		if (timerStopped) {
 	        			return;
 	        		}
-	        		if (setAssumed) {
-	        			modeButton.setText("Bilješke ISKLJUÈENE");
-	        			mode = 0;
-	        			return;
-	        		}
-	        		if (mode == 1) {
+	        		if (setAssumed || mode == 1) {
 	        			modeButton.setText("Bilješke ISKLJUÈENE");
 	        			mode = 0;
 	        		} else {
-			        	if (mode == 0) {
-		        			modeButton.setText("Bilješke UKLJUÈENE");
-		        			mode = 1;
-			        	} else {
-			        		if (mode == 2) {
-			        			modeButton.setText("Bilješke UKLJUÈENE");
-			        			mode = 1;
-			        		}
-			        	}
+			        	modeButton.setText("Bilješke UKLJUÈENE");
+			        	mode = 1;
 	        		}
 	        	} catch (Exception e1) {
 	
