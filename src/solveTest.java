@@ -218,4 +218,31 @@ class solveTest {
 		      assertEquals(getCorrectSolution(solutionFilename), getSolveSolution(9, testFilename));
 		}
 	}
+	
+	@Test
+	void testCaseEasy() throws FileNotFoundException {
+		for (int i = 1; i < 7; i++) {
+			  String solutionFilename = "src/solutions/solutionEasy" + String.valueOf(i) + ".txt";
+			  String testFilename = "src/testCases/testCaseEasy" + String.valueOf(i) + ".txt";
+		      assertEquals(getCorrectSolution(solutionFilename), getSolveSolution(9, testFilename));
+		}
+	}
+	
+	@Test
+	void testCaseMedium() throws FileNotFoundException {
+		for (int i = 1; i < 10; i++) {
+			  String solutionFilename = "src/solutions/solutionMedium" + String.valueOf(i) + ".txt";
+			  String testFilename = "src/testCases/testCaseMedium" + String.valueOf(i) + ".txt";
+		      assertEquals(getCorrectSolution(solutionFilename), getSolveSolution(9, testFilename));
+		}
+	}
+	
+	@Test
+	void testCaseHard() throws FileNotFoundException {
+		for (int i = 1; i < 8; i++) {
+			  String solutionFilename = "src/solutions/solutionHard" + String.valueOf(i) + ".txt";
+			  String testFilename = "src/testCases/testCaseHard" + String.valueOf(i) + ".txt";
+		      assertEquals(getCorrectSolution(solutionFilename), getSolveSolution(9, testFilename));
+		}
+	}
 }
