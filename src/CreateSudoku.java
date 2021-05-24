@@ -1,161 +1,194 @@
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.Insets;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
+import java.util.Set;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
+import javax.swing.JLabel;
+import javax.swing.JTextField;
 
 public class CreateSudoku extends Sudoku {
-
-	public CreateSudoku(int x, int y, int xl, int yl, int[] br, int[] bn) {
-		super(x, y, xl, yl);
-		border = br;
-		boxNumber = bn;
-	    int retval = 1;
-	    while(retval == 1) {
-		    for (int i = 0; i < rows; i++){ 
-		    	for (int j = 0; j < cols; j++) {
-		    		temporary[i * cols + j] = 0;
-			    }
-		    }
-		    retval = randomPuzzle();
-	    }
-	    draw();
-	    for (int i = 0; i < rows; i++){ 
-	    	for (int j = 0; j < cols; j++) {
-		    	int num = i * cols + j;
-	    		userInput[num] = temporary[num];
-	    		solution[num] = temporary[num];
-	    		field[num].setText(String.valueOf(userInput[num]));
+	
+	public void resetHighlight() {
+		for (int row = 0; row < rows; row++){
+	    	for (int col = 0; col < cols; col++) {
+    			setBackground(row, col, returnColour(row * cols + col));
+	    		field[row * cols + col].setFont(field[row * cols + col].getFont().deriveFont(~Font.BOLD | ~Font.ITALIC));
 	    	}
 	    }
+	}
+	
+	public void highlightCell(int numCell) {
+	    for (int row = 0; row < rows; row++){
+	    	for (int col = 0; col < cols; col++) {
+	    		if (col == numCell % cols || row == numCell / cols) {
+	    			setBackground(row, col, "one_more_gray");
+	    		} else {
+	    			setBackground(row, col, returnColour(row * cols + col));
+	    		}
+	    	}
+	    }
+	}
+
+	public void highlightDigit() {
+		for (int val = 0; val < cols + 1; val++) {
+			digitButtons[val].setBackground(Color.WHITE);
+		}
+		digitButtons[selectedDigit].setBackground(Color.CYAN);
+	    for (int row = 0; row < rows; row++){
+	    	for (int col = 0; col < cols; col++) {			    							    		
+    			if (userInput[row * cols + col] != 0) {
+		    		field[row * cols + col].setFont(new Font("Arial", Font.PLAIN, numberFontsize));
+    				if (userInput[row * cols + col] == selectedDigit) {
+	    				field[row * cols + col].setFont(field[row * cols + col].getFont().deriveFont(Font.BOLD | Font.ITALIC));
+    				} else {
+    					field[row * cols + col].setFont(field[row * cols + col].getFont().deriveFont(~Font.BOLD | ~Font.ITALIC));
+    				}
+    			} else {
+					if (selectedDigit == 0) {
+						continue;
+					}
+		    		if (possibilities[row * cols + col][selectedDigit - 1] == 1) {
+	    				setAllOptions(possibilities, row, col, true);
+		    		}
+    			}
+	    	}
+	    }
+	}
+	
+	public CreateSudoku(int constructRows, int constructCols, int rowLimit, int colLimit, int[] constructBorder, int[] constructBoxNumber, boolean setDiagonalOn, boolean setWrapAround, Set<String> setSizeRelationships, int[] constructSumBoxSums, int[] constructSumBoxNumbers) {
+		super(constructRows, constructCols, rowLimit, colLimit, setDiagonalOn, setWrapAround, setSizeRelationships);
+		border = constructBorder;
+		boxNumber = constructBoxNumber;
+		sumBoxSums = constructSumBoxSums;
+		sumBoxNumber = constructSumBoxNumbers;
+		if (cols <= 12) {
+			if (InformationBox.yesNoBox("Želite li da se mreža automatski ispuni?", "Ukljuèi bilješke")) {
+			    long startGen = System.currentTimeMillis();
+			    int retval = -1;
+			    while(retval == -2 || retval == -1) {
+			    	if (System.currentTimeMillis() - startGen >= 10000) {
+		    		    InformationBox.infoBox("Nije moguæe ispuniti zagonetku prema zadanim kriterijima.", "Pogrešno dizajnirana zagonetka");
+		    		    initialize();
+			    		break;
+			    	}
+				    for (int row = 0; row < rows; row++){ 
+				    	for (int col = 0; col < cols; col++) {
+				    		temporary[row * cols + col] = 0;
+					    }
+				    }
+					useGuessing = true;
+				    retval = isOnlyOneSolution();
+					useGuessing = false;
+			    }
+			} else {
+			    for (int row = 0; row < rows; row++){ 
+			    	for (int col = 0; col < cols; col++) {
+			    		temporary[row * cols + col] = 0;
+				    }
+			    }
+			}
+		} else {
+		    InformationBox.infoBox("Nije moguæe stvoriti nasumiènu zagonetku veæu od 12x12.", "Prevelika zagonetka");
+		    initialize();
+		}
+	    draw();
+	    for (int row = 0; row < rows; row++){ 
+	    	for (int col = 0; col < cols; col++) {
+		    	int numCell = row * cols + col;
+	    		userInput[numCell] = temporary[numCell];
+	    		solution[numCell] = temporary[numCell];
+	    		if (userInput[numCell] < 10) {
+	    			field[numCell].setText(String.valueOf(userInput[numCell]));
+	    		} else {
+	    			char c = 'A';
+	    			c += userInput[numCell] - 10;
+	    			field[numCell].setText("" + c);
+	    		}
+	    	}
+	    }
+	    assume();
 		checkBoxes();
+		checkIfCorrect();
+		for (int digit = 0; digit < cols + 1; digit++) {
+			numUseDigit[digit] = 0;
+		}
+		for (int cell = 0; cell < rows * cols; cell++){
+	    	numUseDigit[userInput[cell]]++;
+	    }
+		for (int digit = 1; digit < cols + 1; digit++) {
+			checkIfDigitMaxUsed(digit);
+		}
+		// Èistimo upute za rješavanje i težinu
+		difficultyScore = 0;
+		instructionArea.setText("");
+		solvingInstructions = "";
+		difficulty.setText("");
 	    frame.setVisible(true);
-	    checkIfCorrect();
+	    frame.requestFocus();
 	}
 	
 
-	public CreateSudoku(int x, int y, int xl, int yl, int[] br, int[] bn, int ui[]) {
-		super(x, y, xl, yl);
-		border = br;
-		boxNumber = bn;
+	public CreateSudoku(int constructRows, int constructCols, int rowLimit, int colLimit, int[] constructBorder, int[] constructBoxNumber, boolean setDiagonalOn, boolean setWrapAround, Set<String> setSizeRelationships, int constructUserInput[], String oldLastUsedPath,  int[] constructSumBoxSums, int[] constructSumBoxNumbers) {
+		super(constructRows, constructCols, rowLimit, colLimit, setDiagonalOn, setWrapAround, setSizeRelationships);
+		lastUsedPath = oldLastUsedPath;
+		border = constructBorder;
+		boxNumber = constructBoxNumber;
+		sumBoxSums = constructSumBoxSums;
+		sumBoxNumber = constructSumBoxNumbers;
 	    draw();
-	    for (int i = 0; i < rows; i++){ 
-	    	for (int j = 0; j < cols; j++) {
-		    	int num = i * cols + j;
-	    		userInput[num] = ui[num];
-	    		solution[num] = 0;
-	    		field[num].setText(String.valueOf(userInput[num]));
+	    for (int row = 0; row < rows; row++){ 
+	    	for (int col = 0; col < cols; col++) {
+		    	int numCell = row * cols + col;
+	    		userInput[numCell] = constructUserInput[numCell];
+	    		solution[numCell] = 0;
+	    		if (userInput[numCell] < 10) {
+	    			field[numCell].setText(String.valueOf(userInput[numCell]));
+	    		} else {
+	    			char c = 'A';
+	    			c += userInput[numCell] - 10;
+	    			field[numCell].setText("" + c);
+	    		}
 	    	}
 	    }
+	    assume();
 		checkBoxes();
 	    checkIfCorrect();
-	    frame.setVisible(true);
-	}
-
-	@Override
-	public boolean checkIfCorrect() {
-		String errortext = "";
-		boolean incorrect[] = new boolean[rows * cols];
-	    for (int i = 0; i < rows; i++){ 
-	    	for (int j = 0; j < cols; j++) {
-		    	int num = i * cols + j;
-		    	field[i * cols + j].setForeground(Color.BLACK);
-		    	temporary[num] = userInput[num];
-		    	incorrect[num] = false;
-	    	}
-	    }
-		boolean correct = true;
-		for (int val = 1; val <= rows; val++) {
-			int[] usedRows = new int[rows];
-			int[] usedCols = new int[cols];
-			int[] usedBoxes = new int[rows];
-		    for (int i = 0; i < rows; i++){
-		    	for (int j = 0; j < cols; j++) {
-		    		usedRows[i] = 0;
-		    		usedCols[j] = 0;
-		    		usedBoxes[i] = 0;
-			    }
-		    }
-		    for (int i = 0; i < rows; i++){
-		    	for (int j = 0; j < cols; j++) {
-		    		boolean status = false;
-		    		if (temporary[i * cols + j] == val) {
-			    		usedRows[i]++;
-			    		usedCols[j]++;
-			    		usedBoxes[boxNumber[i * cols + j]]++;
-			    		if (usedRows[i] > 1) {
-			    			errortext += val + ": " + "(" + (i + 1) + ", " + (j + 1) + ") Broj " + val + " veæ postoji u retku " + (i + 1) + "\n";
-			    			correct = false;
-			    			status = true;
-			    			incorrect[i * cols + j] = true;
-			    		}
-			    		if (usedCols[j] > 1) {
-			    			errortext += val + ": " + "(" + (i + 1) + ", " + (j + 1) + ") Broj " + val + " veæ postoji u stupcu " + (j + 1) + "\n";
-			    			correct = false;
-			    			status = true;
-			    			incorrect[i * cols + j] = true;
-			    		}
-			    		if (usedBoxes[boxNumber[i * cols + j]] > 1) {
-			    			errortext += val + ": " + "(" + (i + 1) + ", " + (j + 1) + ") Broj " + val + " veæ postoji u kutiji " + (boxNumber[i * cols + j] + 1) + "\n";
-			    			correct = false;
-			    			status = true;
-			    			incorrect[i * cols + j] = true;
-			    		}
-			    		if (status) {
-			    			for (int k = 0; k < rows; k++) {
-				    			int num = k * cols + j;
-				    			if (temporary[num] == val) {
-				    				incorrect[num] = true;
-				    			}
-				    		}
-				    		for (int k = 0; k < cols; k++) {
-				    			int num = i * cols + k;
-				    			if (temporary[num] == val) {
-				    				incorrect[num] = true;
-				    			}
-				    		}
-						    for (int x = (i / ylim) * (cols / xlim); x < (i / ylim + 1) * (cols / xlim); x++){
-						    	for (int y = (j / xlim) * (cols / xlim); y < (j / xlim + 1) * (cols / xlim); y++) {
-					    			int num = x * cols + y;
-						    		if (temporary[num] == val) {
-					    				incorrect[num] = true;
-						    		}
-						    	}
-						    }
-			    		}
-		    		}
-			    }
-		    }
+		for (int digit = 0; digit < cols + 1; digit++) {
+			numUseDigit[digit] = 0;
 		}
-	    for (int i = 0; i < rows; i++){
-	    	for (int j = 0; j < cols; j++) {
-    			int num = i * cols + j;
-	    		if (incorrect[num] && temporary[num] != 0) {
-    				field[num].setForeground(Color.ORANGE);
+		for (int cell = 0; cell < rows * cols; cell++){
+	    	numUseDigit[userInput[cell]]++;
+	    }
+		for (int digit = 1; digit < cols + 1; digit++) {
+			checkIfDigitMaxUsed(digit);
+		}
+	    frame.setVisible(true);
+	    frame.requestFocus();
+	}
+	
+	
+	
+	@Override
+	public int countIncorrect(boolean[] incorrect, boolean correct) {
+		int localnumErrors = 0;
+	    for (int row = 0; row < rows; row++){
+	    	for (int col = 0; col < cols; col++) {
+    			int numCell = row * cols + col;
+	    		if (incorrect[numCell]) {
+	    			localnumErrors++;
+	    			field[numCell].setForeground(Color.ORANGE);
 	    		} else {
-	    			if (temporary[num] == 0) {
-	    				field[num].setForeground(Color.RED);
-		    		} else {
-	    				field[num].setForeground(Color.GREEN);	
-		    		}
+    				field[numCell].setForeground(Color.WHITE);
 	    		}
 		    }
 	    }
-	    errorArea.setText(errortext);
-		return correct;
+		return localnumErrors;
 	}
-
 
 
 /*public void keyPressed(KeyEvent e) {
@@ -164,236 +197,266 @@ public class CreateSudoku extends Sudoku {
 
     //System.out.println(key);
 }*/
+    @Override
+	public void assume() {
+	    for (int row = 0; row < rows; row++){ 
+	    	for (int col = 0; col < cols; col++) {
+		    	int numCell = row * cols + col;
+		    	temporary[numCell] = userInput[numCell];
+	    	}
+	    }
+	    initPencilmarks();
+		fixPencilmarks();
+	    for (int row = 0; row < rows; row++){ 
+	    	for (int col = 0; col < cols; col++) {
+		    	int numCell = row * cols + col;
+	    		if (userInput[numCell] != 0) {
+	    			continue;
+	    		}
+	    		setAllOptions(possibilities, row, col, false);
+	    	}
+	    }
+	}
+    
+    @Override
+	public ActionListener makeActionListener(int numCell) {
+		return new ActionListener(){  
+	        public void actionPerformed(ActionEvent e) {  
+	        	try {
+	        		if (zoomMode) {
+		        		zoomArea.setText(field[numCell].getText().replace("yellow", "black"));
+						resetHighlight();
+						highlightDigit();
+						highlightCell(numCell);
+		        		return;
+	        		}
+	        		if (userInput[numCell] != selectedDigit) {
+	        			numUseDigit[userInput[numCell]]--;
+	        			numUseDigit[selectedDigit]++;
+	        			if (userInput[numCell] != 0) {
+	        				checkIfDigitMaxUsed(userInput[numCell]);
+	        			}
+	        			if (selectedDigit != 0) {
+	        				checkIfDigitMaxUsed(selectedDigit);
+	        			}
+	        		}
+	        		userInput[numCell] = selectedDigit;
+				    field[numCell].setFont(new Font("Arial", Font.PLAIN, numberFontsize));
+	        		if (selectedDigit != 0) {
+        	    		if (selectedDigit < 10) {
+	    	    			field[numCell].setText(String.valueOf(selectedDigit));
+	    	    		} else {
+	    	    			char c = 'A';
+	    	    			c += selectedDigit - 10;
+	    	    			field[numCell].setText("" + c);
+	    	    		}
+	        		}
+	        		assume();
+	        		zoomArea.setText(field[numCell].getText().replace("yellow", "black"));
+	        		highlightCell(numCell);
+					highlightDigit();
+	        		checkIfCorrect();
+				} catch (Exception e1) {
 
+				}
+	        }  
+	    };
+	}
 
-	KeyListener k  =
-	new KeyListener(){
-		public void keyPressed(KeyEvent e) {
-			int key = e.getKeyCode();
-			if (key - 48 >= 0 && key - 48 <= 9) {
-				selectedDigit = key - 48;
-			}
-		}
-		public void keyReleased(KeyEvent e) {}
-		public void keyTyped(KeyEvent e) {}
-	};
+    @Override
+	public ActionListener makeDigitActionListener(int digit) {
+    	return new ActionListener(){  
+	        public void actionPerformed(ActionEvent e) {  
+	        	try {
+	        		selectedDigit = digit;
+					resetHighlight();
+					highlightDigit();
+	        		checkIfCorrect();
+				} catch (Exception e1) {
+	
+	
+				}
+	        }  
+	    };
+    }
+    
 	@Override
 	public void draw () 
     {
 		frame = new JFrame("Stvori sudoku");  
 	    frame.setDefaultCloseOperation (JFrame.DISPOSE_ON_CLOSE);
-	    frame.addKeyListener(k);
-	    int x = 15;
-		int y = 15;
-		int w = 60;
-		int h = 60;
-		int fontsize = 12;
+	    frame.addKeyListener(keyListener);
+	    int returnX = makeButtons();
+	    int digitEnd = makeDigitButtons();
+	    h = h / 2;
+	    w = (int) (200 * widthScaling);
+	    y = space;
+	    x = returnX + space;
+	 	makeAButton("Prikaži korake", x, y, w, h, new ActionListener(){  
+	        public void actionPerformed(ActionEvent e) {  
+		        	try {
+		        		useGuessing = false;
+		        	    if (InformationBox.yesNoBox("Želite li da se pri rješavanju koristi pogaðanje?", "Korak po korak")) {
+		        	    	useGuessing = true;
+		        	    }
+		        		showSteps = true;
+		        	    if (!InformationBox.stepBox("Jeste li spremni za prikaz koraka?", "Korak po korak")) {
+		        	    	showSteps = false;
+		        	    }
+		        		isOnlyOneSolution();
+		        		useGuessing = false;
+		        	    instructionArea.setText(solvingInstructions);
+		        	    InformationBox.infoBox("Rješavanje je dovršeno, nastavak dizajna.", "Korak po korak");
+		        	    if (InformationBox.yesNoBox("Želite li da se rješenje zapiše u polja?", "Korak po korak")) {
+		        	    	 for (int row = 0; row < rows; row++){ 
+			        	    	for (int col = 0; col < cols; col++) {
+			        		    	int numCell = row * cols + col;
+			        	    		userInput[numCell] = temporary[numCell];
+			        	    		if (userInput[numCell] < 10) {
+				    	    			field[numCell].setText(String.valueOf(userInput[numCell]));
+				    	    		} else {
+				    	    			char c = 'A';
+				    	    			c += userInput[numCell] - 10;
+				    	    			field[numCell].setText("" + c);
+				    	    		}
+			        	    	}
+			        	    }
+		        	    }
+		        	    assume();
+		        	    checkIfCorrect();
+		        		showSteps = false;
+					} catch (Exception e1) {
 		
-	    for (int i = 0; i < rows; i++){ 
-	    	x = 15;
-	    	for (int j = 0; j < cols; j++) {
-	    		int num = i * cols + j;
-	    	    field[num] = new JButton(String.valueOf("0"));  
-			    field[num].setMargin(new Insets(1,1,1,1));
-			    field[num].setFont(new Font("Arial", Font.PLAIN, fontsize));
-			    field[num].setBounds(x, y, w, h);
-			    
-			    field[num].addFocusListener(new FocusListener(){  
-			        public void focusGained(FocusEvent e) {
-    				    for (int i2 = 0; i2 < rows; i2++){
-    				    	for (int j2 = 0; j2 < cols; j2++) {
-    				    		if (j2 == num % cols || i2 == num / cols) {
-    				    			field[i2 * cols + j2].setBackground(Color.PINK);
-    				    		} else {
-	    				    	        if (border[i2 * cols + j2] == 3) {
-	    				    	    		field[i2 * cols + j2].setBackground(Color.LIGHT_GRAY);
-	    				    	    	}
-	    				    	        if (border[i2 * cols + j2] == 2) {
-	    				    	    		field[i2 * cols + j2].setBackground(Color.DARK_GRAY);
-	    				    	    	}
-	    				    	    	if (border[i2 * cols + j2] == 1) {
-	    				    	    		field[i2 * cols + j2].setBackground(Color.BLACK);
-	    				    	    	}
-	    				    	        if (border[i2 * cols + j2] == 0) {
-	    				    	    		field[i2 * cols + j2].setBackground(Color.GRAY);
-	    				    	    	}
-	    				    	        if (border[i2 * cols + j2] == -1) {
-	    				    	    		field[i2 * cols + j2].setBackground(Color.RED);
-	    				    	    	}
-    				    		}
-    				    		if (userInput[num] == 0) {
-	    				    		if (userInput[i2 * cols + j2] == selectedDigit && selectedDigit != 0) {
-	    				    			field[i2 * cols + j2].setFont(field[i2 * cols + j2].getFont().deriveFont(Font.BOLD | Font.ITALIC));
-	    				    		} else {    				    			
-	    				    			field[i2 * cols + j2].setFont(field[i2 * cols + j2].getFont().deriveFont(~Font.BOLD | ~Font.ITALIC));
-	    				    		}
-    				    		} else {
-	    				    		if (userInput[i2 * cols + j2] == userInput[num]) {
-	    				    			field[i2 * cols + j2].setFont(field[i2 * cols + j2].getFont().deriveFont(Font.BOLD | Font.ITALIC));
-	    				    		} else {    				    			
-	    				    			field[i2 * cols + j2].setFont(field[i2 * cols + j2].getFont().deriveFont(~Font.BOLD | ~Font.ITALIC));
-	    				    		}
-    				    		}
-    				    	}
-    				    }
-			        	field[num].setFont(field[num].getFont().deriveFont(Font.BOLD | Font.ITALIC));
-			        }
-					public void focusLost(FocusEvent e) {
-	
-						
+		
 					}
-				});
-			    
-			    field[num].addActionListener(new ActionListener(){  
-			        public void actionPerformed(ActionEvent e) {  
-			        	try {
-			        		userInput[num] = selectedDigit;
-			    	        /*if (selectedDigit == 0) {
-			    	        	field[num].setForeground(Color.RED);
-			    	        } else {
-			    	        	field[num].setForeground(Color.WHITE);
-			    	        }*/
-			        		field[num].setText(String.valueOf(selectedDigit));
-			        		checkIfCorrect();
-						} catch (Exception e1) {
+		        }  
+	    });
+		y += h + space;
+	 	makeAButton("Isprazni mrežu", x, y, w, h, new ActionListener(){  
+	        public void actionPerformed(ActionEvent e) {  
+		        	try {
+		        	    for (int row = 0; row < rows; row++){
+		        	    	for (int col = 0; col < cols; col++) {
+		        	        	int numCell = row * cols + col;
+		        	    		temporary[numCell] = 0;
+		        	    		solution[numCell] = 0;
+		        	    		userInput[numCell] = 0;
+		        		    }
+		        	    }
+		        		for (int digit = 0; digit < cols + 1; digit++) {
+		        			numUseDigit[digit] = 0;
+		        		}
+		        		for (int digit = 1; digit < cols + 1; digit++) {
+		        			checkIfDigitMaxUsed(digit);
+		        		}
+		        		assume();
+		        		resetHighlight();
+					} catch (Exception e1) {
 		
-						}
-			        }  
-			    });
-			    field[num].addKeyListener(k);
-			    frame.add(field[num]);
-		    	x += w;
-		    }
-		    y += h;
-	    }
-
-        JButton fillb = new JButton("Nasumièmo nadopuni");  
-		fillb.setMargin(new Insets(1,1,1,1));
-		fillb.setBounds((cols + 1) * w + 15 * 2, 15, 9 * w / 4, h);
-		fillb.setFont(new Font("Arial", Font.PLAIN, fontsize));
-		fillb.addActionListener(new ActionListener(){  
-        public void actionPerformed(ActionEvent e) {  
-	        	try {
-	        		fill();
-	        		checkIfCorrect();
-	        		difficulty.setText("");
-				} catch (Exception e1) {
-	
-	
-				}
-	        }  
+		
+					}
+		        }  
 	    });
-		fillb.addKeyListener(k);
-        JButton uniqueb = new JButton("Jedinstvenost rješenja");  
-		uniqueb.setMargin(new Insets(1,1,1,1));
-		uniqueb.setBounds((cols + 1) * w + 15 * 2, 15 + 15 + h, 9 * w / 4, h);
-		uniqueb.setFont(new Font("Arial", Font.PLAIN, fontsize));
-		uniqueb.addActionListener(new ActionListener(){  
-        public void actionPerformed(ActionEvent e) {  
+		y += h + space;
+	 	makeAButton("Nasumièmo nadopuni", x, y, w, h, new ActionListener(){  
+	        public void actionPerformed(ActionEvent e) {  
+		        	try {
+		        		showSteps = false;
+		        	    useGuessing = true;
+		        		isOnlyOneSolution();
+		        	    useGuessing = false;
+		        	    instructionArea.setText(solvingInstructions);
+		        	    for (int row = 0; row < rows; row++){ 
+		        	    	for (int col = 0; col < cols; col++) {
+		        		    	int numCell = row * cols + col;
+		        	    		userInput[numCell] = temporary[numCell];
+		        	    		if (userInput[numCell] < 10) {
+			    	    			field[numCell].setText(String.valueOf(userInput[numCell]));
+			    	    		} else {
+			    	    			char c = 'A';
+			    	    			c += userInput[numCell] - 10;
+			    	    			field[numCell].setText("" + c);
+			    	    		}
+		        	    	}
+		        	    }
+		        	    assume();
+		        	    difficultyScore = 0;
+		        		instructionArea.setText("");
+		        		solvingInstructions = "";
+		        		difficulty.setText("");
+		        	    checkIfCorrect();
+		        		showSteps = false;
+					} catch (Exception e1) {
+		
+					}
+		        }  
+		    });
+		y += h + space;
+	 	makeAButton("Simetrièno ukloni", x, y, w, h, new ActionListener(){  
+	        public void actionPerformed(ActionEvent e) {  
+		        	try {
+		        		removeSymetricPair();
+		        		assume();
+		        		checkIfCorrect();
+		        	} catch (Exception e1) {
+		
+					}
+		        }  
+		    });
+		y += h + space;
+	 	makeAButton("Vrati uklonjeno", x, y, w, h, new ActionListener(){  
+	        public void actionPerformed(ActionEvent e) {  
+		        	try {
+		        		restoreLastRemoved();
+		        		assume();
+		        		checkIfCorrect();
+		        	} catch (Exception e1) {
+		
+					}
+		        }  
+		    });
+		y += h + space;
+	 	makeAButton("Spremi zagonetku", x, y, w, h, new ActionListener(){  
+	        public void actionPerformed(ActionEvent e) {  
+		        	try {
+		        		writeToFile("");
+		        	} catch (Exception e1) {
+		
+					}
+		        }  
+		    });
+		y += h + space;
+	 	makeAButton("Uèitaj zagonetku", x, y, w, h, new ActionListener(){  
+	        public void actionPerformed(ActionEvent e) {  
 	        	try {
-	        		isOnlyOneSolution();
-	        	    instructionArea.setText(solvingInstructions);
-	        		checkIfCorrect();
-				} catch (Exception e1) {
-	
-	
-				}
-	        }  
-	    });
-		uniqueb.addKeyListener(k);
-		JButton cleargrid = new JButton("Isprazni mrežu");  
-        cleargrid.setMargin(new Insets(1,1,1,1));
-        cleargrid.setBounds((cols + 1) * w + 15 * 2, 15 + 15 * 2 + h * 2, 9 * w / 4, h);
-        cleargrid.setFont(new Font("Arial", Font.PLAIN, fontsize));
-        cleargrid.addActionListener(new ActionListener(){  
-        public void actionPerformed(ActionEvent e) {  
-	        	try {
-	        	    for (int i = 0; i < rows; i++){
-	        	    	for (int j = 0; j < cols; j++) {
-	        	        	int num = i * cols + j;
-	        	    		temporary[num] = 0;
-	        	    		solution[num] = 0;
-	        	    		userInput[num] = 0;
-	        	    		field[num].setText("0");
-	        	    		field[num].setForeground(Color.RED);
-	        		    }
-	        	    }
-				} catch (Exception e1) {
-	
-	
-				}
-	        }  
-	    });
-		x = 15;
-		cleargrid.addKeyListener(k);
-        JButton removeb = new JButton("Simetrièno ukloni");  
-        removeb.setMargin(new Insets(1,1,1,1));
-        removeb.setBounds((cols + 1) * w + 15 * 2, 15 + 15 * 3 + h * 3, 9 * w / 4, h);
-        removeb.setFont(new Font("Arial", Font.PLAIN, fontsize));
-        removeb.addActionListener(new ActionListener(){  
-        public void actionPerformed(ActionEvent e) {  
-	        	try {
-	        		removeSymetricPair();
-	        		checkIfCorrect();
-				} catch (Exception e1) {
-	
-	
-				}
-	        }  
-	    });
-		x = 15;
-		removeb.addKeyListener(k);
-        JButton restoreb = new JButton("Vrati uklonjeno");  
-        restoreb.setMargin(new Insets(1,1,1,1));
-        restoreb.setBounds((cols + 1) * w + 15 * 2, 15 + 15 * 4 + h * 4, 9 * w / 4, h);
-        restoreb.setFont(new Font("Arial", Font.PLAIN, fontsize));
-        restoreb.addActionListener(new ActionListener(){  
-        public void actionPerformed(ActionEvent e) {  
-	        	try {
-	        		restoreLastRemoved();
-	        		checkIfCorrect();
-				} catch (Exception e1) {
-	
-	
-				}
-	        }  
-	    });
-		x = 15;
-		restoreb.addKeyListener(k);
-		FileManipulator f = new FileManipulator();
-		f.setSudoku(this);
-        JButton filesaveb = new JButton("Spremi zagonetku");  
-        filesaveb.setMargin(new Insets(1,1,1,1));
-        filesaveb.setBounds((cols + 1) * w + 15 * 2, 15 + 15 * 5 + h * 5, 9 * w / 4, h);
-        filesaveb.setFont(new Font("Arial", Font.PLAIN, fontsize));
-        filesaveb.addActionListener(new ActionListener(){  
-        public void actionPerformed(ActionEvent e) {  
-	        	try {
-	        		f.WriteToFile();
-				} catch (Exception e1) {
-					
-				}
-	        }  
-	    });
-		x = 15;
-		filesaveb.addKeyListener(k);
-        JButton filereadb = new JButton("Uèitaj zagonetku");  
-        filereadb.setMargin(new Insets(1,1,1,1));
-        filereadb.setBounds((cols + 1) * w + 15 * 2, 15 + 15 * 6 + h * 6, 9 * w / 4, h);
-        filereadb.setFont(new Font("Arial", Font.PLAIN, fontsize));
-        filereadb.addActionListener(new ActionListener(){  
-        public void actionPerformed(ActionEvent e) {  
-	        	try {
-	        		if (f.ReadFile() == 0) {
-		        	    for (int i = 0; i < rows; i++){ 
-		        	    	for (int j = 0; j < cols; j++) {
-		        		    	int num = i * cols + j;
-		        	    		solution[num] = 0;
-		        	    		field[num].setText(String.valueOf(userInput[num]));
+	        		if (readFile("") == 0) {
+		        	    for (int row = 0; row < rows; row++){ 
+		        	    	for (int col = 0; col < cols; col++) {
+		        		    	int numCell = row * cols + col;
+		        	    		solution[numCell] = 0;
+		        	    		if (userInput[numCell] < 10) {
+			    	    			field[numCell].setText(String.valueOf(userInput[numCell]));
+			    	    		} else {
+			    	    			char c = 'A';
+			    	    			c += userInput[numCell] - 10;
+			    	    			field[numCell].setText("" + c);
+			    	    		}
 		        	    	}
 		        	    }
 		        		checkBoxes();
+		        		assume();
 		        	    checkIfCorrect();
+		        	    resetHighlight();
+		        	    highlightDigit();
+		        		for (int digit = 0; digit < cols + 1; digit++) {
+		        			numUseDigit[digit] = 0;
+		        		}
+		        		for (int cell = 0; cell < rows * cols; cell++){
+		        	    	numUseDigit[userInput[cell]]++;
+		        	    }
+		        		for (int digit = 1; digit < cols + 1; digit++) {
+		        			checkIfDigitMaxUsed(digit);
+		        		}
 	        		}
 				} catch (Exception e1) {
 	
@@ -401,89 +464,215 @@ public class CreateSudoku extends Sudoku {
 				}
 	        }  
 	    });
-		x = 15;
-		filereadb.addKeyListener(k);
-		for (int i = 0; i < cols + 1; i++) {
-	        JButton digib = new JButton(String.valueOf(i));  
-	        digib.setMargin(new Insets(1,1,1,1));
-	        digib.setBounds(x, rows * h + 15 * 2, w, h);
-	        digib.setFont(new Font("Arial", Font.PLAIN, fontsize));
-	        if (i == 0) {
-	        	digib.setForeground(Color.RED);
-	        }
-	        int digit = i;
-	        digib.addActionListener(new ActionListener(){  
+		y += h + space;
+	 	makeAButton("Riješi zagonetku", x, y, w, h, new ActionListener(){  
 	        public void actionPerformed(ActionEvent e) {  
 		        	try {
-		        		selectedDigit = digit;
-		        		checkIfCorrect();
+		        		boolean correct = checkIfCorrect();
+		        	    // Ako zagonetka nije ispravno zadana, ne možemo ju rješavati
+		            	if (!correct) {
+		        			difficulty.setText("U zagonetki ima grešaka");
+		            		return;
+		            	}
+	        			@SuppressWarnings("unused")
+						SolveSudoku SolveSudoku = new SolveSudoku(rows, cols, xLim, yLim, border, boxNumber, diagonalOn, wrapAround, sizeRelationships, userInput, true, sumBoxSums, sumBoxNumber);
 					} catch (Exception e1) {
 		
 		
 					}
 		        }  
 		    });
-	        digib.addKeyListener(k);
-	        frame.add(digib);
-	        x += w;
-		}
-		filesaveb.addKeyListener(k);
+		y += h + space;
+	   
+		JLabel val1Label = new JLabel("Broj 1: ");
+		val1Label.setFont(new Font("Arial", Font.PLAIN, fontsize));
+		val1Label.setBounds(x, y, w, h);
+	    frame.add(val1Label);
+	    
+	    JTextField val1Value = new JTextField(String.valueOf(rows));
+	    val1Value.setFont(new Font("Arial", Font.PLAIN, fontsize));
+	    val1Value.setBounds(x + w / 2 - h - space, y, h, h);
+	    frame.add(val1Value);
 
-        JButton showstepb = new JButton("Prikaži korake");  
-        showstepb.setMargin(new Insets(1,1,1,1));
-        showstepb.setBounds((cols + 1) * w + 15 * 2, 15 + 15 * 7 + h * 7, 9 * w / 4, h);
-        showstepb.setFont(new Font("Arial", Font.PLAIN, fontsize));
-        showstepb.addActionListener(new ActionListener(){  
-        public void actionPerformed(ActionEvent e) {  
-	        	try {
-	        		showSteps = true;
-	        		isOnlyOneSolution();
-	        		checkIfCorrect();
-	        	    instructionArea.setText(solvingInstructions);
-	        		showSteps = false;
-				} catch (Exception e1) {
-	
-				}
-	        }  
-	    });
-        showstepb.addKeyListener(k);
-        difficulty.setBounds((cols + 1) * w + 15 * 2, 15 * 8 + 15 + h * 8, 200, h / 2);
+	    JLabel val2Label = new JLabel("Broj 2: ");
+	    val2Label.setFont(new Font("Arial", Font.PLAIN, fontsize));
+	    val2Label.setBounds(x + w / 2 + space, y, w, h);
+	    frame.add(val2Label);
+	    
+	    JTextField val2Value = new JTextField(String.valueOf(rows));
+	    val2Value.setFont(new Font("Arial", Font.PLAIN, fontsize));
+	    val2Value.setBounds(x + w - h, y, h, h);
+	    frame.add(val2Value);
+	    y += h + space;
+	    
+	    JButton rowSwap = makeAButton("", x, y, h, h, new ActionListener(){  
+	        public void actionPerformed(ActionEvent e) {  
+		        	try {
+						if (Integer.parseInt(val1Value.getText()) == Integer.parseInt(val2Value.getText())) {
+							InformationBox.infoBox("Ne možete zamjeniti red " + val1Value.getText() + " sa samim sobom.", "Zamjena redova");
+							return;
+						}
+						if (Integer.parseInt(val1Value.getText()) > rows) {
+							InformationBox.infoBox("Prvi red je veæi od broja stupaca.", "Zamjena redova");
+							return;
+						}
+						if (Integer.parseInt(val2Value.getText()) > rows) {
+							InformationBox.infoBox("Drugi red je veæi od broja stupaca.", "Zamjena redova");
+							return;
+						}
+						if (Integer.parseInt(val1Value.getText()) < 1) {
+							InformationBox.infoBox("Prvi red je manji ili jednak 0.", "Zamjena redova");
+							return;
+						}
+						if (Integer.parseInt(val2Value.getText()) < 1) {
+							InformationBox.infoBox("Drugi red je manji ili jednak 0.", "Zamjena redova");
+							return;
+						}
+						swapRow(Integer.parseInt(val1Value.getText()) - 1, Integer.parseInt(val2Value.getText()) - 1);
+		        	    assume();
+		        	    checkIfCorrect();
+		        	    resetHighlight();
+		        	    highlightDigit();
+					} catch (Exception e1) {
+						
+					}
+		        }  
+		    });
+		
+		JButton colSwap = makeAButton("", x + h + space, y , h, h, new ActionListener(){  
+	        public void actionPerformed(ActionEvent e) {  
+		        	try {
+						if (Integer.parseInt(val1Value.getText()) == Integer.parseInt(val2Value.getText())) {
+							InformationBox.infoBox("Ne možete zamjeniti stupac " + val1Value.getText() + " sa samim sobom.", "Zamjena stupaca");
+							return;
+						}
+						if (Integer.parseInt(val1Value.getText()) > cols) {
+							InformationBox.infoBox("Prvi stupac je veæi od broja stupaca.", "Zamjena stupaca");
+							return;
+						}
+						if (Integer.parseInt(val2Value.getText()) > cols) {
+							InformationBox.infoBox("Drugi stupac je veæi od broja stupaca.", "Zamjena stupaca");
+							return;
+						}
+						if (Integer.parseInt(val1Value.getText()) < 1) {
+							InformationBox.infoBox("Prvi stupac je manji ili jednak 0.", "Zamjena stupaca");
+							return;
+						}
+						if (Integer.parseInt(val2Value.getText()) < 1) {
+							InformationBox.infoBox("Drugi stupac je manji ili jednak 0.", "Zamjena stupaca");
+							return;
+						}
+						swapCol(Integer.parseInt(val1Value.getText()) - 1, Integer.parseInt(val2Value.getText()) - 1);
+		        	    assume();
+		        	    checkIfCorrect();
+		        	    resetHighlight();
+		        	    highlightDigit();
+					} catch (Exception e1) {
+		
+		
+					}
+		        }  
+		    });
+		
+		JButton valSwap = makeAButton("", x + 2 * h + 2 * space, y, h, h, new ActionListener(){  
+	        public void actionPerformed(ActionEvent e) {  
+		        	try {
+						if (Integer.parseInt(val1Value.getText()) == Integer.parseInt(val2Value.getText())) {
+							InformationBox.infoBox("Ne možete zamjeniti vrijednost " + val1Value.getText() + " sa samom sobom.", "Zamjena vrijednosti");
+							return;
+						}
+						if (Integer.parseInt(val1Value.getText()) > cols) {
+							InformationBox.infoBox("Prva vrijednost je veæa od broja vrijednosti.", "Zamjena vrijednosti");
+							return;
+						}
+						if (Integer.parseInt(val2Value.getText()) > cols) {
+							InformationBox.infoBox("Druga vrijednost je veæa od broja vrijednosti.", "Zamjena vrijednosti");
+							return;
+						}
+						if (Integer.parseInt(val1Value.getText()) < 1) {
+							InformationBox.infoBox("Prva vrijednost je manja ili jednaka 0.", "Zamjena vrijednosti");
+							return;
+						}
+						if (Integer.parseInt(val2Value.getText()) < 1) {
+							InformationBox.infoBox("Druga vrijednost je manja ili jednaka 0.", "Zamjena vrijednosti");
+							return;
+						}
+						swapNumbers(Integer.parseInt(val1Value.getText()), Integer.parseInt(val2Value.getText()));
+		        	    assume();
+		        	    checkIfCorrect();
+		        	    resetHighlight();
+		        	    highlightDigit();
+					} catch (Exception e1) {
+		
+		
+					}
+		        }  
+		    });
+	    y += h + space;
+
+	    rowSwap.setIcon(new ImageIcon(new ImageIcon("src/images/swap_rows.png").getImage().getScaledInstance(rowSwap.getWidth(), rowSwap.getHeight(), Image.SCALE_DEFAULT)));
+	    colSwap.setIcon(new ImageIcon(new ImageIcon("src/images/swap_columns.png").getImage().getScaledInstance(colSwap.getWidth(), colSwap.getHeight(), Image.SCALE_DEFAULT)));
+	    valSwap.setIcon(new ImageIcon(new ImageIcon("src/images/swap_values.png").getImage().getScaledInstance(valSwap.getWidth(), valSwap.getHeight(), Image.SCALE_DEFAULT)));
+
+		JButton transpose = makeAButton("", x, y, h, h, new ActionListener(){  
+	        public void actionPerformed(ActionEvent e) {  
+		        	try {
+		        		transpose();
+		        		assume();
+		        	    checkIfCorrect();
+		        	    resetHighlight();
+		        	    highlightDigit();
+		        	} catch (Exception e1) {
+		
+					}
+		        }  
+		    });
+		transpose.setIcon(new ImageIcon(new ImageIcon("src/images/transpose.png").getImage().getScaledInstance(transpose.getWidth(), transpose.getHeight(), Image.SCALE_DEFAULT)));
+
+		JButton vertical = makeAButton("", x + h + space, y, h, h, new ActionListener(){  
+	        public void actionPerformed(ActionEvent e) {  
+		        	try {
+		        		mirrorVertical();
+		        		assume();
+		        	    checkIfCorrect();
+		        	    resetHighlight();
+		        	    highlightDigit();
+		        	} catch (Exception e1) {
+		
+					}
+		        }  
+		    });
+	    vertical.setIcon(new ImageIcon(new ImageIcon("src/images/vertical.png").getImage().getScaledInstance(vertical.getWidth(), vertical.getHeight(), Image.SCALE_DEFAULT)));
+	    
+	    JButton horizontal = makeAButton("", x + 2 * h + 2 * space, y, h, h, new ActionListener(){  
+	        public void actionPerformed(ActionEvent e) {  
+		        	try {
+		        		mirrorHorizontal();
+		        		assume();
+		        	    checkIfCorrect();
+		        	    resetHighlight();
+		        	    highlightDigit();
+		        	} catch (Exception e1) {
+		
+					}
+		        }  
+		    });
+		horizontal.setIcon(new ImageIcon(new ImageIcon("src/images/horizontal.png").getImage().getScaledInstance(horizontal.getWidth(), horizontal.getHeight(), Image.SCALE_DEFAULT)));
+	    y += h + space;
+		
+	    addZoomBox(x, y, w, w);
+
+		w = (int) (250 * widthScaling);
+        difficulty.setBounds(x, y, w, h);
+        difficulty.setFont(new Font("Arial", Font.PLAIN, fontsize));
         frame.add(difficulty);
+		y += h + space;
+		int buttonEnd = y;
         
-        errorArea = new JTextArea(0, 0);
-        errorArea.setEditable (false);
-	    JPanel errorpanel = new JPanel();
-        errorpanel.add(errorArea, BorderLayout.CENTER);
-	    JScrollPane errorscroll = new JScrollPane(errorpanel, 
-                JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
-                JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-	    errorscroll.setBounds((cols + 1)  * w + 15 * 2 + 200 + 15, 15, 250, Math.max((rows + 1) * h + 15, 15 * 8 + h * 8 + h / 2));
-	    frame.add(errorscroll);
-	    errorpanel.setVisible(true);  
-	    errorpanel.setBackground(Color.WHITE);
-	    errorscroll.setVisible(true);  
-        instructionArea = new JTextArea(0, 0);
-        instructionArea.setEditable (false);
-	    JPanel instructionpanel = new JPanel();
-        instructionpanel.add(instructionArea, BorderLayout.CENTER);
-	    JScrollPane instructionscroll = new JScrollPane(instructionpanel, 
-                JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, 
-                JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-	    instructionscroll.setBounds((cols + 1)  * w + 15 * 2 + 200 + 15 + 15 + 250, 15, 500, Math.max((rows + 1) * h + 15, 15 * 8 + h * 8 + h / 2));
-	    frame.add(instructionscroll);
-	    instructionpanel.setVisible(true);  
-	    instructionpanel.setBackground(Color.WHITE);
-	    instructionscroll.setVisible(true);  
+		addErrorScroll(digitEnd, buttonEnd);
+		addInstructionScroll(digitEnd, buttonEnd);
 
-        frame.add(fillb);
-        frame.add(uniqueb);
-        frame.add(cleargrid);
-        frame.add(removeb);
-        frame.add(restoreb);
-        frame.add(filesaveb);
-        frame.add(filereadb);
-        frame.add(showstepb);
-	    frame.setSize((cols + 1)  * w + 15 * 2 + 200 + 15 + 15 + 750 + 30, Math.max((rows + 1) * h + 15 * 3 + 40, 15 * 10 + h * 8 + h / 2 + 40));  
+	    frame.setSize(x, Math.max(digitEnd, buttonEnd) + (int) (40 * heightScaling));  
 	    frame.setLayout(null);  
     }
 }

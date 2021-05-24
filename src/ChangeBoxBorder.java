@@ -6,379 +6,814 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
+import java.util.HashSet;
+import java.util.Set;
 
-import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JRadioButton;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.plaf.ColorUIResource;
+import javax.swing.plaf.metal.MetalButtonUI;
 
-public class ChangeBoxBorder extends Sudoku {
-	int mode = 0;
-	public ChangeBoxBorder(int x, int y, int xl, int yl) {
-		super(x, y, xl, yl);
-	    for (int i = 0; i < rows; i++){ 
-	    	for (int j = 0; j < cols; j++) {
-		    	boxNumber[i * cols + j] = -1;
-		    	border[i * cols + j] = -1;
-	    		temporary[i * cols + j] = 0;
-		    	int num = i * cols + j;
-	    		userInput[num] = temporary[num];
-	    		solution[num] = temporary[num];
+public class ChangeBoxBorder extends SudokuGrid {
+	int mode = -1;
+	int relationshipStatus = 0;
+	int largerCell;
+	int smallerCell;
+	JButton sumButton = new JButton("");
+    JButton relationshipAddButton = new JButton("");  
+    JButton relationshipRemoveButton = new JButton("");  
+    JButton diagonalButton = new JButton("");  
+    JButton wrapAroundButton = new JButton("");
+    Set<Integer> boxToAdd = new HashSet<Integer>();
+    int numberOfNextBox;
+    JTextField sumValue = new JTextField();
+	public ChangeBoxBorder(int contructRows, int constructCols, int rowLimit, int colLimit, boolean makeVisible) {
+		super(constructCols, contructRows, rowLimit, colLimit);
+	    for (int row = 0; row < rows; row++){ 
+	    	for (int col = 0; col < cols; col++) {
+		    	boxNumber[row * cols + col] = -1;
+	    		temporary[row * cols + col] = 0;
+		    	int numCol = row * cols + col;
+	    		userInput[numCol] = temporary[numCol];
+	    		solution[numCol] = temporary[numCol];
 		    }
 	    }
 	    draw();
-	    frame.setVisible(true);
+	    checkBoxes();
+	    frame.setVisible(makeVisible);
 	}
 
+    public void clearBox(int numOfBox) {
+		sumBoxSums[numOfBox] = -1;
+    	for (int numCell = 0; numCell < rows * cols; numCell++) {
+			if (sumBoxNumber[numCell] == numOfBox) {
+				sumBoxNumber[numCell] = -1;
+			}
+		}
+    }
+    
+    public void addBox() {
+    	if (boxToAdd.size() == 0) {
+    		checkBoxes();
+	    	sumButton.setText("Dodaj kutiju sume");
+	    	boxToAdd.clear();
+	    	sumValue.setEditable(true);
+	    	return;
+		}
+		int minSum = (boxToAdd.size() + 1) * boxToAdd.size() / 2;
+		int maxSum = (cols - boxToAdd.size() + 1 + cols) * boxToAdd.size() / 2;
+		int actualMaxSum = (1 + cols) * cols / 2;
+		if (boxToAdd.size() > cols) {
+			InformationBox.infoBox("Kutija sa sumom ne može imati više od " + cols + " èlanova.", "Kutija sa sumom");
+			clearBox(numberOfNextBox);
+		}
+		if (1 > Integer.parseInt(sumValue.getText())) {
+			InformationBox.infoBox("Kutija ne može imati sumu manju od 1, a upisana je suma " + sumValue.getText() + ".", "Kutija sa sumom");
+			clearBox(numberOfNextBox);
+		}
+		if (actualMaxSum < Integer.parseInt(sumValue.getText())) {
+			InformationBox.infoBox("Kutija ne može imati sumu veæu od " + actualMaxSum + ", a upisana je suma " + sumValue.getText() + ".", "Kutija sa sumom");
+			clearBox(numberOfNextBox);
+		}
+		if (minSum > Integer.parseInt(sumValue.getText())) {
+			InformationBox.infoBox("Kutija sa " + boxToAdd.size() + " èlanova ne može imati sumu manju od " + minSum + ", a upisana je suma " + sumValue.getText() + ".", "Kutija sa sumom");
+			clearBox(numberOfNextBox);
+		}
+		if (maxSum < Integer.parseInt(sumValue.getText())) {
+			InformationBox.infoBox("Kutija sa " + boxToAdd.size() + " èlanova ne može imati sumu veæu od " + maxSum + ", a upisana je suma " + sumValue.getText() + ".", "Kutija sa sumom");
+			clearBox(numberOfNextBox);
+		}
+		checkBoxes();
+    	sumButton.setText("Dodaj kutiju sume");
+    	boxToAdd.clear();
+    	sumValue.setEditable(true);
+    }
+    
 	@Override
-	boolean checkIfCorrect() {
-		// TODO Auto-generated method stub
-		return true;
+	public ActionListener makeActionListener(int numCell) {
+		return new ActionListener(){  
+	        public void actionPerformed(ActionEvent e) {  
+	        	try {
+	        		if (mode < 0) {
+	        			return;
+	        		}
+	        		showBoxMsg = false;
+	        		if (mode < 7)  {
+			    		field[numCell].setBackground(colorsOrder[mode]);
+		        		border[numCell] = mode;
+	        		} 
+	        		if (mode == 7 || mode == 8)  {
+	        			if (relationshipStatus == 1) {
+	        				largerCell = numCell;
+	        				relationshipStatus = 2;
+	        				if (mode == 7) {
+	        					relationshipAddButton.setText("Manja æelija");
+	        				} else {
+	        					relationshipRemoveButton.setText("Manja æelija");
+	        				}
+	        			} else {
+		        			if (relationshipStatus == 2) {
+		        				smallerCell = numCell;
+		        				if (mode == 7) {
+		        					if (neighbourCheck(largerCell, smallerCell)) {
+										String relationship = String.valueOf(largerCell) + " " + String.valueOf(smallerCell);
+			        					String relationshipReverse = String.valueOf(smallerCell) + " " + String.valueOf(largerCell);
+			        					if (sizeRelationships.contains(relationship)) {
+					    	    			InformationBox.infoBox("Æelija (" + String.valueOf(smallerCell / cols + 1) + ", " + String.valueOf(smallerCell % cols + 1) + ") je veæ manja od susjedne æelije (" + String.valueOf(largerCell / cols + 1) + ", " + String.valueOf(largerCell % cols + 1) + ").", "Veæe-manje");
+			        					} else {
+				        					if (sizeRelationships.contains(relationshipReverse)) {
+						    	    			InformationBox.infoBox("Æelija (" + String.valueOf(smallerCell / cols + 1) + ", " + String.valueOf(smallerCell % cols + 1) + ") ne može istodobno biti i veæa i manja od susjedne æelije (" + String.valueOf(largerCell / cols + 1) + ", " + String.valueOf(largerCell % cols + 1) + ").", "Veæe-manje");
+				        					} else {
+				        						sizeRelationships.add(relationship);
+				        					    // Inicijaliziramo moguænosti za sve vrijednosti u svim æelijama na 1
+				        						initPencilmarks();
+				        					    for (int row = 0; row < rows; row++){
+				        					    	for (int col = 0; col < cols; col++) {
+				        					    		Set<Integer> visitedMax = new HashSet<Integer>();
+				        					    		Set<Integer> visitedMin = new HashSet<Integer>();
+				        					    		setMaxPossibility(row * cols + col, visitedMax);
+				        					    		setMinPossibility(row * cols + col, visitedMin);
+				        					    	}
+				        					    }
+				        					    Set<Integer> impossible = new HashSet<Integer>();
+				        					    String impossibleString = "";
+				        					    for (int row = 0; row < rows; row++){
+				        					    	for (int col = 0; col < cols; col++) {
+				        					    		int possibleVals = 0;
+				        					    		for (int val = 0; val < cols; val++) {
+				        					    			if (possibilities[row * cols + col][val] == 1) {
+				        					    				possibleVals = 1;
+				        					    				break;
+				        					    			}
+				        					    		}
+				        					    		if (possibleVals == 0) {
+				        					    			if (impossible.size() == 0) {
+				        					    				impossibleString += "\n"; 
+				        					    			} else {
+				        					    				impossibleString += ", "; 
+				        					    			}
+				        					    			impossibleString += "(" + (row + 1) + ", " + (col + 1) + ")";
+				        					    			impossible.add(row * cols + col);
+				        					    			break;
+				        					    		}
+				        					    	}
+				        					    }
+				        					    if (impossible.size() > 0) {
+							    	    			InformationBox.infoBox("Æelija (" + String.valueOf(smallerCell / cols + 1) + ", " + String.valueOf(smallerCell % cols + 1) + ") ne može biti manja od æelije (" + String.valueOf(largerCell / cols + 1) + ", " + String.valueOf(largerCell % cols + 1) + ") jer bi ove æelije ostale bez moguæih vrijednosti: " + impossibleString, "Veæe-manje");
+							    	    			sizeRelationships.remove(relationship);
+				        					    }
+				        					}
+			        					}
+			        				} else {
+				    	    			InformationBox.infoBox("Æelija (" + String.valueOf(smallerCell / cols + 1) + ", " + String.valueOf(smallerCell % cols + 1) + ") nije susjedna æeliji (" + String.valueOf(largerCell / cols + 1) + ", " + String.valueOf(largerCell % cols + 1) + ").", "Veæe-manje");
+			        				}
+			        				relationshipStatus = 1;
+		        					relationshipAddButton.setText("Veæa æelija");
+		        				} else {
+			        				if (neighbourCheck(largerCell, smallerCell)) {
+			        					String relationship = String.valueOf(largerCell) + " " + String.valueOf(smallerCell);
+			        					if (!sizeRelationships.contains(relationship)) {
+					    	    			InformationBox.infoBox("Æelija (" + String.valueOf(smallerCell / cols + 1) + ", " + String.valueOf(smallerCell % cols + 1) + ") nije još manja od susjedne æelije (" + String.valueOf(largerCell / cols + 1) + ", " + String.valueOf(largerCell % cols + 1) + "), pa se odnos ne može ukloniti.", "Veæe-manje");
+			        					} else {
+				        					sizeRelationships.remove(relationship);
+			        					}
+			        				} else {
+				    	    			InformationBox.infoBox("Æelija (" + String.valueOf(smallerCell / cols + 1) + ", " + String.valueOf(smallerCell % cols + 1) + ") nije susjedna æeliji (" + String.valueOf(largerCell / cols + 1) + ", " + String.valueOf(largerCell % cols + 1) + ").", "Veæe-manje");
+			        				}
+			        				relationshipStatus = 1;
+			        				relationshipRemoveButton.setText("Veæa æelija");
+		        				}
+		        			}
+	        			}
+	        		} 
+	        		if (mode == 9) {
+	        			if (!boxToAdd.contains(numCell)) {
+	        				if (sumBoxNumber[numCell] != -1) {	        				
+	        					InformationBox.infoBox("Æelija (" + String.valueOf(numCell / cols + 1) + ", " + String.valueOf(numCell % cols + 1) + ") je veæ u kutiji sa sumom " + sumBoxSums[sumBoxNumber[numCell]] + ".", "Kutija sa sumom");
+	        				} else {
+	        					boolean found = false;
+	        					if (boxToAdd.size() == 0) {
+	        						found = true;
+	        					} else {
+	        						for (int neighbourCell = 0; neighbourCell < rows * cols; neighbourCell++) {
+		        						if (neighbourCheck(numCell, neighbourCell) && boxToAdd.contains(neighbourCell)) {
+		        							found = true;
+		        							break;
+		        						}
+		        					}
+	        					}
+	        					if (found) {
+			        				boxToAdd.add(numCell);
+			        				sumBoxNumber[numCell] = numberOfNextBox;
+	        					} else {
+	    	        				InformationBox.infoBox("Æelija (" + String.valueOf(numCell / cols + 1) + ", " + String.valueOf(numCell % cols + 1) + ") nije susjedna niti jednoj æeliji u kutiji sa sumom " + sumValue.getText() +".", "Kutija sa sumom");		
+	        					}
+	        				}
+	        			} else {
+	        				InformationBox.infoBox("Æelija (" + String.valueOf(numCell / cols + 1) + ", " + String.valueOf(numCell % cols + 1) + ") je veæ u ovoj kutiji sa sumom " + sumValue.getText() + ".", "Kutija sa sumom");
+	        			}
+	        		}
+	        		if (mode == 10) {
+	        			clearBox(sumBoxNumber[numCell]);
+	        		}
+		        	checkBoxes();
+	        		showBoxMsg = true;
+				} catch (Exception e1) {
+
+				}
+	        }  
+	    };
 	}
-
+	
 	@Override
-	public void draw() {
-		frame = new JFrame("Promjeni kutiju za sudoku");  
-	    frame.setDefaultCloseOperation (JFrame.DISPOSE_ON_CLOSE);
-
-	    int x = 15;
-		int y = 15;
-		int w = 60;
-		int h = 60;
-		int fontsize = 12;
-
-	    for (int i = 0; i < rows; i++){ 
-	    	x = 15;
-	    	for (int j = 0; j < cols; j++) {
-	    		int num = i * cols + j;
-        		border[num] = -1;
-	    	    field[num] = new JButton("");  
-			    field[num].setMargin(new Insets(1,1,1,1));
-			    field[num].setFont(new Font("Arial", Font.PLAIN, fontsize));
-			    field[num].setBounds(x, y, w, h);
-			    int lb = 1;
-			    int rb = 1;
-			    int tb = 1;
-			    int bb = 1;
-			    if (j % xlim== 0) {
-			    	if (j != cols - 1 && j != 0) {
-				    	lb = 3;
-			    	} else {
-			    		lb = 4;
-			    	}
-			    }
-			    if (j % xlim == (xlim - 1)) {
-			    	if (j != cols - 1 && j != 0) {
-				    	rb = 3;
-			    	} else {
-			    		rb = 4;
-			    	}
-			    }
-			    if (i % ylim == 0) {
-			    	if (i != rows - 1 && i != 0) {
-				    	tb = 3;
-			    	} else {
-			    		tb = 4;
-			    	}
-			    }
-			    if (i % ylim == (ylim - 1)) {
-			    	if (i != rows - 1 && i != 0) {
-				    	bb = 3;
-			    	} else {
-			    		bb = 4;
-			    	}
-			    }
-			    field[num].setBorder(BorderFactory.createMatteBorder(tb, lb, bb, rb, Color.WHITE));
-		    	int box = (i / ylim) * (cols / xlim) + (j / xlim);
-		    	if (((box % (cols / xlim) % 2 == 0) && (box / (cols / xlim) % 2  == 0)) || 
-		    		((box % (cols / xlim) % 2 != 0) && (box / (cols / xlim) % 2  == 1))) {
-	        		border[num] = 1;
-		    		field[num].setBackground(Color.BLACK);
-		    	} else {
-	        		border[num] = 0;
-		    		field[num].setBackground(Color.GRAY);
-		    	}
-			    field[num].addActionListener(new ActionListener(){  
-			        public void actionPerformed(ActionEvent e) {  
-			        	try {
-			        		showBoxMsg = false;
-			        		if (mode == 0)  {
-					    		field[num].setBackground(Color.GRAY);
-				        		border[num] = 0;
-				        		checkBoxes();
-			        		}
-			        		if (mode == 1)  {
-					    		field[num].setBackground(Color.BLACK);
-				        		border[num] = 1;
-				        		checkBoxes();
-			        		} 
-			        		if (mode == 2)  {
-					    		field[num].setBackground(Color.DARK_GRAY);
-				        		border[num] = 2;
-				        		checkBoxes();
-			        		} 
-			        		if (mode == 3)  {
-					    		field[num].setBackground(Color.LIGHT_GRAY);
-				        		border[num] = 3;
-				        		checkBoxes();
-			        		} 
-			        		showBoxMsg = true;
-						} catch (Exception e1) {
-		
-						}
-			        }  
-			    });
-			    frame.add(field[num]);
-		    	x += w;
+	public int makeButtons() {
+	    for (int row = 0; row < rows; row++){ 
+	    	x = space;
+	    	for (int col = 0; col < cols; col++) {
+	    		int numCell = row * cols + col;
+	    	    field[numCell] = new JButton();  
+			    field[numCell].setMargin(new Insets(1,1,1,1));
+			    field[numCell].setFont(new Font("Arial", Font.PLAIN, numberFontsize));
+			    field[numCell].setBounds(x, y, wNumber, hNumber);
+			    field[numCell].setUI(new MetalButtonUI() {
+    			    protected Color getDisabledTextColor() {
+    			        return Color.CYAN;
+    			    }
+    			});
+			    field[numCell].addActionListener(makeActionListener(numCell));
+			    frame.add(field[numCell]);
+		    	x += wNumber;
 		    }
-		    y += h;
+		    y += hNumber;
 	    }
-	    x = 15;
-	    
-	    JLabel bcol = new JLabel("Boja kutije: ");
-	    bcol.setBounds(cols * w + 15 * 2 + 9 * 60 / 4 + 80, 15, 9 * w / 4, h / 2);
-	    frame.add(bcol);
-	    		
-	    JButton modeb1 = new JButton("");  
-        modeb1.setMargin(new Insets(1,1,1,1));
-        modeb1.setBackground(Color.GRAY);
-        modeb1.setBounds(cols * w + 15 * 2 + 9 * 60 / 4 + 80, 15 + h / 2, 9 * w / 16, h / 2);
-        modeb1.setFont(new Font("Arial", Font.PLAIN, fontsize));
-        modeb1.addActionListener(new ActionListener(){  
-        public void actionPerformed(ActionEvent e) {  
-	        	try {
-	        		mode = 0;
-				} catch (Exception e1) {
-					
-				}
-	        }  
-	    });
-
-	    JButton modeb2 = new JButton("");  
-        modeb2.setMargin(new Insets(1,1,1,1));
-        modeb2.setBackground(Color.BLACK);
-        modeb2.setBounds(cols * w + 15 * 2 + 9 * 60 / 4 + 80 + 9 * w / 16, 15 + h / 2, 9 * w / 16, h / 2);
-        modeb2.setFont(new Font("Arial", Font.PLAIN, fontsize));
-        modeb2.addActionListener(new ActionListener(){  
-        public void actionPerformed(ActionEvent e) {  
-	        	try {
-	        		mode = 1;
-				} catch (Exception e1) {
-					
-				}
-	        }  
-	    });
-
-	    JButton modeb3 = new JButton("");  
-        modeb3.setMargin(new Insets(1,1,1,1));
-        modeb3.setBackground(Color.DARK_GRAY);
-        modeb3.setBounds(cols * w + 15 * 2 + 9 * 60 / 4 + 80 + 9 * w / 16 * 2, 15 + h / 2, 9 * w / 16, h / 2);
-        modeb3.setFont(new Font("Arial", Font.PLAIN, fontsize));
-        modeb3.addActionListener(new ActionListener(){  
-        public void actionPerformed(ActionEvent e) {  
-	        	try {
-	        		mode = 2;
-				} catch (Exception e1) {
-					
-				}
-	        }  
-	    });
-        
-	    JButton modeb4 = new JButton("");  
-        modeb4.setMargin(new Insets(1,1,1,1));
-        modeb4.setBackground(Color.LIGHT_GRAY);
-        modeb4.setBounds(cols * w + 15 * 2 + 9 * 60 / 4 + 80 + 9 * w / 16 * 3, 15 + h / 2, 9 * w / 16, h / 2);
-        modeb4.setFont(new Font("Arial", Font.PLAIN, fontsize));
-        modeb4.addActionListener(new ActionListener(){  
-        public void actionPerformed(ActionEvent e) {  
-	        	try {
-	        		mode = 3;
-				} catch (Exception e1) {
-					
-				}
-	        }  
-	    });
-
-        JButton designb = new JButton("Dizajniraj zagonetku");  
-        designb.setMargin(new Insets(1,1,1,1));
-        designb.setBounds(cols * w + 15 * 2 + 9 * 60 / 4 + 80, 15 * 2 + 15 + h * 2, 9 * w / 4, h);
-        designb.setFont(new Font("Arial", Font.PLAIN, fontsize));
-        designb.addActionListener(new ActionListener(){  
+	    y += space;
+	    return space + wNumber * cols;
+	}
+	
+	@Override
+	public JButton makeAButton(String title, int xPosition, int yPosition, int widthButton, int heightButton, ActionListener actionListerToAdd) {
+		JButton newButton = new JButton(title);  
+		newButton.setMargin(new Insets(1,1,1,1));
+		newButton.setBounds(xPosition, yPosition, widthButton, heightButton);
+		newButton.setFont(new Font("Arial", Font.PLAIN, fontsize));
+		newButton.addActionListener(actionListerToAdd);
+		frame.add(newButton);
+		return newButton;
+	}
+	
+	
+	public JRadioButton makeRadioButton(String name, String averageForRadio, String minimumForRadio, String maximumForRadio, JTextField mini, JTextField maksi) {
+	    int widthDifficulty = (int) (300 * widthScaling);
+	    JRadioButton radio = new JRadioButton(name + " (avg. " + averageForRadio + ", " + minimumForRadio + "-" + maximumForRadio + ")");
+	    radio.setFont(new Font("Arial", Font.PLAIN, fontsize));
+	    radio.setBounds(x, y, widthDifficulty, h);
+	    radio.addActionListener(new ActionListener(){  
         public void actionPerformed(ActionEvent e) {  
 	        	try {
 	        		if (checkBoxes()) {
-	        			CreateSudoku s = new CreateSudoku(rows, cols, xlim, ylim, border, boxNumber);
+	        			mini.setText(minimumForRadio);
+	        			maksi.setText(maximumForRadio);
 	        		}
 				} catch (Exception e1) {
-	
 	
 				}
 	        }  
 	    });
-
-
-		FileManipulator f = new FileManipulator();
-		f.setSudoku(this);
-        
-        JButton designcontb = new JButton("Nastavi dizajn");  
-        designcontb.setMargin(new Insets(1,1,1,1));
-        designcontb.setBounds(cols * w + 15 * 2 + 9 * 60 / 4 + 80, 15 + 15 + h, 9 * w / 4, h);
-        designcontb.setFont(new Font("Arial", Font.PLAIN, fontsize));
-        designcontb.addActionListener(new ActionListener(){  
-        public void actionPerformed(ActionEvent e) {  
-	        	try {
-	        		if (f.ReadFile() == 0) {
-	        			CreateSudoku s = new CreateSudoku(rows, cols, xlim, ylim, border, boxNumber, userInput);
-	        		}
-				} catch (Exception e1) {
+	    frame.add(radio);
+	    y += h / 2 + space;
+	    return radio;
+	}
 	
-	
-				}
-	        }  
-	    });
-        
+	@Override
+	public void draw() {
+	    UIManager.put("TextField.inactiveBackground", new ColorUIResource(Color.WHITE));
+		frame = new JFrame("Promjeni kutiju za sudoku");  
+	    frame.setDefaultCloseOperation (JFrame.DISPOSE_ON_CLOSE);
 
-        JButton solveb = new JButton("Riješi spremljeno");  
-        solveb.setMargin(new Insets(1,1,1,1));
-        solveb.setBounds(cols * w + 15 * 2 + 9 * 60 / 4 + 80, 15 * 3 + 15 + h * 3, 9 * w / 4, h);
-        solveb.setFont(new Font("Arial", Font.PLAIN, fontsize));
-        solveb.addActionListener(new ActionListener(){  
-        public void actionPerformed(ActionEvent e) {  
-	        	try {
-	        		if (f.ReadFile() == 0) {
-	        			SolveSudoku s = new SolveSudoku(rows, cols, xlim, ylim, border, boxNumber, userInput);
-	        		}
-				} catch (Exception e1) {
-	
-	
-				}
-	        }  
-	    });
-	    frame.setSize(cols * w + 15 * 2 + 9 * w / 4 + 15 + 130 * 5 / 4 + 70, Math.max(rows * h + 15 * 2 + 40, 15 * 5 + 15 + h * 4 + 40));  
-
-	    x = cols * w + 15 * 2 + 9 * w / 4 + 15;
-		y = 15;
-		w = 130;
-		h = 30;
-		
-        JLabel rowLabel = new JLabel("Broj redaka mreže: ");
-	    rowLabel.setBounds(x - 9 * 60 / 4 - 15, y, w, h);
+	    makeButtons();
+		int digitEnd = y + space;
+	    h = h / 2;
+	    w = (int) (150 * widthScaling);
+	    y = space;
+	    x += space;
+	    
+	    JLabel rowLabel = new JLabel("Broj redaka mreže: ");
+	    rowLabel.setFont(new Font("Arial", Font.PLAIN, fontsize));
+	    rowLabel.setBounds(x, y, w, h);
 	    frame.add(rowLabel);
 	    
 	    JTextField row = new JTextField(String.valueOf(rows));
-        row.setBounds(x + w - 9 * 60 / 4 - 15, y, w / 4, h);
+	    row.setFont(new Font("Arial", Font.PLAIN, fontsize));
+        row.setBounds(x + w, y, h, h);
 	    frame.add(row);
 
-	    JLabel xlimLabel = new JLabel("Broj redaka kutije: ");
-	    xlimLabel.setBounds(x - 9 * 60 / 4 - 15, y + h, w, h);
-	    frame.add(xlimLabel);
+	    y += h;
 	    
-	    JTextField xlimval = new JTextField(String.valueOf(ylim));
-	    xlimval.setBounds(x + w - 9 * 60 / 4 - 15, y + h, w / 4, h);
-	    frame.add(xlimval);
+	    JLabel xLimLabel = new JLabel("Broj redaka kutije: ");
+	    xLimLabel.setFont(new Font("Arial", Font.PLAIN, fontsize));
+	    xLimLabel.setBounds(x, y, w, h);
+	    frame.add(xLimLabel);
+	    
+	    JTextField xLimVal = new JTextField(String.valueOf(yLim));
+	    xLimVal.setFont(new Font("Arial", Font.PLAIN, fontsize));
+	    xLimVal.setBounds(x + w, y, h, h);
+	    frame.add(xLimVal);
 
+	    y += h;
+	    
 	    JLabel colLabel = new JLabel("Broj stupaca mreže: ");
-	    colLabel.setBounds(x - 9 * 60 / 4 - 15, y + h * 2, w, h);
+	    colLabel.setFont(new Font("Arial", Font.PLAIN, fontsize));
+	    colLabel.setBounds(x, y, w, h);
 	    frame.add(colLabel);
 	    
 	    JTextField col = new JTextField(String.valueOf(cols));
-	    col.setBounds(x + w - 9 * 60 / 4 - 15, y + h * 2, w / 4, h);
+	    col.setFont(new Font("Arial", Font.PLAIN, fontsize));
+	    col.setEditable(false);
+	    col.setBounds(x + w, y, h, h);
 	    frame.add(col);
 
-	    JLabel ylimLabel = new JLabel("Broj stupaca kutije: ");
-	    ylimLabel.setBounds(x - 9 * 60 / 4 - 15, y + h * 3, w, h);
-	    frame.add(ylimLabel);
+	    y += h;
 	    
-	    JTextField ylimval = new JTextField(String.valueOf(xlim));
-	    ylimval.setBounds(x + w - 9 * 60 / 4 - 15, y + h * 3, w / 4, h);
-	    frame.add(ylimval);
+	    JLabel yLimLabel = new JLabel("Broj stupaca kutije: ");
+	    yLimLabel.setFont(new Font("Arial", Font.PLAIN, fontsize));
+	    yLimLabel.setBounds(x, y, w, h);
+	    frame.add(yLimLabel);
 	    
-	    JButton createb = new JButton("Izmjeni dimenzije");
-	    createb.setBounds(x - 9 * 60 / 4 - 15, y + h * 9 / 2, w * 5 / 4, h);
-	    createb.addActionListener(new ActionListener(){  
+	    JTextField yLimVal = new JTextField(String.valueOf(xLim));
+	    yLimVal.setFont(new Font("Arial", Font.PLAIN, fontsize));
+	    yLimVal.setEditable(false);
+	    yLimVal.setBounds(x + w, y, h, h);
+	    frame.add(yLimVal);
+
+	    y += h + space;
+	   
+	    row.getDocument().addDocumentListener(new DocumentListener() {
+	      	  public void changedUpdate(DocumentEvent e) {
+	      	    SwingUtilities.invokeLater(matchRowsAndCols);
+	      	  }
+	      	  public void removeUpdate(DocumentEvent e) {
+	      		SwingUtilities.invokeLater(matchRowsAndCols);
+	      	  }
+	      	  public void insertUpdate(DocumentEvent e) {
+	      		SwingUtilities.invokeLater(matchRowsAndCols);
+	      	  }
+	      	  Runnable matchRowsAndCols = new Runnable() {public void run() {
+	      		col.setText(row.getText());
+				yLimVal.setText(String.valueOf(Integer.parseInt(row.getText()) / Integer.parseInt(xLimVal.getText())));
+	      	  }};
+	    });
+	    
+	    xLimVal.getDocument().addDocumentListener(new DocumentListener() {
+	      	  public void changedUpdate(DocumentEvent e) {
+	      	    SwingUtilities.invokeLater(matchRowsAndCols);
+	      	  }
+	      	  public void removeUpdate(DocumentEvent e) {
+	      		SwingUtilities.invokeLater(matchRowsAndCols);
+	      	  }
+	      	  public void insertUpdate(DocumentEvent e) {
+	      		SwingUtilities.invokeLater(matchRowsAndCols);
+	      	  }
+	      	  Runnable matchRowsAndCols = new Runnable() {public void run() {
+				yLimVal.setText(String.valueOf(Integer.parseInt(row.getText()) / Integer.parseInt(xLimVal.getText())));
+	      	  }};
+	    });
+	    
+
+	 	makeAButton("Nove dimenzije", x, y, w, h, new ActionListener(){  
 	        public void actionPerformed(ActionEvent e) {  
 	        	try {
+		      		if (Integer.parseInt(row.getText()) < 4) {
+		  				InformationBox.infoBox("Najmanji broj redova u zagonetki je 4.", "Stvaranje zagonetke");
+	    				row.setText("4");
+	    				col.setText("4");
+	    				xLimVal.setText("2");
+	    				yLimVal.setText("2");
+	    				return;
+	    			}
+		      		if (Integer.parseInt(row.getText()) > 25) {
+		  				InformationBox.infoBox("Najveæi broj redova u zagonetki je 25.", "Stvaranje zagonetke");
+	    				row.setText("25");
+	    				col.setText("25");
+	    				xLimVal.setText("5");
+	    				yLimVal.setText("5");
+	    				return;
+	    			}
+		      		col.setText(row.getText());
+		      		if (Integer.parseInt(row.getText()) % Integer.parseInt(xLimVal.getText()) != 0) {
+		      			InformationBox.infoBox("Broj redaka mreže mora biti djeljiv brojem redaka kutije.", "Stvaranje zagonetke");
+		      			int xLimitNew = 1;
+	  					for (int xLimitPossible = 2; xLimitPossible <= Integer.parseInt(row.getText()); xLimitPossible++) {
+	  						double differenceCurrent = Math.abs(Math.sqrt(Integer.parseInt(row.getText())) - xLimitNew);
+	  						double differenceNew = Math.abs(Math.sqrt(Integer.parseInt(row.getText())) - xLimitPossible);
+	  						if (Integer.parseInt(row.getText()) % xLimitPossible == 0 && differenceCurrent > differenceNew) {
+	  							xLimitNew = xLimitPossible;
+	  						}
+	  					}
+	  					xLimVal.setText(String.valueOf(xLimitNew));
+		  				return;
+		  			}
+					yLimVal.setText(String.valueOf(Integer.parseInt(row.getText()) / Integer.parseInt(xLimVal.getText())));
+
 	        		int pr = Integer.parseInt(row.getText());
 	        		int pc = Integer.parseInt(col.getText());
-	        		int yl = Integer.parseInt(ylimval.getText());
-	        		int xl = Integer.parseInt(xlimval.getText());
-        			if (pr != pc) {
-        				InformationBox.infoBox("Zagonetka nije kvadratna.", "Stvaranje zagonetke");
-        				return;
-        			}
-        			if (yl * xl > pr) {
-        				InformationBox.infoBox("Kutije imaju previše znamenki.", "Stvaranje zagonetke");
-        				return;
-        			}
-        			if (yl * xl < pr) {
-        				InformationBox.infoBox("Kutije imaju premalo znamenki.", "Stvaranje zagonetke");
-        				return;
-        			}
+	        		int yl = Integer.parseInt(yLimVal.getText());
+	        		int xl = Integer.parseInt(xLimVal.getText());
 
         			rows = pr;
         			cols = pc;
-        			xlim = yl;
-        			ylim = xl;
+        			xLim = yl;
+        			yLim = xl;
         		    frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
         		    frame.removeAll();
         		    frame.dispose();
         		    frame.setVisible(false);
-	        		ChangeBoxBorder b = new ChangeBoxBorder(pr, pc, yl, xl);
+	        		@SuppressWarnings("unused")
+					ChangeBoxBorder changeBoxBorder = new ChangeBoxBorder(pr, pc, yl, xl, true);
 
 				} catch (Exception e1) {
 
 				}
 	        }  
 	    });
-	    frame.add(createb);
+
+	    y += h + space;
+
 
 	    JLabel miniLabel = new JLabel("Minimalna težina: ");
-	    miniLabel.setBounds(x - 9 * 60 / 4 - 15, y + h * 6, 200, 30);
+	    miniLabel.setFont(new Font("Arial", Font.PLAIN, fontsize));
+	    miniLabel.setBounds(x, y, w, h);
 	    frame.add(miniLabel);
 	    
 	    JTextField mini = new JTextField(String.valueOf(mintargetDifficulty));
-        mini.setBounds(x - 9 * 60 / 4 + 130 - 15, y + h * 6, 70, 30);
+	    mini.setFont(new Font("Arial", Font.PLAIN, fontsize));
+        mini.setBounds(x + w, y, 2 * h, h);
 	    frame.add(mini);
+	    JTextField maksi = new JTextField(String.valueOf(maxtargetDifficulty));
 
+	    y += h + space;
+	    
 	    JLabel maksiLabel = new JLabel("Maksimalna težina: ");
-	    maksiLabel.setBounds(x - 9 * 60 / 4 - 15, y + h * 13 / 2 + 30, 200, 30);
+	    maksiLabel.setFont(new Font("Arial", Font.PLAIN, fontsize));
+	    maksiLabel.setBounds(x, y, w, h);
 	    frame.add(maksiLabel);
 	    
-	    JTextField maksi = new JTextField(String.valueOf(maxtargetDifficulty));
-	    maksi.setBounds(x - 9 * 60 / 4 + 130 - 15, y + h * 13 / 2 + 30, 70, 30);
+	    maksi.setFont(new Font("Arial", Font.PLAIN, fontsize));
+	    maksi.setBounds(x + w, y, 2 * h, h);
 	    frame.add(maksi);
 
-        JButton solverandomb = new JButton("Riješi nasumièno");  
-        solverandomb.setMargin(new Insets(1,1,1,1));
-        solverandomb.setBounds(x - 9 * 60 / 4 - 15, y + h * 9, 9 * 60 / 4, 30);
-        solverandomb.addActionListener(new ActionListener(){  
-        public void actionPerformed(ActionEvent e) {  
+	    y += h + space;
+
+	    int widthDifficulty = (int) (300 * widthScaling);
+
+	    ButtonGroup group = new ButtonGroup();
+	    group.add(makeRadioButton("Poèetnièka", "4000", "3600", "4500", mini, maksi));
+	    group.add(makeRadioButton("Lagano", "4900", "4300", "5500", mini, maksi));
+	    group.add(makeRadioButton("Srednje", "6000", "5300", "6900", mini, maksi));
+	    group.add(makeRadioButton("Zahtjevno", "7600", "6500", "9300", mini, maksi));
+	    group.add(makeRadioButton("Izazovno", "10000", "8300", "14000", mini, maksi));
+	    group.add(makeRadioButton("Pakleno", "18000", "11000", "25000", mini, maksi));
+	    y += space;
+	    int widthTwo = x + widthDifficulty +  2 * space;
+	    
+	    makeAButton("Riješi nasumièno", x, y, w, h, new ActionListener(){  
+	        public void actionPerformed(ActionEvent e) {  
 	        	try {
 	        		if (checkBoxes()) {
-	        			SolveSudoku s = new SolveSudoku(rows, cols, xlim, ylim, border, boxNumber, Integer.parseInt(mini.getText()), Integer.parseInt(maksi.getText()));
+	    	      		if (Integer.parseInt(mini.getText()) < 200) {
+	        				InformationBox.infoBox("Težina ne može biti manja od 200 (dva uklonjena polja).", "Neispravan raspon težine");
+	        				mini.setText("200");
+	        				return;
+	        			}
+	    	      		if (Integer.parseInt(maksi.getText()) < 200) {
+	    	  				InformationBox.infoBox("Težina ne može biti manja od 200 (dva uklonjena polja).", "Neispravan raspon težine");
+	    	  				maksi.setText("200");
+	    	  				return;
+	    	  			}
+	    	  			if (Integer.parseInt(mini.getText()) > Integer.parseInt(maksi.getText())) {
+	    	  				InformationBox.infoBox("Maksimalna težina ne može biti manja od minimalne težine.", "Neispravan raspon težine");
+	    	  				maksi.setText(mini.getText());
+	    	  				return;
+	    	  			}
+	        			@SuppressWarnings("unused")
+						SolveSudoku solveSudoku = new SolveSudoku(rows, cols, xLim, yLim, border, boxNumber, diagonalOn, wrapAround, sizeRelationships, Integer.parseInt(mini.getText()), Integer.parseInt(maksi.getText()), true,  sumBoxSums, sumBoxNumber);
 	        		}
+		    
 				} catch (Exception e1) {
-	
-	
+
 				}
 	        }  
 	    });
-        frame.add(modeb1);
-        frame.add(modeb2);
-        frame.add(modeb3);
-        frame.add(modeb4);
-        frame.add(designb);
-        frame.add(designcontb);
-        frame.add(solverandomb);
-        frame.add(solveb);
+	    
+	    x += w + space;
+
+	    makeAButton("Riješi spremljeno", x, y, w, h, new ActionListener(){  
+	        public void actionPerformed(ActionEvent e) {  
+	        	try {
+	        		if (readFile("") == 1) {
+	        			return;
+	        		}
+	        		@SuppressWarnings("unused")
+	        		SolveSudoku SolveSudoku = new SolveSudoku(rows, cols, xLim, yLim, border, boxNumber, diagonalOn, wrapAround, sizeRelationships, userInput, true,  sumBoxSums, sumBoxNumber);
+	        		checkBoxes();
+	        		if (diagonalOn) {
+	        	    	diagonalButton.setText("X-sudoku");
+	        	    } else {
+	        	    	diagonalButton.setText("Bez dijagonale");
+	        	    }
+	        	    if (wrapAround) {
+	        	    	wrapAroundButton.setText("Toroidalni sudoku");
+	        	    } else {
+	        	    	wrapAroundButton.setText("Klasiène kutije");
+	        	    }
+	        	} catch (Exception e1) {
+
+				}
+	        }  
+	    });
+
+	    x -= w + space;
+	    y += h + space;
+	    makeAButton("Ispuni dizajn", x, y, w, h, new ActionListener(){  
+	        public void actionPerformed(ActionEvent e) {  
+	        	try {
+		        	if (checkBoxes()) {
+		        		@SuppressWarnings("unused")
+						CreateSudoku createSudoku = new CreateSudoku(rows, cols, xLim, yLim, border, boxNumber, diagonalOn, wrapAround, sizeRelationships,  sumBoxSums, sumBoxNumber);
+	        		}
+	        	} catch (Exception e1) {
+
+				}
+	        }  
+	    });
+	    x += w + space;
+	    makeAButton("Ispuni spremljeno", x, y, w, h, new ActionListener(){  
+	        public void actionPerformed(ActionEvent e) {  
+	        	try {
+        			if (readFile("") == 1) {
+        				return;
+        			}
+        			@SuppressWarnings("unused")
+        			CreateSudoku createSudoku = new CreateSudoku(rows, cols, xLim, yLim, border, boxNumber, diagonalOn, wrapAround, sizeRelationships, userInput, lastUsedPath,  sumBoxSums, sumBoxNumber);
+        			checkBoxes();
+	        		if (diagonalOn) {
+	        	    	diagonalButton.setText("X-sudoku");
+	        	    } else {
+	        	    	diagonalButton.setText("Bez dijagonale");
+	        	    }
+	        	    if (wrapAround) {
+	        	    	wrapAroundButton.setText("Toroidalni sudoku");
+	        	    } else {
+	        	    	wrapAroundButton.setText("Klasiène kutije");
+	        	    } 
+	        	} catch (Exception e1) {
+
+				}
+	        }  
+	    });
+	    x -= w + space;
+	    y += h + space;
+	    
+	    JLabel boxColorLabel = new JLabel("Boja kutije: ");
+	    boxColorLabel.setFont(new Font("Arial", Font.PLAIN, fontsize));
+	    boxColorLabel.setBounds(x, y, w, h);
+	    frame.add(boxColorLabel);
+	    		
+	    y += h + space;
+	    for (int modeButtonNumber = 0; modeButtonNumber < 7; modeButtonNumber++) {
+	    	int modeNumber = modeButtonNumber;
+	    	JButton modeButton = makeAButton("", x + modeButtonNumber * w / 7, y, w / 7, h, new ActionListener(){public void actionPerformed(ActionEvent e) {  
+		        	try {
+		        		addBox();
+		        		mode = modeNumber;
+	        	    	relationshipStatus = 0;
+	        	    	relationshipRemoveButton.setText("Ukloni odnos >");
+	        	    	relationshipAddButton.setText("Dodaj odnos >");
+					} catch (Exception e1) {
+						
+					}
+		        }  
+		    });
+	        modeButton.setBackground(colorsOrder[modeButtonNumber]);
+	        frame.add(modeButton);
+	    }
+
+	    y += h + space;
+
+        makeAButton("Nastavi dizajn", x, y, w, h, new ActionListener(){  
+	        public void actionPerformed(ActionEvent e) {  
+	        	try {
+	        		if (readFile("") == 1) {
+	        			return;
+	        		}
+	        		checkBoxes();
+	        		if (diagonalOn) {
+	        	    	diagonalButton.setText("X-sudoku");
+	        	    } else {
+	        	    	diagonalButton.setText("Bez dijagonale");
+	        	    }
+	        	    if (wrapAround) {
+	        	    	wrapAroundButton.setText("Toroidalni sudoku");
+	        	    } else {
+	        	    	wrapAroundButton.setText("Klasiène kutije");
+	        	    }
+	        	} catch (Exception e1) {
+
+				}
+	        }  
+	    });
+	    y += h + space;
+
+        makeAButton("Spremi dizajn", x, y, w, h, new ActionListener(){  
+	        public void actionPerformed(ActionEvent e) {  
+	        	try {
+					writeToFile("");
+	        	} catch (Exception e1) {
+
+				}
+	        }  
+	    });
+	    y += h + space;
+	    
+	    x += w + space;
+		int buttonEnd = y;
+	    y -= 3 * h + 3 * space;
+	    JLabel sumLabel = new JLabel("Suma kutije: ");
+        sumLabel.setFont(new Font("Arial", Font.PLAIN, fontsize));
+	    sumLabel.setBounds(x, y, w - h, h);
+	    frame.add(sumLabel);
+	    
+	    sumValue = new JTextField(String.valueOf(0));
+	    sumValue.setFont(new Font("Arial", Font.PLAIN, fontsize));
+	    sumValue.setBounds(x + w - h, y, h, h);
+	    frame.add(sumValue);
+
+        y += h + space;
+
+        sumButton = makeAButton("Dodaj kutiju sume", x, y, w, h, new ActionListener(){  
+	        public void actionPerformed(ActionEvent e) {  
+	        	try {
+	        		if (mode != 9) {
+		        		mode = 9;
+		    	    	relationshipAddButton.setText("Dodaj odnos >");
+		    	    	relationshipRemoveButton.setText("Ukloni odnos >");
+		    	    	numberOfNextBox = getMinBoxNumber();
+		    	    	sumValue.setEditable(false);
+        				sumBoxSums[numberOfNextBox] = Integer.parseInt(sumValue.getText());
+		    	    	sumButton.setText("Zatvori kutiju sume");
+		    	    	boxToAdd.clear();
+	        		} else {
+		        		addBox();
+		        		mode = 0;
+		    	    }
+	        	} catch (Exception e1) {
+
+				}
+	        }  
+	    });
+        
+        y += h + space;
+       
+        makeAButton("Ukloni kutiju sume", x, y, w, h, new ActionListener(){  
+	        public void actionPerformed(ActionEvent e) {  
+	        	try {
+	        		addBox();
+		        	mode = 10;
+	        	} catch (Exception e1) {
+
+				}
+	        }  
+	    });
+        
+        y += h + space;
+
+		y -= h * 5 + space * 5;
+      
+	    int widthOne = x + w + 2 * space;
+	    x -= w + space;
+        x += w + h + space;
+        y = space;
+
+
+        diagonalButton = makeAButton("", x, y, w, h, new ActionListener(){  
+	        public void actionPerformed(ActionEvent e) {  
+	        	try {
+	        	    if (diagonalOn) {
+	        	    	diagonalOn = false;
+	        	    	diagonalButton.setText("Bez dijagonale");
+	        	    } else {
+	        	    	diagonalOn = true;
+	        	    	diagonalButton.setText("X-sudoku");
+	        	    }
+	        	    checkBoxes();
+	        	} catch (Exception e1) {
+
+				}
+	        }  
+	    }); 
+	    if (diagonalOn) {
+	    	diagonalButton.setText("X-sudoku");
+	    } else {
+	    	diagonalButton.setText("Bez dijagonale");
+	    }
+        
+	    y += h + space;
+	    
+	    wrapAroundButton = makeAButton("", x, y, w, h, new ActionListener(){  
+	        public void actionPerformed(ActionEvent e) {  
+	        	try {
+	        	    if (wrapAround) {
+	        	    	wrapAround = false;
+	        	    	wrapAroundButton.setText("Klasiène kutije");
+	        	    } else {
+	        	    	wrapAround = true;
+	        	    	wrapAroundButton.setText("Toroidalni sudoku");
+	        	    }
+	        	    checkBoxes();
+	        	} catch (Exception e1) {
+
+				}
+	        }  
+	    }); 
+	    if (wrapAround) {
+	    	wrapAroundButton.setText("Toroidalni sudoku");
+	    } else {
+	    	wrapAroundButton.setText("Klasiène kutije");
+	    }
+        
+	    y += h + space;
+	    
+	    
+	    relationshipAddButton = makeAButton("", x, y, w, h, new ActionListener(){  
+	        public void actionPerformed(ActionEvent e) {  
+	        	try {
+        	    	relationshipStatus = 1;
+        	    	relationshipAddButton.setText("Veæa æelija");
+        	    	relationshipRemoveButton.setText("Ukloni odnos >");
+	        		addBox();
+        	    	mode = 7;
+	        	    checkBoxes();
+				} catch (Exception e1) {
+
+				}
+	        }  
+	    }); 
+	    
+	    if (relationshipStatus == 0) {
+	    	relationshipAddButton.setText("Dodaj odnos >");
+	    }
+	    if (relationshipStatus == 1) {
+	    	relationshipAddButton.setText("Veæa æelija");
+	    }
+	    if (relationshipStatus == 2) {
+	    	relationshipAddButton.setText("Manja æelija");
+	    }
+
+
+	    y += h + space;
+	    
+	    relationshipRemoveButton = makeAButton("", x, y, w, h, new ActionListener(){  
+	        public void actionPerformed(ActionEvent e) {  
+	        	try {
+        	    	relationshipStatus = 1;
+        	    	relationshipRemoveButton.setText("Veæa æelija");
+        	    	relationshipAddButton.setText("Dodaj odnos >");
+	        		addBox();
+        	    	mode = 8;
+	        	    checkBoxes();
+				} catch (Exception e1) {
+
+				}
+	        }  
+	    }); 
+	    
+        if (relationshipStatus == 0) {
+	    	relationshipRemoveButton.setText("Ukloni odnos >");
+	    }
+	    if (relationshipStatus == 1) {
+	    	relationshipRemoveButton.setText("Veæa æelija");
+	    }
+	    if (relationshipStatus == 2) {
+	    	relationshipRemoveButton.setText("Manja æelija");
+	    }
+
+        x += w + 2 * space;
+
+	    frame.setSize(Math.max(Math.max(widthOne, widthTwo), x), Math.max(digitEnd, buttonEnd) + (int) (40 * heightScaling));  
         Container contentPane = frame.getContentPane ();
         contentPane.setLayout (new BorderLayout ());
-	    frame.setVisible(true);
 	}
 
 	public static void main(String args[]) {
-		ChangeBoxBorder b = new ChangeBoxBorder(9, 9, 3, 3);
+		@SuppressWarnings("unused")
+		ChangeBoxBorder changeBoxBorder = new ChangeBoxBorder(9, 9, 3, 3, true);
 	}
 
 }
