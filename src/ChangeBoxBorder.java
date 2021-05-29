@@ -97,6 +97,127 @@ public class ChangeBoxBorder extends SudokuGrid {
     	sumValue.setEditable(true);
     }
     
+    public void mode8(int numCell) {
+    	if (relationshipStatus == 1) {
+			largerCell = numCell;
+			relationshipStatus = 2;
+			relationshipRemoveButton.setText("Manja æelija");
+			return;
+		} 
+
+		if (relationshipStatus == 2) {
+			smallerCell = numCell;
+			relationshipStatus = 1;
+			relationshipRemoveButton.setText("Veæa æelija");
+			if (neighbourCheck(largerCell, smallerCell)) {
+				String relationship = String.valueOf(largerCell) + " " + String.valueOf(smallerCell);
+				if (!sizeRelationships.contains(relationship)) {
+	    			InformationBox.infoBox("Æelija (" + String.valueOf(smallerCell / cols + 1) + ", " + String.valueOf(smallerCell % cols + 1) + ") nije još manja od susjedne æelije (" + String.valueOf(largerCell / cols + 1) + ", " + String.valueOf(largerCell % cols + 1) + "), pa se odnos ne može ukloniti.", "Veæe-manje");
+	    			return;
+				}
+				sizeRelationships.remove(relationship);
+				return;
+			} 
+    		InformationBox.infoBox("Æelija (" + String.valueOf(smallerCell / cols + 1) + ", " + String.valueOf(smallerCell % cols + 1) + ") nije susjedna æeliji (" + String.valueOf(largerCell / cols + 1) + ", " + String.valueOf(largerCell % cols + 1) + ").", "Veæe-manje");
+		}
+    }
+    
+    
+    public void mode7(int numCell) {
+    	if (relationshipStatus == 1) {
+			largerCell = numCell;
+			relationshipStatus = 2;
+			relationshipAddButton.setText("Manja æelija");
+			return;
+		} 
+    	if (relationshipStatus == 2) {
+			smallerCell = numCell;
+			relationshipStatus = 1;
+			relationshipAddButton.setText("Veæa æelija");
+			if (neighbourCheck(largerCell, smallerCell)) {
+				String relationship = String.valueOf(largerCell) + " " + String.valueOf(smallerCell);
+				String relationshipReverse = String.valueOf(smallerCell) + " " + String.valueOf(largerCell);
+				if (sizeRelationships.contains(relationship)) {
+	    			InformationBox.infoBox("Æelija (" + String.valueOf(smallerCell / cols + 1) + ", " + String.valueOf(smallerCell % cols + 1) + ") je veæ manja od susjedne æelije (" + String.valueOf(largerCell / cols + 1) + ", " + String.valueOf(largerCell % cols + 1) + ").", "Veæe-manje");
+	    			return;
+				} 
+				if (sizeRelationships.contains(relationshipReverse)) {
+	    			InformationBox.infoBox("Æelija (" + String.valueOf(smallerCell / cols + 1) + ", " + String.valueOf(smallerCell % cols + 1) + ") ne može istodobno biti i veæa i manja od susjedne æelije (" + String.valueOf(largerCell / cols + 1) + ", " + String.valueOf(largerCell % cols + 1) + ").", "Veæe-manje");
+	    			return;
+				} 
+				sizeRelationships.add(relationship);
+			    // Inicijaliziramo moguænosti za sve vrijednosti u svim æelijama na 1
+				initPencilmarks();
+			    for (int row = 0; row < rows; row++){
+			    	for (int col = 0; col < cols; col++) {
+			    		Set<Integer> visitedMax = new HashSet<Integer>();
+			    		Set<Integer> visitedMin = new HashSet<Integer>();
+			    		setMaxPossibility(row * cols + col, visitedMax);
+			    		setMinPossibility(row * cols + col, visitedMin);
+			    	}
+			    }
+			    Set<Integer> impossible = new HashSet<Integer>();
+			    String impossibleString = "";
+			    for (int row = 0; row < rows; row++){
+			    	for (int col = 0; col < cols; col++) {
+			    		int possibleVals = 0;
+			    		for (int val = 0; val < cols; val++) {
+			    			if (possibilities[row * cols + col][val] == 1) {
+			    				possibleVals = 1;
+			    				break;
+			    			}
+			    		}
+			    		if (possibleVals == 0) {
+			    			if (impossible.size() == 0) {
+			    				impossibleString += "\n"; 
+			    			} else {
+			    				impossibleString += ", "; 
+			    			}
+			    			impossibleString += "(" + (row + 1) + ", " + (col + 1) + ")";
+			    			impossible.add(row * cols + col);
+			    			break;
+			    		}
+			    	}
+			    }
+			    if (impossible.size() > 0) {
+	    			InformationBox.infoBox("Æelija (" + String.valueOf(smallerCell / cols + 1) + ", " + String.valueOf(smallerCell % cols + 1) + ") ne može biti manja od æelije (" + String.valueOf(largerCell / cols + 1) + ", " + String.valueOf(largerCell % cols + 1) + ") jer bi ove æelije ostale bez moguæih vrijednosti: " + impossibleString, "Veæe-manje");
+	    			sizeRelationships.remove(relationship);
+			    }
+			    return;
+			}			
+			InformationBox.infoBox("Æelija (" + String.valueOf(smallerCell / cols + 1) + ", " + String.valueOf(smallerCell % cols + 1) + ") nije susjedna æeliji (" + String.valueOf(largerCell / cols + 1) + ", " + String.valueOf(largerCell % cols + 1) + ").", "Veæe-manje");
+		}
+	}
+    
+    
+    public void mode9(int numCell) {
+    	if (!boxToAdd.contains(numCell)) {
+			if (sumBoxNumber[numCell] != -1) {	        				
+				InformationBox.infoBox("Æelija (" + String.valueOf(numCell / cols + 1) + ", " + String.valueOf(numCell % cols + 1) + ") je veæ u kutiji sa sumom " + sumBoxSums[sumBoxNumber[numCell]] + ".", "Kutija sa sumom");
+				return;
+			} 
+			boolean found = false;
+			if (boxToAdd.size() == 0) {
+				found = true;
+			} else {
+				for (int neighbourCell = 0; neighbourCell < rows * cols; neighbourCell++) {
+					if (neighbourCheck(numCell, neighbourCell) && boxToAdd.contains(neighbourCell)) {
+						found = true;
+						break;
+					}
+				}
+			}
+			if (found) {
+				boxToAdd.add(numCell);
+				sumBoxNumber[numCell] = numberOfNextBox;
+				return;
+			} 
+			InformationBox.infoBox("Æelija (" + String.valueOf(numCell / cols + 1) + ", " + String.valueOf(numCell % cols + 1) + ") nije susjedna niti jednoj æeliji u kutiji sa sumom " + sumValue.getText() +".", "Kutija sa sumom");		
+			return;
+		}
+		InformationBox.infoBox("Æelija (" + String.valueOf(numCell / cols + 1) + ", " + String.valueOf(numCell % cols + 1) + ") je veæ u ovoj kutiji sa sumom " + sumValue.getText() + ".", "Kutija sa sumom");
+    }
+    
 	@Override
 	public ActionListener makeActionListener(int numCell) {
 		return new ActionListener(){  
@@ -109,123 +230,34 @@ public class ChangeBoxBorder extends SudokuGrid {
 	        		if (mode < 7)  {
 			    		field[numCell].setBackground(colorsOrder[mode]);
 		        		border[numCell] = mode;
+	        			checkBoxes();
+		        		showBoxMsg = true;
+		        		return;
 	        		} 
-	        		if (mode == 7 || mode == 8)  {
-	        			if (relationshipStatus == 1) {
-	        				largerCell = numCell;
-	        				relationshipStatus = 2;
-	        				if (mode == 7) {
-	        					relationshipAddButton.setText("Manja æelija");
-	        				} else {
-	        					relationshipRemoveButton.setText("Manja æelija");
-	        				}
-	        			} else {
-		        			if (relationshipStatus == 2) {
-		        				smallerCell = numCell;
-		        				if (mode == 7) {
-		        					if (neighbourCheck(largerCell, smallerCell)) {
-										String relationship = String.valueOf(largerCell) + " " + String.valueOf(smallerCell);
-			        					String relationshipReverse = String.valueOf(smallerCell) + " " + String.valueOf(largerCell);
-			        					if (sizeRelationships.contains(relationship)) {
-					    	    			InformationBox.infoBox("Æelija (" + String.valueOf(smallerCell / cols + 1) + ", " + String.valueOf(smallerCell % cols + 1) + ") je veæ manja od susjedne æelije (" + String.valueOf(largerCell / cols + 1) + ", " + String.valueOf(largerCell % cols + 1) + ").", "Veæe-manje");
-			        					} else {
-				        					if (sizeRelationships.contains(relationshipReverse)) {
-						    	    			InformationBox.infoBox("Æelija (" + String.valueOf(smallerCell / cols + 1) + ", " + String.valueOf(smallerCell % cols + 1) + ") ne može istodobno biti i veæa i manja od susjedne æelije (" + String.valueOf(largerCell / cols + 1) + ", " + String.valueOf(largerCell % cols + 1) + ").", "Veæe-manje");
-				        					} else {
-				        						sizeRelationships.add(relationship);
-				        					    // Inicijaliziramo moguænosti za sve vrijednosti u svim æelijama na 1
-				        						initPencilmarks();
-				        					    for (int row = 0; row < rows; row++){
-				        					    	for (int col = 0; col < cols; col++) {
-				        					    		Set<Integer> visitedMax = new HashSet<Integer>();
-				        					    		Set<Integer> visitedMin = new HashSet<Integer>();
-				        					    		setMaxPossibility(row * cols + col, visitedMax);
-				        					    		setMinPossibility(row * cols + col, visitedMin);
-				        					    	}
-				        					    }
-				        					    Set<Integer> impossible = new HashSet<Integer>();
-				        					    String impossibleString = "";
-				        					    for (int row = 0; row < rows; row++){
-				        					    	for (int col = 0; col < cols; col++) {
-				        					    		int possibleVals = 0;
-				        					    		for (int val = 0; val < cols; val++) {
-				        					    			if (possibilities[row * cols + col][val] == 1) {
-				        					    				possibleVals = 1;
-				        					    				break;
-				        					    			}
-				        					    		}
-				        					    		if (possibleVals == 0) {
-				        					    			if (impossible.size() == 0) {
-				        					    				impossibleString += "\n"; 
-				        					    			} else {
-				        					    				impossibleString += ", "; 
-				        					    			}
-				        					    			impossibleString += "(" + (row + 1) + ", " + (col + 1) + ")";
-				        					    			impossible.add(row * cols + col);
-				        					    			break;
-				        					    		}
-				        					    	}
-				        					    }
-				        					    if (impossible.size() > 0) {
-							    	    			InformationBox.infoBox("Æelija (" + String.valueOf(smallerCell / cols + 1) + ", " + String.valueOf(smallerCell % cols + 1) + ") ne može biti manja od æelije (" + String.valueOf(largerCell / cols + 1) + ", " + String.valueOf(largerCell % cols + 1) + ") jer bi ove æelije ostale bez moguæih vrijednosti: " + impossibleString, "Veæe-manje");
-							    	    			sizeRelationships.remove(relationship);
-				        					    }
-				        					}
-			        					}
-			        				} else {
-				    	    			InformationBox.infoBox("Æelija (" + String.valueOf(smallerCell / cols + 1) + ", " + String.valueOf(smallerCell % cols + 1) + ") nije susjedna æeliji (" + String.valueOf(largerCell / cols + 1) + ", " + String.valueOf(largerCell % cols + 1) + ").", "Veæe-manje");
-			        				}
-			        				relationshipStatus = 1;
-		        					relationshipAddButton.setText("Veæa æelija");
-		        				} else {
-			        				if (neighbourCheck(largerCell, smallerCell)) {
-			        					String relationship = String.valueOf(largerCell) + " " + String.valueOf(smallerCell);
-			        					if (!sizeRelationships.contains(relationship)) {
-					    	    			InformationBox.infoBox("Æelija (" + String.valueOf(smallerCell / cols + 1) + ", " + String.valueOf(smallerCell % cols + 1) + ") nije još manja od susjedne æelije (" + String.valueOf(largerCell / cols + 1) + ", " + String.valueOf(largerCell % cols + 1) + "), pa se odnos ne može ukloniti.", "Veæe-manje");
-			        					} else {
-				        					sizeRelationships.remove(relationship);
-			        					}
-			        				} else {
-				    	    			InformationBox.infoBox("Æelija (" + String.valueOf(smallerCell / cols + 1) + ", " + String.valueOf(smallerCell % cols + 1) + ") nije susjedna æeliji (" + String.valueOf(largerCell / cols + 1) + ", " + String.valueOf(largerCell % cols + 1) + ").", "Veæe-manje");
-			        				}
-			        				relationshipStatus = 1;
-			        				relationshipRemoveButton.setText("Veæa æelija");
-		        				}
-		        			}
-	        			}
+	        		if (mode == 7)  {
+	        			mode7(numCell);
+	        			checkBoxes();
+		        		showBoxMsg = true;
+	        			return;
+	        		} 
+	        		if (mode == 8)  {
+	        			mode8(numCell);
+	        			checkBoxes();
+		        		showBoxMsg = true;
+	        			return;
 	        		} 
 	        		if (mode == 9) {
-	        			if (!boxToAdd.contains(numCell)) {
-	        				if (sumBoxNumber[numCell] != -1) {	        				
-	        					InformationBox.infoBox("Æelija (" + String.valueOf(numCell / cols + 1) + ", " + String.valueOf(numCell % cols + 1) + ") je veæ u kutiji sa sumom " + sumBoxSums[sumBoxNumber[numCell]] + ".", "Kutija sa sumom");
-	        				} else {
-	        					boolean found = false;
-	        					if (boxToAdd.size() == 0) {
-	        						found = true;
-	        					} else {
-	        						for (int neighbourCell = 0; neighbourCell < rows * cols; neighbourCell++) {
-		        						if (neighbourCheck(numCell, neighbourCell) && boxToAdd.contains(neighbourCell)) {
-		        							found = true;
-		        							break;
-		        						}
-		        					}
-	        					}
-	        					if (found) {
-			        				boxToAdd.add(numCell);
-			        				sumBoxNumber[numCell] = numberOfNextBox;
-	        					} else {
-	    	        				InformationBox.infoBox("Æelija (" + String.valueOf(numCell / cols + 1) + ", " + String.valueOf(numCell % cols + 1) + ") nije susjedna niti jednoj æeliji u kutiji sa sumom " + sumValue.getText() +".", "Kutija sa sumom");		
-	        					}
-	        				}
-	        			} else {
-	        				InformationBox.infoBox("Æelija (" + String.valueOf(numCell / cols + 1) + ", " + String.valueOf(numCell % cols + 1) + ") je veæ u ovoj kutiji sa sumom " + sumValue.getText() + ".", "Kutija sa sumom");
-	        			}
+	        			mode9(numCell);
+	        			checkBoxes();
+		        		showBoxMsg = true;
+	        			return;
 	        		}
 	        		if (mode == 10) {
 	        			clearBox(sumBoxNumber[numCell]);
+	        			checkBoxes();
+		        		showBoxMsg = true;
+	        			return;
 	        		}
-		        	checkBoxes();
-	        		showBoxMsg = true;
 				} catch (Exception e1) {
 
 				}
@@ -290,6 +322,91 @@ public class ChangeBoxBorder extends SudokuGrid {
 	    frame.add(radio);
 	    y += h / 2 + space;
 	    return radio;
+	}
+	
+	public void initSudokuType() {
+		if (diagonalOn) {
+	    	diagonalButton.setText("X-sudoku");
+	    } else {
+	    	diagonalButton.setText("Bez dijagonale");
+	    }
+	    if (wrapAround) {
+	    	wrapAroundButton.setText("Toroidalni sudoku");
+	    } else {
+	    	wrapAroundButton.setText("Klasiène kutije");
+	    }
+	}
+	
+	public void changeDifficulty(JTextField mini, JTextField maksi) {
+		if (checkBoxes()) {
+      		if (Integer.parseInt(mini.getText()) < 200) {
+				InformationBox.infoBox("Težina ne može biti manja od 200 (dva uklonjena polja).", "Neispravan raspon težine");
+				mini.setText("200");
+				return;
+			}
+      		if (Integer.parseInt(maksi.getText()) < 200) {
+  				InformationBox.infoBox("Težina ne može biti manja od 200 (dva uklonjena polja).", "Neispravan raspon težine");
+  				maksi.setText("200");
+  				return;
+  			}
+  			if (Integer.parseInt(mini.getText()) > Integer.parseInt(maksi.getText())) {
+  				InformationBox.infoBox("Maksimalna težina ne može biti manja od minimalne težine.", "Neispravan raspon težine");
+  				maksi.setText(mini.getText());
+  				return;
+  			}
+			@SuppressWarnings("unused")
+			SolveSudoku solveSudoku = new SolveSudoku(rows, cols, xLim, yLim, border, boxNumber, diagonalOn, wrapAround, sizeRelationships, Integer.parseInt(mini.getText()), Integer.parseInt(maksi.getText()), true,  sumBoxSums, sumBoxNumber);
+		}
+	}
+	
+	public void changeSize(JTextField row, JTextField col, JTextField xLimVal, JTextField yLimVal) {
+		if (Integer.parseInt(row.getText()) < 4) {
+				InformationBox.infoBox("Najmanji broj redova u zagonetki je 4.", "Stvaranje zagonetke");
+			row.setText("4");
+			col.setText("4");
+			xLimVal.setText("2");
+			yLimVal.setText("2");
+			return;
+		}
+  		if (Integer.parseInt(row.getText()) > 25) {
+				InformationBox.infoBox("Najveæi broj redova u zagonetki je 25.", "Stvaranje zagonetke");
+			row.setText("25");
+			col.setText("25");
+			xLimVal.setText("5");
+			yLimVal.setText("5");
+			return;
+		}
+  		col.setText(row.getText());
+  		if (Integer.parseInt(row.getText()) % Integer.parseInt(xLimVal.getText()) != 0) {
+  			InformationBox.infoBox("Broj redaka mreže mora biti djeljiv brojem redaka kutije.", "Stvaranje zagonetke");
+  			int xLimitNew = 1;
+				for (int xLimitPossible = 2; xLimitPossible <= Integer.parseInt(row.getText()); xLimitPossible++) {
+					double differenceCurrent = Math.abs(Math.sqrt(Integer.parseInt(row.getText())) - xLimitNew);
+					double differenceNew = Math.abs(Math.sqrt(Integer.parseInt(row.getText())) - xLimitPossible);
+					if (Integer.parseInt(row.getText()) % xLimitPossible == 0 && differenceCurrent > differenceNew) {
+						xLimitNew = xLimitPossible;
+					}
+				}
+				xLimVal.setText(String.valueOf(xLimitNew));
+				return;
+			}
+		yLimVal.setText(String.valueOf(Integer.parseInt(row.getText()) / Integer.parseInt(xLimVal.getText())));
+
+		int pr = Integer.parseInt(row.getText());
+		int pc = Integer.parseInt(col.getText());
+		int yl = Integer.parseInt(yLimVal.getText());
+		int xl = Integer.parseInt(xLimVal.getText());
+
+		rows = pr;
+		cols = pc;
+		xLim = yl;
+		yLim = xl;
+	    frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
+	    frame.removeAll();
+	    frame.dispose();
+	    frame.setVisible(false);
+		@SuppressWarnings("unused")
+		ChangeBoxBorder changeBoxBorder = new ChangeBoxBorder(pr, pc, yl, xl, true);
 	}
 	
 	@Override
@@ -390,54 +507,7 @@ public class ChangeBoxBorder extends SudokuGrid {
 	 	makeAButton("Nove dimenzije", x, y, w, h, new ActionListener(){  
 	        public void actionPerformed(ActionEvent e) {  
 	        	try {
-		      		if (Integer.parseInt(row.getText()) < 4) {
-		  				InformationBox.infoBox("Najmanji broj redova u zagonetki je 4.", "Stvaranje zagonetke");
-	    				row.setText("4");
-	    				col.setText("4");
-	    				xLimVal.setText("2");
-	    				yLimVal.setText("2");
-	    				return;
-	    			}
-		      		if (Integer.parseInt(row.getText()) > 25) {
-		  				InformationBox.infoBox("Najveæi broj redova u zagonetki je 25.", "Stvaranje zagonetke");
-	    				row.setText("25");
-	    				col.setText("25");
-	    				xLimVal.setText("5");
-	    				yLimVal.setText("5");
-	    				return;
-	    			}
-		      		col.setText(row.getText());
-		      		if (Integer.parseInt(row.getText()) % Integer.parseInt(xLimVal.getText()) != 0) {
-		      			InformationBox.infoBox("Broj redaka mreže mora biti djeljiv brojem redaka kutije.", "Stvaranje zagonetke");
-		      			int xLimitNew = 1;
-	  					for (int xLimitPossible = 2; xLimitPossible <= Integer.parseInt(row.getText()); xLimitPossible++) {
-	  						double differenceCurrent = Math.abs(Math.sqrt(Integer.parseInt(row.getText())) - xLimitNew);
-	  						double differenceNew = Math.abs(Math.sqrt(Integer.parseInt(row.getText())) - xLimitPossible);
-	  						if (Integer.parseInt(row.getText()) % xLimitPossible == 0 && differenceCurrent > differenceNew) {
-	  							xLimitNew = xLimitPossible;
-	  						}
-	  					}
-	  					xLimVal.setText(String.valueOf(xLimitNew));
-		  				return;
-		  			}
-					yLimVal.setText(String.valueOf(Integer.parseInt(row.getText()) / Integer.parseInt(xLimVal.getText())));
-
-	        		int pr = Integer.parseInt(row.getText());
-	        		int pc = Integer.parseInt(col.getText());
-	        		int yl = Integer.parseInt(yLimVal.getText());
-	        		int xl = Integer.parseInt(xLimVal.getText());
-
-        			rows = pr;
-        			cols = pc;
-        			xLim = yl;
-        			yLim = xl;
-        		    frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
-        		    frame.removeAll();
-        		    frame.dispose();
-        		    frame.setVisible(false);
-	        		@SuppressWarnings("unused")
-					ChangeBoxBorder changeBoxBorder = new ChangeBoxBorder(pr, pc, yl, xl, true);
-
+		      		changeSize(row, col, xLimVal, yLimVal);
 				} catch (Exception e1) {
 
 				}
@@ -486,26 +556,7 @@ public class ChangeBoxBorder extends SudokuGrid {
 	    makeAButton("Riješi nasumièno", x, y, w, h, new ActionListener(){  
 	        public void actionPerformed(ActionEvent e) {  
 	        	try {
-	        		if (checkBoxes()) {
-	    	      		if (Integer.parseInt(mini.getText()) < 200) {
-	        				InformationBox.infoBox("Težina ne može biti manja od 200 (dva uklonjena polja).", "Neispravan raspon težine");
-	        				mini.setText("200");
-	        				return;
-	        			}
-	    	      		if (Integer.parseInt(maksi.getText()) < 200) {
-	    	  				InformationBox.infoBox("Težina ne može biti manja od 200 (dva uklonjena polja).", "Neispravan raspon težine");
-	    	  				maksi.setText("200");
-	    	  				return;
-	    	  			}
-	    	  			if (Integer.parseInt(mini.getText()) > Integer.parseInt(maksi.getText())) {
-	    	  				InformationBox.infoBox("Maksimalna težina ne može biti manja od minimalne težine.", "Neispravan raspon težine");
-	    	  				maksi.setText(mini.getText());
-	    	  				return;
-	    	  			}
-	        			@SuppressWarnings("unused")
-						SolveSudoku solveSudoku = new SolveSudoku(rows, cols, xLim, yLim, border, boxNumber, diagonalOn, wrapAround, sizeRelationships, Integer.parseInt(mini.getText()), Integer.parseInt(maksi.getText()), true,  sumBoxSums, sumBoxNumber);
-	        		}
-		    
+	        		changeDifficulty(mini, maksi);
 				} catch (Exception e1) {
 
 				}
@@ -523,16 +574,7 @@ public class ChangeBoxBorder extends SudokuGrid {
 	        		@SuppressWarnings("unused")
 	        		SolveSudoku SolveSudoku = new SolveSudoku(rows, cols, xLim, yLim, border, boxNumber, diagonalOn, wrapAround, sizeRelationships, userInput, true,  sumBoxSums, sumBoxNumber);
 	        		checkBoxes();
-	        		if (diagonalOn) {
-	        	    	diagonalButton.setText("X-sudoku");
-	        	    } else {
-	        	    	diagonalButton.setText("Bez dijagonale");
-	        	    }
-	        	    if (wrapAround) {
-	        	    	wrapAroundButton.setText("Toroidalni sudoku");
-	        	    } else {
-	        	    	wrapAroundButton.setText("Klasiène kutije");
-	        	    }
+	        		initSudokuType();
 	        	} catch (Exception e1) {
 
 				}
@@ -563,16 +605,7 @@ public class ChangeBoxBorder extends SudokuGrid {
         			@SuppressWarnings("unused")
         			CreateSudoku createSudoku = new CreateSudoku(rows, cols, xLim, yLim, border, boxNumber, diagonalOn, wrapAround, sizeRelationships, userInput, lastUsedPath,  sumBoxSums, sumBoxNumber);
         			checkBoxes();
-	        		if (diagonalOn) {
-	        	    	diagonalButton.setText("X-sudoku");
-	        	    } else {
-	        	    	diagonalButton.setText("Bez dijagonale");
-	        	    }
-	        	    if (wrapAround) {
-	        	    	wrapAroundButton.setText("Toroidalni sudoku");
-	        	    } else {
-	        	    	wrapAroundButton.setText("Klasiène kutije");
-	        	    } 
+	        		initSudokuType();
 	        	} catch (Exception e1) {
 
 				}
@@ -614,16 +647,7 @@ public class ChangeBoxBorder extends SudokuGrid {
 	        			return;
 	        		}
 	        		checkBoxes();
-	        		if (diagonalOn) {
-	        	    	diagonalButton.setText("X-sudoku");
-	        	    } else {
-	        	    	diagonalButton.setText("Bez dijagonale");
-	        	    }
-	        	    if (wrapAround) {
-	        	    	wrapAroundButton.setText("Toroidalni sudoku");
-	        	    } else {
-	        	    	wrapAroundButton.setText("Klasiène kutije");
-	        	    }
+	        		initSudokuType();
 	        	} catch (Exception e1) {
 
 				}
@@ -702,56 +726,34 @@ public class ChangeBoxBorder extends SudokuGrid {
         y = space;
 
 
-        diagonalButton = makeAButton("", x, y, w, h, new ActionListener(){  
+        diagonalButton = makeAButton("Bez dijagonale", x, y, w, h, new ActionListener(){  
 	        public void actionPerformed(ActionEvent e) {  
 	        	try {
-	        	    if (diagonalOn) {
-	        	    	diagonalOn = false;
-	        	    	diagonalButton.setText("Bez dijagonale");
-	        	    } else {
-	        	    	diagonalOn = true;
-	        	    	diagonalButton.setText("X-sudoku");
-	        	    }
+	        		diagonalOn = !diagonalOn;
+	        		initSudokuType();
 	        	    checkBoxes();
 	        	} catch (Exception e1) {
 
 				}
 	        }  
 	    }); 
-	    if (diagonalOn) {
-	    	diagonalButton.setText("X-sudoku");
-	    } else {
-	    	diagonalButton.setText("Bez dijagonale");
-	    }
-        
 	    y += h + space;
 	    
-	    wrapAroundButton = makeAButton("", x, y, w, h, new ActionListener(){  
+	    wrapAroundButton = makeAButton("Klasiène kutije", x, y, w, h, new ActionListener(){  
 	        public void actionPerformed(ActionEvent e) {  
 	        	try {
-	        	    if (wrapAround) {
-	        	    	wrapAround = false;
-	        	    	wrapAroundButton.setText("Klasiène kutije");
-	        	    } else {
-	        	    	wrapAround = true;
-	        	    	wrapAroundButton.setText("Toroidalni sudoku");
-	        	    }
+	        		wrapAround = !wrapAround;
+	        		initSudokuType();
 	        	    checkBoxes();
 	        	} catch (Exception e1) {
 
 				}
 	        }  
 	    }); 
-	    if (wrapAround) {
-	    	wrapAroundButton.setText("Toroidalni sudoku");
-	    } else {
-	    	wrapAroundButton.setText("Klasiène kutije");
-	    }
-        
 	    y += h + space;
 	    
 	    
-	    relationshipAddButton = makeAButton("", x, y, w, h, new ActionListener(){  
+	    relationshipAddButton = makeAButton("Dodaj odnos >", x, y, w, h, new ActionListener(){  
 	        public void actionPerformed(ActionEvent e) {  
 	        	try {
         	    	relationshipStatus = 1;
@@ -764,22 +766,10 @@ public class ChangeBoxBorder extends SudokuGrid {
 
 				}
 	        }  
-	    }); 
-	    
-	    if (relationshipStatus == 0) {
-	    	relationshipAddButton.setText("Dodaj odnos >");
-	    }
-	    if (relationshipStatus == 1) {
-	    	relationshipAddButton.setText("Veæa æelija");
-	    }
-	    if (relationshipStatus == 2) {
-	    	relationshipAddButton.setText("Manja æelija");
-	    }
-
-
+	    });
 	    y += h + space;
 	    
-	    relationshipRemoveButton = makeAButton("", x, y, w, h, new ActionListener(){  
+	    relationshipRemoveButton = makeAButton("Ukloni odnos >", x, y, w, h, new ActionListener(){  
 	        public void actionPerformed(ActionEvent e) {  
 	        	try {
         	    	relationshipStatus = 1;
@@ -793,17 +783,6 @@ public class ChangeBoxBorder extends SudokuGrid {
 				}
 	        }  
 	    }); 
-	    
-        if (relationshipStatus == 0) {
-	    	relationshipRemoveButton.setText("Ukloni odnos >");
-	    }
-	    if (relationshipStatus == 1) {
-	    	relationshipRemoveButton.setText("Veæa æelija");
-	    }
-	    if (relationshipStatus == 2) {
-	    	relationshipRemoveButton.setText("Manja æelija");
-	    }
-
         x += w + 2 * space;
 
 	    frame.setSize(Math.max(Math.max(widthOne, widthTwo), x), Math.max(digitEnd, buttonEnd) + (int) (40 * heightScaling));  
