@@ -280,6 +280,78 @@ public class CreateSudoku extends Sudoku {
 	    };
     }
     
+    public boolean checkRowToSwap(JTextField val1Value, JTextField val2Value) {
+    	if (Integer.parseInt(val1Value.getText()) == Integer.parseInt(val2Value.getText())) {
+			InformationBox.infoBox("Ne možete zamjeniti red " + val1Value.getText() + " sa samim sobom.", "Zamjena redova");
+			return false;
+		}
+		if (Integer.parseInt(val1Value.getText()) > rows) {
+			InformationBox.infoBox("Prvi red je veæi od broja stupaca.", "Zamjena redova");
+			return false;
+		}
+		if (Integer.parseInt(val2Value.getText()) > rows) {
+			InformationBox.infoBox("Drugi red je veæi od broja stupaca.", "Zamjena redova");
+			return false;
+		}
+		if (Integer.parseInt(val1Value.getText()) < 1) {
+			InformationBox.infoBox("Prvi red je manji ili jednak 0.", "Zamjena redova");
+			return false;
+		}
+		if (Integer.parseInt(val2Value.getText()) < 1) {
+			InformationBox.infoBox("Drugi red je manji ili jednak 0.", "Zamjena redova");
+			return false;
+		}
+		return true;
+    }
+    
+    public boolean checkColToSwap(JTextField val1Value, JTextField val2Value) {
+		if (Integer.parseInt(val1Value.getText()) == Integer.parseInt(val2Value.getText())) {
+			InformationBox.infoBox("Ne možete zamjeniti stupac " + val1Value.getText() + " sa samim sobom.", "Zamjena stupaca");
+			return false;
+		}
+		if (Integer.parseInt(val1Value.getText()) > cols) {
+			InformationBox.infoBox("Prvi stupac je veæi od broja stupaca.", "Zamjena stupaca");
+			return false;
+		}
+		if (Integer.parseInt(val2Value.getText()) > cols) {
+			InformationBox.infoBox("Drugi stupac je veæi od broja stupaca.", "Zamjena stupaca");
+			return false;
+		}
+		if (Integer.parseInt(val1Value.getText()) < 1) {
+			InformationBox.infoBox("Prvi stupac je manji ili jednak 0.", "Zamjena stupaca");
+			return false;
+		}
+		if (Integer.parseInt(val2Value.getText()) < 1) {
+			InformationBox.infoBox("Drugi stupac je manji ili jednak 0.", "Zamjena stupaca");
+			return false;
+		}
+		return true;
+    }
+    
+    public boolean checkValToSwap(JTextField val1Value, JTextField val2Value) {
+    	if (Integer.parseInt(val1Value.getText()) == Integer.parseInt(val2Value.getText())) {
+			InformationBox.infoBox("Ne možete zamjeniti vrijednost " + val1Value.getText() + " sa samom sobom.", "Zamjena vrijednosti");
+			return false;
+		}
+		if (Integer.parseInt(val1Value.getText()) > cols) {
+			InformationBox.infoBox("Prva vrijednost je veæa od broja vrijednosti.", "Zamjena vrijednosti");
+			return false;
+		}
+		if (Integer.parseInt(val2Value.getText()) > cols) {
+			InformationBox.infoBox("Druga vrijednost je veæa od broja vrijednosti.", "Zamjena vrijednosti");
+			return false;
+		}
+		if (Integer.parseInt(val1Value.getText()) < 1) {
+			InformationBox.infoBox("Prva vrijednost je manja ili jednaka 0.", "Zamjena vrijednosti");
+			return false;
+		}
+		if (Integer.parseInt(val2Value.getText()) < 1) {
+			InformationBox.infoBox("Druga vrijednost je manja ili jednaka 0.", "Zamjena vrijednosti");
+			return false;
+		}
+		return true;
+    }
+    
 	@Override
 	public void draw () 
     {
@@ -361,6 +433,10 @@ public class CreateSudoku extends Sudoku {
 	 	makeAButton("Nasumièmo nadopuni", x, y, w, h, new ActionListener(){  
 	        public void actionPerformed(ActionEvent e) {  
 		        	try {
+		        		if (cols > 12) {
+		        		    InformationBox.infoBox("Nije moguæe stvoriti nasumiènu zagonetku veæu od 12x12.", "Prevelika zagonetka");
+		        		    return;
+		        		}
 		        		showSteps = false;
 		        	    useGuessing = true;
 		        		isOnlyOneSolution();
@@ -489,7 +565,7 @@ public class CreateSudoku extends Sudoku {
 		val1Label.setBounds(x, y, w, h);
 	    frame.add(val1Label);
 	    
-	    JTextField val1Value = new JTextField(String.valueOf(rows));
+	    JTextField val1Value = new JTextField(String.valueOf(1));
 	    val1Value.setFont(new Font("Arial", Font.PLAIN, fontsize));
 	    val1Value.setBounds(x + w / 2 - h - space, y, h, h);
 	    frame.add(val1Value);
@@ -508,31 +584,13 @@ public class CreateSudoku extends Sudoku {
 	    JButton rowSwap = makeAButton("", x, y, h, h, new ActionListener(){  
 	        public void actionPerformed(ActionEvent e) {  
 		        	try {
-						if (Integer.parseInt(val1Value.getText()) == Integer.parseInt(val2Value.getText())) {
-							InformationBox.infoBox("Ne možete zamjeniti red " + val1Value.getText() + " sa samim sobom.", "Zamjena redova");
-							return;
-						}
-						if (Integer.parseInt(val1Value.getText()) > rows) {
-							InformationBox.infoBox("Prvi red je veæi od broja stupaca.", "Zamjena redova");
-							return;
-						}
-						if (Integer.parseInt(val2Value.getText()) > rows) {
-							InformationBox.infoBox("Drugi red je veæi od broja stupaca.", "Zamjena redova");
-							return;
-						}
-						if (Integer.parseInt(val1Value.getText()) < 1) {
-							InformationBox.infoBox("Prvi red je manji ili jednak 0.", "Zamjena redova");
-							return;
-						}
-						if (Integer.parseInt(val2Value.getText()) < 1) {
-							InformationBox.infoBox("Drugi red je manji ili jednak 0.", "Zamjena redova");
-							return;
-						}
+						if (checkRowToSwap(val1Value, val2Value)) {
 						swapRow(Integer.parseInt(val1Value.getText()) - 1, Integer.parseInt(val2Value.getText()) - 1);
-		        	    assume();
-		        	    checkIfCorrect();
-		        	    resetHighlight();
-		        	    highlightDigit();
+			        	    assume();
+			        	    checkIfCorrect();
+			        	    resetHighlight();
+			        	    highlightDigit();
+						}
 					} catch (Exception e1) {
 						
 					}
@@ -542,31 +600,13 @@ public class CreateSudoku extends Sudoku {
 		JButton colSwap = makeAButton("", x + h + space, y , h, h, new ActionListener(){  
 	        public void actionPerformed(ActionEvent e) {  
 		        	try {
-						if (Integer.parseInt(val1Value.getText()) == Integer.parseInt(val2Value.getText())) {
-							InformationBox.infoBox("Ne možete zamjeniti stupac " + val1Value.getText() + " sa samim sobom.", "Zamjena stupaca");
-							return;
+						if (checkColToSwap(val1Value, val2Value)) {
+							swapCol(Integer.parseInt(val1Value.getText()) - 1, Integer.parseInt(val2Value.getText()) - 1);
+			        	    assume();
+			        	    checkIfCorrect();
+			        	    resetHighlight();
+			        	    highlightDigit();
 						}
-						if (Integer.parseInt(val1Value.getText()) > cols) {
-							InformationBox.infoBox("Prvi stupac je veæi od broja stupaca.", "Zamjena stupaca");
-							return;
-						}
-						if (Integer.parseInt(val2Value.getText()) > cols) {
-							InformationBox.infoBox("Drugi stupac je veæi od broja stupaca.", "Zamjena stupaca");
-							return;
-						}
-						if (Integer.parseInt(val1Value.getText()) < 1) {
-							InformationBox.infoBox("Prvi stupac je manji ili jednak 0.", "Zamjena stupaca");
-							return;
-						}
-						if (Integer.parseInt(val2Value.getText()) < 1) {
-							InformationBox.infoBox("Drugi stupac je manji ili jednak 0.", "Zamjena stupaca");
-							return;
-						}
-						swapCol(Integer.parseInt(val1Value.getText()) - 1, Integer.parseInt(val2Value.getText()) - 1);
-		        	    assume();
-		        	    checkIfCorrect();
-		        	    resetHighlight();
-		        	    highlightDigit();
 					} catch (Exception e1) {
 		
 		
@@ -577,31 +617,13 @@ public class CreateSudoku extends Sudoku {
 		JButton valSwap = makeAButton("", x + 2 * h + 2 * space, y, h, h, new ActionListener(){  
 	        public void actionPerformed(ActionEvent e) {  
 		        	try {
-						if (Integer.parseInt(val1Value.getText()) == Integer.parseInt(val2Value.getText())) {
-							InformationBox.infoBox("Ne možete zamjeniti vrijednost " + val1Value.getText() + " sa samom sobom.", "Zamjena vrijednosti");
-							return;
+						if (checkValToSwap(val1Value, val2Value)) {
+							swapNumbers(Integer.parseInt(val1Value.getText()), Integer.parseInt(val2Value.getText()));
+			        	    assume();
+			        	    checkIfCorrect();
+			        	    resetHighlight();
+			        	    highlightDigit();
 						}
-						if (Integer.parseInt(val1Value.getText()) > cols) {
-							InformationBox.infoBox("Prva vrijednost je veæa od broja vrijednosti.", "Zamjena vrijednosti");
-							return;
-						}
-						if (Integer.parseInt(val2Value.getText()) > cols) {
-							InformationBox.infoBox("Druga vrijednost je veæa od broja vrijednosti.", "Zamjena vrijednosti");
-							return;
-						}
-						if (Integer.parseInt(val1Value.getText()) < 1) {
-							InformationBox.infoBox("Prva vrijednost je manja ili jednaka 0.", "Zamjena vrijednosti");
-							return;
-						}
-						if (Integer.parseInt(val2Value.getText()) < 1) {
-							InformationBox.infoBox("Druga vrijednost je manja ili jednaka 0.", "Zamjena vrijednosti");
-							return;
-						}
-						swapNumbers(Integer.parseInt(val1Value.getText()), Integer.parseInt(val2Value.getText()));
-		        	    assume();
-		        	    checkIfCorrect();
-		        	    resetHighlight();
-		        	    highlightDigit();
 					} catch (Exception e1) {
 		
 		

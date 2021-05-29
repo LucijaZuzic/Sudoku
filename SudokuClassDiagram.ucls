@@ -66,7 +66,7 @@
   </class>  
   <class id="8" language="java" name="SudokuGrid" project="Sudoku" file="/Sudoku/src/SudokuGrid.java" binary="false" 
     corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="1154" y="702"/>    
+    <position height="-1" width="-1" x="1158" y="761"/>    
     <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
       sort-features="false" accessors="true" visibility="true">      
       <attributes public="true" package="true" protected="true" private="true" static="true"/>      
@@ -74,32 +74,32 @@
     </display>  
   </class>  
   <generalization id="9">    
-    <end type="SOURCE" refId="1"/>    
-    <end type="TARGET" refId="8"/>  
-  </generalization>  
-  <generalization id="10">    
     <end type="SOURCE" refId="3"/>    
     <end type="TARGET" refId="7"/>  
   </generalization>  
-  <association id="11">    
+  <generalization id="10">    
+    <end type="SOURCE" refId="6"/>    
+    <end type="TARGET" refId="7"/>  
+  </generalization>  
+  <generalization id="11">    
+    <end type="SOURCE" refId="1"/>    
+    <end type="TARGET" refId="8"/>  
+  </generalization>  
+  <association id="12">    
     <end type="SOURCE" refId="5" navigable="false">      
-      <attribute id="12" name="solveSudoku">        
+      <attribute id="13" name="solveSudoku">        
         <position height="0" width="0" x="-118" y="-123"/>      
       </attribute>      
-      <multiplicity id="13" minimum="0" maximum="1">        
+      <multiplicity id="14" minimum="0" maximum="1">        
         <position height="0" width="0" x="-118" y="-123"/>      
       </multiplicity>    
     </end>    
     <end type="TARGET" refId="6" navigable="true"/>    
     <display labels="true" multiplicity="true"/>  
   </association>  
-  <generalization id="14">    
+  <generalization id="15">    
     <end type="SOURCE" refId="7"/>    
     <end type="TARGET" refId="8"/>  
-  </generalization>  
-  <generalization id="15">    
-    <end type="SOURCE" refId="6"/>    
-    <end type="TARGET" refId="7"/>  
   </generalization>  
   <classifier-display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
     sort-features="false" accessors="true" visibility="true">    
