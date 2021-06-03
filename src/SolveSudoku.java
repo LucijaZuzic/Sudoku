@@ -634,15 +634,39 @@ public class SolveSudoku extends Sudoku {
 	        			showSteps = true;
 		        		resetHighlight();
 		        		String oldDifficultyText = difficulty.getText();
+		        		int [] oldUserInput = new int[rows * cols];
 		        	    for (int rowAll = 0; rowAll < rows; rowAll++){ 
 		        	    	for (int colAll = 0; colAll < cols; colAll++) {
 		        	    		int newCell = rowAll * cols + colAll;
-		        	    		userInput[newCell] = backup[newCell];
+		        	    		oldUserInput[newCell] = userInput[newCell] ;
+		        	    		if (userInput[newCell] != result[newCell] && userInput[newCell] != 0) {
+		        	    			userInput[newCell] = 0;
+		        	    		} 
 		        	    	}	
 		        	    }
 		        	    checkBoxes();
 		        		isOnlyOneSolution();
-		        		markHint(numCell);
+		        	    for (int rowAll = 0; rowAll < rows; rowAll++){ 
+		        	    	for (int colAll = 0; colAll < cols; colAll++) {
+		        	    		int newCell = rowAll * cols + colAll;
+		        	    		if (oldUserInput[newCell] != userInput[newCell]) {
+		        	    			for (int val = 0; val < cols; val++) {
+		        	    				options[newCell][val] = 0;
+		        	    			}
+		        	    			options[newCell][oldUserInput[newCell] - 1] = 1;
+		        	    			userInput[newCell] = oldUserInput[newCell];
+		    		        		field[newCell].setFont(new Font("Arial", Font.PLAIN, numberFontsize));
+	    		    	    		if (selectedDigit < 10) {
+	    		    	    			field[newCell].setText(String.valueOf(userInput[newCell]));
+	    		    	    		} else {
+	    		    	    			char c = 'A';
+	    		    	    			c += userInput[newCell] - 10;
+	    		    	    			field[newCell].setText("" + c);
+	    		    	    		}
+		        	    		}
+		        	    	}	
+		        	    }
+	        			markHint(numCell);
 		        		difficulty.setText(oldDifficultyText);
 		        	    instructionArea.setText(solvingInstructions);
 		        		showSteps = false;
@@ -767,14 +791,38 @@ public class SolveSudoku extends Sudoku {
 		        		showSteps = true;
 		        		resetHighlight();
 		        		String oldDifficultyText = difficulty.getText();
-		        	    for (int row = 0; row < rows; row++){ 
-		        	    	for (int col = 0; col < cols; col++) {
-		        	    		int numCell = row * cols + col;
-		        	    		userInput[numCell] = backup[numCell];
+		        		int [] oldUserInput = new int[rows * cols];
+		        	    for (int rowAll = 0; rowAll < rows; rowAll++){ 
+		        	    	for (int colAll = 0; colAll < cols; colAll++) {
+		        	    		int newCell = rowAll * cols + colAll;
+		        	    		oldUserInput[newCell] = userInput[newCell] ;
+		        	    		if (userInput[newCell] != result[newCell] && userInput[newCell] != 0) {
+		        	    			userInput[newCell] = 0;
+		        	    		} 
 		        	    	}	
 		        	    }
 		        	    checkBoxes();
 		        		isOnlyOneSolution();
+		        	    for (int rowAll = 0; rowAll < rows; rowAll++){ 
+		        	    	for (int colAll = 0; colAll < cols; colAll++) {
+		        	    		int newCell = rowAll * cols + colAll;
+		        	    		if (oldUserInput[newCell] != userInput[newCell]) {
+		        	    			for (int val = 0; val < cols; val++) {
+		        	    				options[newCell][val] = 0;
+		        	    			}
+		        	    			options[newCell][oldUserInput[newCell] - 1] = 1;
+		        	    			userInput[newCell] = oldUserInput[newCell];
+		    		        		field[newCell].setFont(new Font("Arial", Font.PLAIN, numberFontsize));
+	    		    	    		if (selectedDigit < 10) {
+	    		    	    			field[newCell].setText(String.valueOf(userInput[newCell]));
+	    		    	    		} else {
+	    		    	    			char c = 'A';
+	    		    	    			c += userInput[newCell] - 10;
+	    		    	    			field[newCell].setText("" + c);
+	    		    	    		}
+		        	    		}
+		        	    	}	
+		        	    }
 		        	    for (int row = 0; row < rows; row++){ 
 		        	    	for (int col = 0; col < cols; col++) {
 		        	    		int numCell = row * cols + col;
