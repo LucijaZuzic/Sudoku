@@ -18,8 +18,14 @@ public class CreateSudoku extends Sudoku {
 	    	for (int col = 0; col < cols; col++) {
     			setBackground(row, col, returnColour(row * cols + col));
 	    		field[row * cols + col].setFont(field[row * cols + col].getFont().deriveFont(~Font.BOLD | ~Font.ITALIC));
+	    		if (userInput[row * cols + col] == 0) {
+	    			setAllOptions(possibilities, row, col, false);
+	    		}
 	    	}
 	    }
+		for (int col = 0; col < cols + 1; col++) {
+			digitButtons[col].setBackground(Color.WHITE);
+		}
 	}
 	
 	public void highlightCell(int numCell) {
