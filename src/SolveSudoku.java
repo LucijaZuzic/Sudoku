@@ -835,6 +835,7 @@ public class SolveSudoku extends Sudoku {
 		        	    instructionArea.setText(solvingInstructions);
 		        		showSteps = false;
 		        		stopAfterOneStep = false;
+		        		checkIfCorrect();
 		        	} catch (Exception e1) {
 		
 					}
