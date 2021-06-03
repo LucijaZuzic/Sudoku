@@ -41,8 +41,14 @@ public class SolveSudoku extends Sudoku {
 	    			setBackground(row, col, returnColour(row * cols + col));
 	    		}	
 	    		field[row * cols + col].setFont(field[row * cols + col].getFont().deriveFont(~Font.BOLD | ~Font.ITALIC));
+				if (userInput[row * cols + col] == 0 && backup[row * cols + col] == 0) {
+	    			setAllOptions(options, row, col, false);
+	    		}
 	    	}
 	    }
+		for (int col = 0; col < cols + 1; col++) {
+			digitButtons[col].setBackground(Color.WHITE);
+		}
 	}
 	
 	public SolveSudoku(int constructRows, int constructCols, int rowLimit, int colLimit, int[] constructBorder, int[] constructBoxNumber, boolean setDiagonalOn, boolean setWrapAorund, Set<String> setSizeRelationships, int constructMinDifficulty, int constructMaxDifficulty, boolean askUser, int[] constructSumBoxSums, int[] constructSumBoxNumbers) {
