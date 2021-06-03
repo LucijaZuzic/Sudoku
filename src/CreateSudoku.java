@@ -551,7 +551,7 @@ public class CreateSudoku extends Sudoku {
 		            		return;
 		            	}
 	        			@SuppressWarnings("unused")
-						SolveSudoku SolveSudoku = new SolveSudoku(rows, cols, xLim, yLim, border, boxNumber, diagonalOn, wrapAround, sizeRelationships, userInput, true, sumBoxSums, sumBoxNumber);
+						SolveSudoku SolveSudoku = new SolveSudoku(rows, cols, xLim, yLim, border, boxNumber, diagonalOn, wrapAround, sizeRelationships, userInput, true, sumBoxSums, sumBoxNumber, lastUsedPath);
 					} catch (Exception e1) {
 		
 		

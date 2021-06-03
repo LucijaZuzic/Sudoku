@@ -180,7 +180,7 @@ public class SolveSudoku extends Sudoku {
 	    frame.requestFocus();
 	}
 	
-	public SolveSudoku(int constructRows, int constructCols, int rowLimit, int colLimit, int[] constructBorder, int[] constructBoxNumber, boolean setDiagonalOn, boolean setWrapAround, Set<String> setSizeRelationships, int[] constructUserInput, boolean askUser, int[] constructSumBoxSums, int[] constructSumBoxNumbers) {
+	public SolveSudoku(int constructRows, int constructCols, int rowLimit, int colLimit, int[] constructBorder, int[] constructBoxNumber, boolean setDiagonalOn, boolean setWrapAround, Set<String> setSizeRelationships, int[] constructUserInput, boolean askUser, int[] constructSumBoxSums, int[] constructSumBoxNumbers, String constructLastUsedPath) {
 		super(constructRows, constructCols, rowLimit, colLimit, setDiagonalOn, setWrapAround, setSizeRelationships);
 		if (askUser) {
 			errorWarn = InformationBox.yesNoBox("Želite li da se prikazuju greške?", "Prikaži greške");
@@ -195,6 +195,7 @@ public class SolveSudoku extends Sudoku {
 				mode = 0;
 			}
 		}
+		lastUsedPath = constructLastUsedPath;
 		border = constructBorder;
 		boxNumber = constructBoxNumber;
 		sumBoxSums = constructSumBoxSums;
@@ -893,6 +894,33 @@ public class SolveSudoku extends Sudoku {
     		errorWarnButton.setText("Ne upozori na greške");
 		}
 
+		y += h + space;
+	 	makeAButton("Spremi zagonetku", x, y, w, h, new ActionListener(){  
+	        public void actionPerformed(ActionEvent e) {  
+		        	try {
+		        		int[] oldUserInput = new int[rows*cols];
+		        	    for (int row = 0; row < rows; row++){ 
+		        	    	for (int col = 0; col < cols; col++) {
+		        	    		int numCell = row * cols + col;
+		        	    		oldUserInput[numCell] = userInput[numCell];
+		        	    		userInput[numCell] = backup[numCell];
+		        	    		if (oldHints.contains(numCell)) {
+		        	    			userInput[numCell] = 0;
+		        	    		}
+		        	    	}	
+		        	    }
+		        		writeToFile("");
+		        	    for (int row = 0; row < rows; row++){ 
+		        	    	for (int col = 0; col < cols; col++) {
+		        	    		int numCell = row * cols + col;
+		        	    		userInput[numCell] = oldUserInput[numCell];
+		        	    	}	
+		        	    }
+		        	} catch (Exception e1) {
+		
+					}
+		        }  
+		    });
 		y += h + space;
 		addZoomBox(x, y, w, w);
 

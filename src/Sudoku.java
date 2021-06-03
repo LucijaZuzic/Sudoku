@@ -3877,6 +3877,13 @@ public abstract class Sudoku extends SudokuGrid {
 			    		}	
 		    			// Dodajemo novi red u tekst uputa
 						solvingInstructions += lineSolvInstr + ".\n";
+						if (showSteps == true) {
+			    		    instructionArea.setText(solvingInstructions);
+	    		    		print();
+	    	    			if (!InformationBox.stepBox(lineSolvInstr, "Rješavaè")) {
+	    	    				showSteps = false;
+	    	    			}
+			    		}
 		    		} else {
 		    			return 0;
 		    		}
